@@ -1,0 +1,2298 @@
+{
+  "Local": {
+    "Alabama": {
+      "n": 1,
+      "avg_low": 1200,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Walmart - Opelika, AL"
+      ]
+    },
+    "Arizona": {
+      "n": 1,
+      "avg_low": 1600,
+      "avg_high": 1600,
+      "max_high": 1600,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Dollar Tree LOCAL - Phoenix, AZ"
+      ]
+    },
+    "California": {
+      "n": 5,
+      "avg_low": 1380,
+      "avg_high": 1540,
+      "max_high": 1800,
+      "n_yes": 3,
+      "n_no": 2,
+      "yes_accts": [
+        "Intermodal - Fontana, CA",
+        "Intermodal - Montebello/ Bell Gardens, CA",
+        "Target - Woodland, CA"
+      ],
+      "no_accts": [
+        "Church & Dwight - Victorville, CA",
+        "Target - Sacramento, CA  Local/Yard"
+      ]
+    },
+    "Florida": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1300,
+      "max_high": 1300,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Walmart - Arcadia, FL"
+      ],
+      "no_accts": []
+    },
+    "Georgia": {
+      "n": 1,
+      "avg_low": 1200,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Walmart - Opelika, AL"
+      ]
+    },
+    "Illinois": {
+      "n": 3,
+      "avg_low": 1233,
+      "avg_high": 1300,
+      "max_high": 1400,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Intermodal - Chicago, IL",
+        "Intermodal - St. Louis, MO"
+      ],
+      "no_accts": [
+        "Walmart - Moberly, MO (Daily)"
+      ]
+    },
+    "Iowa": {
+      "n": 1,
+      "avg_low": 1400,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Walmart - Moberly, MO (Daily)"
+      ]
+    },
+    "Kansas": {
+      "n": 4,
+      "avg_low": 1250,
+      "avg_high": 1325,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 2,
+      "yes_accts": [
+        "Intermodal - Edwardsville, KS",
+        "Walmart - Harrisonville, MO - LOCAL POSITION ONLY"
+      ],
+      "no_accts": [
+        "Church & Dwight - Harrisonville, MO",
+        "Walmart - Moberly, MO (Daily)"
+      ]
+    },
+    "Maryland": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 1700,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Baltimore"
+      ],
+      "no_accts": []
+    },
+    "Michigan": {
+      "n": 1,
+      "avg_low": 1100,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Toledo, OH"
+      ],
+      "no_accts": []
+    },
+    "Missouri": {
+      "n": 5,
+      "avg_low": 1220,
+      "avg_high": 1280,
+      "max_high": 1500,
+      "n_yes": 3,
+      "n_no": 2,
+      "yes_accts": [
+        "Intermodal - Edwardsville, KS",
+        "Intermodal - St. Louis, MO",
+        "Walmart - Harrisonville, MO - LOCAL POSITION ONLY"
+      ],
+      "no_accts": [
+        "Church & Dwight - Harrisonville, MO",
+        "Walmart - Moberly, MO (Daily)"
+      ]
+    },
+    "New Jersey": {
+      "n": 2,
+      "avg_low": 1250,
+      "avg_high": 1650,
+      "max_high": 1800,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Avenel, NJ",
+        "Intermodal - Avenel, NJ -Weekend"
+      ],
+      "no_accts": []
+    },
+    "New York": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Walmart - Johnstown, NY (Regional)",
+        "Walmart -Johnstown, NY (Slip Seat)"
+      ],
+      "no_accts": []
+    },
+    "Ohio": {
+      "n": 2,
+      "avg_low": 1100,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Columbus, OH Regional",
+        "Intermodal - Toledo, OH"
+      ],
+      "no_accts": []
+    },
+    "Oregon": {
+      "n": 2,
+      "avg_low": 1450,
+      "avg_high": 1650,
+      "max_high": 1800,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Troutdale, OR",
+        "Target - Sacramento, CA - Daily"
+      ],
+      "no_accts": []
+    },
+    "Pennsylvania": {
+      "n": 1,
+      "avg_low": 1100,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Harrisburg, PA"
+      ],
+      "no_accts": []
+    },
+    "Tennessee": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1300,
+      "max_high": 1300,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Lebanon TN"
+      ],
+      "no_accts": []
+    },
+    "Texas": {
+      "n": 2,
+      "avg_low": 1100,
+      "avg_high": 1200,
+      "max_high": 1300,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Hutchins, TX",
+        "Intermodal - Paris, TX"
+      ],
+      "no_accts": []
+    },
+    "Utah": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1700,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Intermodal - Salt Lake City, UT"
+      ],
+      "no_accts": []
+    },
+    "Washington": {
+      "n": 2,
+      "avg_low": 1400,
+      "avg_high": 1650,
+      "max_high": 1800,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Intermodal - Sumner, WA"
+      ],
+      "no_accts": [
+        "Costco Hostler - Sumner, WA"
+      ]
+    }
+  },
+  "Regional": {
+    "Alabama": {
+      "n": 10,
+      "avg_low": 1160,
+      "avg_high": 1480,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "910 Comfort Zone - Mobile, AL",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Arizona": {
+      "n": 5,
+      "avg_low": 1120,
+      "avg_high": 1280,
+      "max_high": 1300,
+      "n_yes": 1,
+      "n_no": 4,
+      "yes_accts": [
+        "PHX Tri-State Regional"
+      ],
+      "no_accts": [
+        "602 Western Region",
+        "907 Western Regional Comfort Zone - Phoenix, AZ",
+        "908 - 11 Western Regional",
+        "Flatbed - Western Regional - Phoenix"
+      ]
+    },
+    "California": {
+      "n": 4,
+      "avg_low": 1125,
+      "avg_high": 1275,
+      "max_high": 1300,
+      "n_yes": 1,
+      "n_no": 3,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Jurupa Valley, CA",
+        "908 - 11 Western Regional",
+        "Flatbed - Western Regional - Phoenix"
+      ]
+    },
+    "Colorado": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 1300,
+      "max_high": 1300,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "908 - 11 Western Regional"
+      ]
+    },
+    "Connecticut": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Delaware": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Florida": {
+      "n": 10,
+      "avg_low": 1160,
+      "avg_high": 1480,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "910 Comfort Zone - Mobile, AL",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Georgia": {
+      "n": 11,
+      "avg_low": 1173,
+      "avg_high": 1427,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 7,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Eastern Regional Fleet- Atlanta",
+        "Flatbed - Eastern Regional - Greer, SC"
+      ]
+    },
+    "Idaho": {
+      "n": 3,
+      "avg_low": 1167,
+      "avg_high": 1333,
+      "max_high": 1400,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "908 - 11 Western Regional",
+        "SLC Linehaul Regional"
+      ]
+    },
+    "Illinois": {
+      "n": 12,
+      "avg_low": 1175,
+      "avg_high": 1458,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 8,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Gary",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Indiana": {
+      "n": 15,
+      "avg_low": 1180,
+      "avg_high": 1460,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 11,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "610 Ohio Mid East Regional",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Gary",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS",
+        "Great Lakes Regional - Gary, IN"
+      ]
+    },
+    "Iowa": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Kansas": {
+      "n": 4,
+      "avg_low": 1250,
+      "avg_high": 1325,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 4,
+      "yes_accts": [],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Oklahoma City",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Kentucky": {
+      "n": 13,
+      "avg_low": 1192,
+      "avg_high": 1423,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 9,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "610 Ohio Mid East Regional",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Louisiana": {
+      "n": 1,
+      "avg_low": 1200,
+      "avg_high": 1800,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "910 Comfort Zone - Mobile, AL"
+      ]
+    },
+    "Maine": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Maryland": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Massachusetts": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Michigan": {
+      "n": 14,
+      "avg_low": 1179,
+      "avg_high": 1450,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 10,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Gary",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Detroit, MI",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Minnesota": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Mississippi": {
+      "n": 1,
+      "avg_low": 1200,
+      "avg_high": 1800,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "910 Comfort Zone - Mobile, AL"
+      ]
+    },
+    "Missouri": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Montana": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 1300,
+      "max_high": 1300,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "908 - 11 Western Regional"
+      ]
+    },
+    "Nebraska": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Nevada": {
+      "n": 4,
+      "avg_low": 1175,
+      "avg_high": 1275,
+      "max_high": 1300,
+      "n_yes": 1,
+      "n_no": 3,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "907 Western Regional Comfort Zone - Las Vegas, NV",
+        "907 Western Regional Comfort Zone - Sparks, NV",
+        "908 - 11 Western Regional"
+      ]
+    },
+    "New Hampshire": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "New Jersey": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "New Mexico": {
+      "n": 3,
+      "avg_low": 1100,
+      "avg_high": 1433,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 3,
+      "yes_accts": [],
+      "no_accts": [
+        "907 Western Regional Comfort Zone - El Paso TX",
+        "908 - 11 Western Regional",
+        "910 Comfort Zone - El Paso,TX"
+      ]
+    },
+    "New York": {
+      "n": 3,
+      "avg_low": 1467,
+      "avg_high": 1533,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Northeast Regional - Harrisburg, PA",
+        "Northeast Regional - Syracuse, NY"
+      ]
+    },
+    "North Carolina": {
+      "n": 11,
+      "avg_low": 1173,
+      "avg_high": 1464,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 7,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "910 Comfort Zone - Richmond, VA",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC"
+      ]
+    },
+    "Ohio": {
+      "n": 13,
+      "avg_low": 1192,
+      "avg_high": 1423,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 9,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "610 Ohio Mid East Regional",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Oklahoma": {
+      "n": 3,
+      "avg_low": 1133,
+      "avg_high": 1400,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 3,
+      "yes_accts": [],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Oklahoma City",
+        "907 Western Regional Comfort Zone - El Paso TX",
+        "910  Comfort Zone - Oklahoma City"
+      ]
+    },
+    "Oregon": {
+      "n": 4,
+      "avg_low": 1250,
+      "avg_high": 1350,
+      "max_high": 1500,
+      "n_yes": 1,
+      "n_no": 3,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Troutdale, OR",
+        "908 - 11 Western Regional",
+        "Flatbed - Western Regional - Phoenix"
+      ]
+    },
+    "Pennsylvania": {
+      "n": 10,
+      "avg_low": 1160,
+      "avg_high": 1440,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "610 Ohio Mid East Regional",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Rhode Island": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "South Carolina": {
+      "n": 10,
+      "avg_low": 1170,
+      "avg_high": 1430,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro",
+        "Flatbed - Eastern Regional - Greer, SC"
+      ]
+    },
+    "Texas": {
+      "n": 11,
+      "avg_low": 1191,
+      "avg_high": 1355,
+      "max_high": 1800,
+      "n_yes": 1,
+      "n_no": 10,
+      "yes_accts": [
+        "El Paso ELP Express Regional"
+      ],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Oklahoma City",
+        "907 Western Regional Comfort Zone - El Paso TX",
+        "910  Comfort Zone - Oklahoma City",
+        "910 Comfort Zone - El Paso,TX",
+        "Flatbed - Eastern Regional - Greer, SC",
+        "Flatbed - Western Regional - Phoenix",
+        "Houston Regional",
+        "Texas Regional  (TXR) - Texas Only - Houston Terminal",
+        "Texas Regional  (TXR) - Texas Only - Lancaster Terminal",
+        "Texas Regional (TXR) -Texas Only - Laredo Terminal"
+      ]
+    },
+    "Utah": {
+      "n": 4,
+      "avg_low": 1200,
+      "avg_high": 1325,
+      "max_high": 1400,
+      "n_yes": 1,
+      "n_no": 3,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "908 - 11 Western Regional",
+        "Flatbed - Western Regional - Phoenix",
+        "SLC Linehaul Regional"
+      ]
+    },
+    "Vermont": {
+      "n": 9,
+      "avg_low": 1156,
+      "avg_high": 1444,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 5,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Virginia": {
+      "n": 10,
+      "avg_low": 1160,
+      "avg_high": 1480,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "910 Comfort Zone - Richmond, VA",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Washington": {
+      "n": 3,
+      "avg_low": 1233,
+      "avg_high": 1367,
+      "max_high": 1500,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "56W - 11 Regional Western States - West Valley City, UT"
+      ],
+      "no_accts": [
+        "907 Western Region Comfort Zone - Troutdale, OR",
+        "908 - 11 Western Regional"
+      ]
+    },
+    "West Virginia": {
+      "n": 10,
+      "avg_low": 1160,
+      "avg_high": 1480,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 6,
+      "yes_accts": [
+        "Eastern Regional Fleet - Greer",
+        "Eastern Regional Fleet - Harrisburg",
+        "Eastern Regional Fleet - Mobile",
+        "Eastern Regional Fleet - Syracuse"
+      ],
+      "no_accts": [
+        "910 Comfort Zone - Richmond, VA",
+        "Eastern Regional Fleet - Columbus",
+        "Eastern Regional Fleet - Detroit",
+        "Eastern Regional Fleet - Ocala",
+        "Eastern Regional Fleet - Richmond",
+        "Eastern Regional Fleet - Statesboro"
+      ]
+    },
+    "Wisconsin": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Great Lakes Regional - Columbus, OH",
+        "Great Lakes Regional - Edwardsville, KS"
+      ]
+    },
+    "Wyoming": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 1300,
+      "max_high": 1300,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "908 - 11 Western Regional"
+      ]
+    }
+  },
+  "Dedicated": {
+    "Alabama": {
+      "n": 3,
+      "avg_low": 1267,
+      "avg_high": 1467,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Georgia Pacific - Huntsville",
+        "Georgia Pacific - Regional"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Arizona": {
+      "n": 4,
+      "avg_low": 1250,
+      "avg_high": 1325,
+      "max_high": 1700,
+      "n_yes": 3,
+      "n_no": 1,
+      "yes_accts": [
+        "Dollar Tree - Phoenix, AZ",
+        "Regional Surge Fleet - Phoenix, AZ",
+        "Target - Dry Delivery-PHX T588"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Arkansas": {
+      "n": 4,
+      "avg_low": 1225,
+      "avg_high": 1350,
+      "max_high": 1700,
+      "n_yes": 3,
+      "n_no": 1,
+      "yes_accts": [
+        "Georgia Pacific - Regional",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR",
+        "Walmart - Harrisonville, MO"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "California": {
+      "n": 7,
+      "avg_low": 1329,
+      "avg_high": 1543,
+      "max_high": 1800,
+      "n_yes": 4,
+      "n_no": 3,
+      "yes_accts": [
+        "Kraft DE32 CA-PNW-UT Regional",
+        "Regional Surge Fleet - Phoenix, AZ",
+        "Smithfield - Regional - Teams ONLY",
+        "Target - Sacramento, CA Regional Teams"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Sacramento Regional Solo 3712",
+        "Target - Sacramento, CA Teams"
+      ]
+    },
+    "Colorado": {
+      "n": 5,
+      "avg_low": 1360,
+      "avg_high": 1580,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 4,
+      "yes_accts": [
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Smithfield - Solo Drivers",
+        "Target - Regional - Pueblo, CO",
+        "Walmart - Corinne, UT (Regional)"
+      ]
+    },
+    "Connecticut": {
+      "n": 2,
+      "avg_low": 1550,
+      "avg_high": 1650,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Amsterdam, NY"
+      ]
+    },
+    "Delaware": {
+      "n": 1,
+      "avg_low": 1500,
+      "avg_high": 1700,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Florida": {
+      "n": 2,
+      "avg_low": 1350,
+      "avg_high": 1500,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Cocoa Beach, FL"
+      ]
+    },
+    "Georgia": {
+      "n": 6,
+      "avg_low": 1283,
+      "avg_high": 1383,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 4,
+      "yes_accts": [
+        "Georgia Pacific - Regional",
+        "Georgia Pacific - Rincon"
+      ],
+      "no_accts": [
+        "Dicks Sporting Goods Teams - East Point, GA",
+        "Dicks Sporting Goods- Solo- East Point, GA",
+        "Expeditors - Ellenwood, GA - TEAMS ONLY",
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Idaho": {
+      "n": 5,
+      "avg_low": 1340,
+      "avg_high": 1560,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 3,
+      "yes_accts": [
+        "Kraft DE32 CA-PNW-UT Regional",
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Regional - Pueblo, CO",
+        "Walmart - Corinne, UT (Regional)"
+      ]
+    },
+    "Illinois": {
+      "n": 10,
+      "avg_low": 1370,
+      "avg_high": 1430,
+      "max_high": 1700,
+      "n_yes": 6,
+      "n_no": 4,
+      "yes_accts": [
+        "Flatbed - RPM",
+        "Flatbed 090",
+        "Intermodal - Chicago, IL  Regional",
+        "Kraft - East Regional - Dry",
+        "Kraft- Eastern Regional - Reefer",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR"
+      ],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Expeditors - Melrose Park, IL - TEAMS ONLY",
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Moberly, MO"
+      ]
+    },
+    "Indiana": {
+      "n": 7,
+      "avg_low": 1371,
+      "avg_high": 1529,
+      "max_high": 2000,
+      "n_yes": 5,
+      "n_no": 2,
+      "yes_accts": [
+        "Flatbed - Chrysler Stack Team",
+        "Flatbed - RPM",
+        "Flatbed 090",
+        "Intermodal - Chicago, IL  Regional",
+        "Kraft- Eastern Regional - Reefer"
+      ],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Iowa": {
+      "n": 8,
+      "avg_low": 1300,
+      "avg_high": 1438,
+      "max_high": 1700,
+      "n_yes": 5,
+      "n_no": 3,
+      "yes_accts": [
+        "IMOD Regional - IOWA",
+        "Intermodal - Chicago, IL  Regional",
+        "Smithfield - Regional - Teams ONLY",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR",
+        "Walmart - Harrisonville, MO"
+      ],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Moberly, MO"
+      ]
+    },
+    "Kansas": {
+      "n": 6,
+      "avg_low": 1333,
+      "avg_high": 1517,
+      "max_high": 2000,
+      "n_yes": 4,
+      "n_no": 2,
+      "yes_accts": [
+        "Flatbed - Chrysler Stack Team",
+        "Smithfield - Regional - Teams ONLY",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR",
+        "Walmart - Harrisonville, MO"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Moberly, MO"
+      ]
+    },
+    "Kentucky": {
+      "n": 4,
+      "avg_low": 1300,
+      "avg_high": 1350,
+      "max_high": 1700,
+      "n_yes": 3,
+      "n_no": 1,
+      "yes_accts": [
+        "Flatbed 090",
+        "Intermodal - Cincinnati, OH : Regional",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Louisiana": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Georgia Pacific - Regional"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Maine": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Wilton, NY"
+      ]
+    },
+    "Maryland": {
+      "n": 4,
+      "avg_low": 1450,
+      "avg_high": 1575,
+      "max_high": 1900,
+      "n_yes": 2,
+      "n_no": 2,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV",
+        "Dollar Tree - Berwick, PA"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Marlboro, MD - Dedicated - Salvage"
+      ]
+    },
+    "Massachusetts": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Wilton, NY"
+      ]
+    },
+    "Michigan": {
+      "n": 3,
+      "avg_low": 1400,
+      "avg_high": 1467,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV",
+        "Flatbed - RPM"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Minnesota": {
+      "n": 2,
+      "avg_low": 1350,
+      "avg_high": 1550,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Mississippi": {
+      "n": 3,
+      "avg_low": 1333,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Dollar Tree - Olive Branch , MS",
+        "Georgia Pacific - Huntsville"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Missouri": {
+      "n": 6,
+      "avg_low": 1317,
+      "avg_high": 1417,
+      "max_high": 1700,
+      "n_yes": 4,
+      "n_no": 2,
+      "yes_accts": [
+        "Flatbed - RPM",
+        "Smithfield - Regional - Teams ONLY",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR",
+        "Walmart - Harrisonville, MO"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Moberly, MO"
+      ]
+    },
+    "Montana": {
+      "n": 2,
+      "avg_low": 1450,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Regional - Pueblo, CO"
+      ]
+    },
+    "Nebraska": {
+      "n": 6,
+      "avg_low": 1317,
+      "avg_high": 1450,
+      "max_high": 1700,
+      "n_yes": 3,
+      "n_no": 3,
+      "yes_accts": [
+        "Smithfield - Regional - Teams ONLY",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR",
+        "Walmart - Harrisonville, MO"
+      ],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Hobby Lobby Teams - OKC, OK",
+        "Smithfield - Solo Drivers"
+      ]
+    },
+    "Nevada": {
+      "n": 3,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Regional Surge Fleet - Phoenix, AZ",
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "New Hampshire": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Wilton, NY"
+      ]
+    },
+    "New Jersey": {
+      "n": 4,
+      "avg_low": 1450,
+      "avg_high": 1650,
+      "max_high": 1800,
+      "n_yes": 1,
+      "n_no": 3,
+      "yes_accts": [
+        "Church & Dwight - York, PA"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Amsterdam, NY",
+        "Target - Wilton, NY"
+      ]
+    },
+    "New Mexico": {
+      "n": 2,
+      "avg_low": 1350,
+      "avg_high": 1450,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Walmart - Los Lunas, NM"
+      ]
+    },
+    "New York": {
+      "n": 5,
+      "avg_low": 1440,
+      "avg_high": 1480,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 4,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV"
+      ],
+      "no_accts": [
+        "Finch Paper - Glens Falls, NY",
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Amsterdam, NY",
+        "Target - Wilton, NY"
+      ]
+    },
+    "North Carolina": {
+      "n": 1,
+      "avg_low": 1500,
+      "avg_high": 1700,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Ohio": {
+      "n": 6,
+      "avg_low": 1350,
+      "avg_high": 1383,
+      "max_high": 1700,
+      "n_yes": 5,
+      "n_no": 1,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV",
+        "Flatbed 090",
+        "Intermodal - Cincinnati, OH : Regional",
+        "Kraft - East Regional - Dry",
+        "Kraft- Eastern Regional - Reefer"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Oklahoma": {
+      "n": 2,
+      "avg_low": 1350,
+      "avg_high": 1450,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Oregon": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Kraft DE32 CA-PNW-UT Regional"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Pennsylvania": {
+      "n": 6,
+      "avg_low": 1317,
+      "avg_high": 1583,
+      "max_high": 1900,
+      "n_yes": 4,
+      "n_no": 2,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV",
+        "Church & Dwight - York, PA",
+        "Dollar Tree - Berwick, PA",
+        "Intermodal - PA Regional"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Kenvue"
+      ]
+    },
+    "Rhode Island": {
+      "n": 1,
+      "avg_low": 1500,
+      "avg_high": 1700,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "South Carolina": {
+      "n": 3,
+      "avg_low": 1233,
+      "avg_high": 1433,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "Georgia Pacific - Regional",
+        "Georgia Pacific - Rincon"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "South Dakota": {
+      "n": 2,
+      "avg_low": 1450,
+      "avg_high": 1600,
+      "max_high": 1600,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Smithfield - Solo Drivers"
+      ]
+    },
+    "Tennessee": {
+      "n": 5,
+      "avg_low": 1300,
+      "avg_high": 1460,
+      "max_high": 1700,
+      "n_yes": 4,
+      "n_no": 1,
+      "yes_accts": [
+        "Dollar Tree - Olive Branch , MS",
+        "Georgia Pacific - Regional",
+        "Intermodal - Memphis, TN  Regional",
+        "Walmart - HYBRID Position; Harrisonville, MO - - Dedicated/OTR"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Texas": {
+      "n": 5,
+      "avg_low": 1440,
+      "avg_high": 1580,
+      "max_high": 2000,
+      "n_yes": 4,
+      "n_no": 1,
+      "yes_accts": [
+        "Flatbed - Chrysler Stack Team",
+        "Flatbed - RPM",
+        "Intermodal - Hutchins, TX Regional",
+        "Walmart - Temple, TX"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Utah": {
+      "n": 5,
+      "avg_low": 1380,
+      "avg_high": 1580,
+      "max_high": 1700,
+      "n_yes": 2,
+      "n_no": 3,
+      "yes_accts": [
+        "Kraft DE32 CA-PNW-UT Regional",
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Smithfield - Solo Drivers",
+        "Walmart - Corinne, UT (Regional)"
+      ]
+    },
+    "Vermont": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK",
+        "Target - Wilton, NY"
+      ]
+    },
+    "Virginia": {
+      "n": 3,
+      "avg_low": 1467,
+      "avg_high": 1600,
+      "max_high": 1800,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "Georgia Pacific - Rincon"
+      ],
+      "no_accts": [
+        "Dollar Tree - Chesapeake, VA",
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Washington": {
+      "n": 2,
+      "avg_low": 1500,
+      "avg_high": 1600,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Kraft DE32 CA-PNW-UT Regional"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "West Virginia": {
+      "n": 2,
+      "avg_low": 1400,
+      "avg_high": 1500,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Cabela's/Bass Pro - Triadelphia, WV"
+      ],
+      "no_accts": [
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Wisconsin": {
+      "n": 3,
+      "avg_low": 1333,
+      "avg_high": 1533,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "Intermodal - Chicago, IL  Regional"
+      ],
+      "no_accts": [
+        "Cabela's/Bass Pro - Prairie Du Chien, WI",
+        "Hobby Lobby Teams - OKC, OK"
+      ]
+    },
+    "Wyoming": {
+      "n": 3,
+      "avg_low": 1433,
+      "avg_high": 1567,
+      "max_high": 1600,
+      "n_yes": 1,
+      "n_no": 2,
+      "yes_accts": [
+        "Smithfield - Regional - Teams ONLY"
+      ],
+      "no_accts": [
+        "Smithfield - Solo Drivers",
+        "Target - Regional - Pueblo, CO"
+      ]
+    }
+  },
+  "OTR": {
+    "Alabama": {
+      "n": 2,
+      "avg_low": 1250,
+      "avg_high": 1350,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": []
+    },
+    "Arizona": {
+      "n": 6,
+      "avg_low": 1267,
+      "avg_high": 1383,
+      "max_high": 1900,
+      "n_yes": 1,
+      "n_no": 5,
+      "yes_accts": [
+        "Costco Dry   480"
+      ],
+      "no_accts": [
+        "602 - Las Vegas, NV Triangle",
+        "602 -Tractor Supply - Phoenix",
+        "Lancaster TX Reefer",
+        "Phoenix Teams",
+        "Tucson Based OTR Drivers"
+      ]
+    },
+    "Arkansas": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "California": {
+      "n": 2,
+      "avg_low": 1150,
+      "avg_high": 1850,
+      "max_high": 2200,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "Coors Miller - Denver, CO Div 636"
+      ],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Colorado": {
+      "n": 2,
+      "avg_low": 1050,
+      "avg_high": 1700,
+      "max_high": 2200,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "Coors Miller - Denver, CO Div 636",
+        "WVC Reefer / Denver"
+      ],
+      "no_accts": []
+    },
+    "Connecticut": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 2000,
+      "max_high": 2000,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "V95 - Richmond, VA",
+        "V95 - Syracuse, NY"
+      ],
+      "no_accts": []
+    },
+    "Florida": {
+      "n": 3,
+      "avg_low": 1300,
+      "avg_high": 1367,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": [
+        "Beall's  - Linehaul - Ocala, FL"
+      ]
+    },
+    "Georgia": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 1,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA"
+      ],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Idaho": {
+      "n": 4,
+      "avg_low": 1325,
+      "avg_high": 1525,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 4,
+      "yes_accts": [],
+      "no_accts": [
+        "111 - Utah - NW Division- West Valley City",
+        "Costco - PNW Sumner, WA  Heavy Haul",
+        "OTR - Lewiston, ID",
+        "SLC Linehaul"
+      ]
+    },
+    "Illinois": {
+      "n": 5,
+      "avg_low": 1120,
+      "avg_high": 1580,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 4,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA"
+      ],
+      "no_accts": [
+        "515 - Gary, IN",
+        "626 Midwest - Gary, IN",
+        "I35 -  Gary, IN",
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Indiana": {
+      "n": 6,
+      "avg_low": 1083,
+      "avg_high": 1500,
+      "max_high": 1700,
+      "n_yes": 1,
+      "n_no": 5,
+      "yes_accts": [
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": [
+        "515 - Gary, IN",
+        "626 Midwest - Gary, IN",
+        "626 Midwest- Columbus,OH",
+        "I35 -  Gary, IN",
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Kansas": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Kentucky": {
+      "n": 3,
+      "avg_low": 1167,
+      "avg_high": 1367,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": [
+        "626 Midwest- Columbus,OH"
+      ]
+    },
+    "Maine": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 2000,
+      "max_high": 2000,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "V95 - Richmond, VA"
+      ],
+      "no_accts": []
+    },
+    "Maryland": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1750,
+      "max_high": 2000,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "V95 - Richmond, VA"
+      ],
+      "no_accts": []
+    },
+    "Michigan": {
+      "n": 2,
+      "avg_low": 1100,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "625 -  Automotive",
+        "626 Midwest - Detroit, MI"
+      ]
+    },
+    "Mississippi": {
+      "n": 3,
+      "avg_low": 1267,
+      "avg_high": 1400,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Missouri": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 1500,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Montana": {
+      "n": 1,
+      "avg_low": 1400,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "OTR - Lewiston, ID"
+      ]
+    },
+    "Nevada": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 1200,
+      "max_high": 1200,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "602 - Las Vegas, NV Triangle"
+      ]
+    },
+    "New Hampshire": {
+      "n": 1,
+      "avg_low": 1300,
+      "avg_high": 2000,
+      "max_high": 2000,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "V95 - Richmond, VA"
+      ],
+      "no_accts": []
+    },
+    "New Jersey": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 2000,
+      "max_high": 2000,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "V95 - Richmond, VA",
+        "V95 - Syracuse, NY"
+      ],
+      "no_accts": []
+    },
+    "New York": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 2000,
+      "max_high": 2000,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "V95 - Richmond, VA",
+        "V95 - Syracuse, NY"
+      ],
+      "no_accts": []
+    },
+    "North Carolina": {
+      "n": 2,
+      "avg_low": 1250,
+      "avg_high": 1350,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": []
+    },
+    "Ohio": {
+      "n": 5,
+      "avg_low": 1160,
+      "avg_high": 1560,
+      "max_high": 2200,
+      "n_yes": 3,
+      "n_no": 2,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA",
+        "Coors Miller - Denver, CO Div 636"
+      ],
+      "no_accts": [
+        "626 Midwest- Columbus,OH",
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Oregon": {
+      "n": 1,
+      "avg_low": 1400,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 1,
+      "yes_accts": [],
+      "no_accts": [
+        "OTR - Lewiston, ID"
+      ]
+    },
+    "Pennsylvania": {
+      "n": 3,
+      "avg_low": 1300,
+      "avg_high": 1667,
+      "max_high": 2000,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "V95 - Richmond, VA"
+      ],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "South Carolina": {
+      "n": 2,
+      "avg_low": 1250,
+      "avg_high": 1350,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 0,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": []
+    },
+    "Tennessee": {
+      "n": 3,
+      "avg_low": 1267,
+      "avg_high": 1400,
+      "max_high": 1500,
+      "n_yes": 2,
+      "n_no": 1,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA"
+      ],
+      "no_accts": [
+        "Lancaster TX Reefer"
+      ]
+    },
+    "Texas": {
+      "n": 5,
+      "avg_low": 1240,
+      "avg_high": 1620,
+      "max_high": 2200,
+      "n_yes": 1,
+      "n_no": 4,
+      "yes_accts": [
+        "Coors Miller - Denver, CO Div 636"
+      ],
+      "no_accts": [
+        "Houston Teams",
+        "Lancaster TX Reefer",
+        "Sam's South Texas",
+        "Tractor Supply - Waco, TX"
+      ]
+    },
+    "Utah": {
+      "n": 4,
+      "avg_low": 1125,
+      "avg_high": 1325,
+      "max_high": 1500,
+      "n_yes": 0,
+      "n_no": 4,
+      "yes_accts": [],
+      "no_accts": [
+        "111 - Utah - NW Division- West Valley City",
+        "602 - Las Vegas, NV Triangle",
+        "SLC Linehaul",
+        "SLC-Express lane"
+      ]
+    },
+    "Virginia": {
+      "n": 4,
+      "avg_low": 1200,
+      "avg_high": 1725,
+      "max_high": 2200,
+      "n_yes": 4,
+      "n_no": 0,
+      "yes_accts": [
+        "57G Reefer - Decatur Conley, GA",
+        "57X Reefer - Decatur, GA",
+        "Coors Miller - Denver, CO Div 636",
+        "V95 - Richmond, VA"
+      ],
+      "no_accts": []
+    },
+    "Washington": {
+      "n": 2,
+      "avg_low": 1400,
+      "avg_high": 1600,
+      "max_high": 1800,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "Costco - PNW Sumner, WA  Heavy Haul",
+        "OTR - Lewiston, ID"
+      ]
+    },
+    "Wisconsin": {
+      "n": 1,
+      "avg_low": 1000,
+      "avg_high": 2200,
+      "max_high": 2200,
+      "n_yes": 1,
+      "n_no": 0,
+      "yes_accts": [
+        "Coors Miller - Denver, CO Div 636"
+      ],
+      "no_accts": []
+    },
+    "Wyoming": {
+      "n": 2,
+      "avg_low": 1300,
+      "avg_high": 1400,
+      "max_high": 1400,
+      "n_yes": 0,
+      "n_no": 2,
+      "yes_accts": [],
+      "no_accts": [
+        "OTR - Lewiston, ID",
+        "SLC Linehaul"
+      ]
+    }
+  }
+}

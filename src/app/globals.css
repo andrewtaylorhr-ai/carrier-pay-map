@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* --- Light dashboard surfaces (Class A Recruiting admin-panel theme) --- */
+.app-dark {
+  background-color: #f4f5f7;
+}
+
+.panel {
+  border-radius: 8px;
+  border: 1px solid #e2e2e2;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Carrier Pay Map — ported verbatim from Multi_Carrier_Pay_Map.html --- */
+#toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:22px; margin:18px 0 22px; }
+.toolbar-group { display:flex; flex-direction:column; gap:6px; }
+.toolbar-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#8d8d8d; margin-left:3px; }
+
+#carrierTabs { display:flex; gap:8px; flex-wrap:wrap; }
+#carrierTabs button { display:flex; align-items:center; justify-content:center; min-height:40px; padding:6px 16px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:600; border:1.5px solid #ccc; background:#fff; transition:transform .12s ease, box-shadow .12s ease, background .12s ease; }
+#carrierTabs button:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,.10); }
+#carrierTabs button.active { border-width:2.5px; box-shadow:0 3px 10px rgba(0,0,0,.12); }
+#carrierTabs .carrierLogo { max-height:26px; max-width:110px; width:auto; height:auto; display:block; }
+
+#catTabs { display:inline-flex; gap:2px; flex-wrap:wrap; background:#f0f1f3; padding:4px; border-radius:999px; width:fit-content; }
+#catTabs button { padding:7px 16px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:500; border:none; background:transparent; color:#5b5b5b; transition:all .12s ease; }
+#catTabs button:hover { color:#0c447c; }
+#catTabs button.active { border-color:#2a78d6; background:#fff; color:#0c447c; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+
+#modeBar { display:inline-flex; align-items:center; gap:2px; background:#f0f1f3; padding:4px; border-radius:999px; width:fit-content; }
+#modeBar button { padding:8px 18px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:600; border:none; background:transparent; color:#5b5b5b; transition:all .12s ease; }
+#modeBar button.active { border-color:#a32d2d; background:#a32d2d; color:#fff; box-shadow:0 2px 6px rgba(163,45,45,.35); }
+
+#colorModeBar { display:flex; align-items:center; gap:8px; margin:0 0 16px; font-size:12.5px; color:#555; }
+#colorModeBar button { padding:4px 12px; border-radius:14px; cursor:pointer; font-size:12px; border:1px solid #999; background:#fff; }
+#colorModeBar button.active { border-color:#333; background:#333; color:#fff; font-weight:600; }
+
+#recruiterPanel { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 14px; }
+#recruiterPanel .rchip { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:12px; font-size:12px; background:#f0f0ee; border:1px solid #ddd; cursor:pointer; }
+#recruiterPanel .rchip.over { background:#fdecea; border-color:#e3a49e; color:#a32d2d; }
+#recruiterPanel .rchip.selected { border-color:#333; box-shadow:0 0 0 2px #333 inset; font-weight:600; }
+#recruiterPanel .rchip .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+#recruiterPanel .rhint { font-size:11.5px; color:#888; }
+
+#recruiterManage { display:flex; flex-direction:column; gap:10px; margin:0 0 14px; padding:14px 16px; background:linear-gradient(180deg,#fafafa,#f3f3f1); border:1px solid #e8e8e6; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+#recruiterManage .rmHeader { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+#recruiterManage .rmTitle { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#555; }
+#recruiterManage .rmHint { font-size:11.5px; color:#999; }
+#recruiterManage .rmChips { display:flex; flex-wrap:wrap; gap:7px; }
+#recruiterManage .rmChip { display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 10px; border-radius:14px; font-size:12.5px; font-weight:600; color:#333; background:#fff; border:1px solid #e2e2e0; box-shadow:0 1px 2px rgba(0,0,0,.04); transition:box-shadow .12s ease, border-color .12s ease; }
+#recruiterManage .rmChip:hover { box-shadow:0 2px 6px rgba(0,0,0,.10); border-color:#ccc; }
+#recruiterManage .rmChip .dot { width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0; }
+#recruiterManage .rmChip .rmRemove { border:none; background:#f2f2f0; cursor:pointer; font-size:11px; color:#999; width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; line-height:1; transition:background .12s ease, color .12s ease; }
+#recruiterManage .rmChip .rmRemove:hover { color:#fff; background:#a32d2d; }
+#recruiterManage .rmAddRow { display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px dashed #e0e0dd; flex-wrap:wrap; }
+#recruiterManage input[type=text] { padding:6px 10px; border-radius:8px; border:1px solid #ddd; font-size:12.5px; width:170px; background:#fff; }
+#recruiterManage input[type=text]:focus { outline:none; border-color:#3b6d11; box-shadow:0 0 0 2px rgba(59,109,17,.15); }
+#recruiterManage .rmAddBtn { padding:6px 14px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700; border:1px solid #3b6d11; background:#3b6d11; color:#fff; transition:background .12s ease; }
+#recruiterManage .rmAddBtn:hover { background:#2c5210; }
+#recruiterManage .rmErr { color:#a32d2d; font-size:11.5px; width:100%; }
+
+.stateLabelBg { fill:rgba(0,0,0,.55); }
+.stateLabelText { font-size:9.5px; font-weight:700; fill:#fff; text-anchor:middle; pointer-events:none; letter-spacing:.2px; }
+
+#recruiterReport { margin-top:22px; border-top:2px solid #e5e5e5; padding-top:14px; }
+#recruiterReport h2 { font-size:16px; margin:0 0 10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+#recruiterReport .exportBtn { font-size:12.5px; font-weight:600; padding:6px 14px; border-radius:8px; cursor:pointer; border:1px solid #3b6d11; background:#eaf4e0; color:#3b6d11; }
+#recruiterReport .exportBtn:hover { background:#3b6d11; color:#fff; }
+#recruiterReport .card { margin-bottom:14px; }
+
+.assignChips { display:flex; flex-wrap:wrap; gap:6px; }
+.assignChips .achip { display:inline-flex; align-items:center; padding:3px 10px; border-radius:12px; font-size:12px; background:#f0f0ee; border:1px solid #ddd; cursor:pointer; }
+.assignChips .achip.selected { border-color:#333; box-shadow:0 0 0 2px #333 inset; font-weight:600; color:#fff; }
+
+#map { width:100%; max-width:1352px; margin:0 auto; display:block; }
+#map svg { background:#f7f9fb; border-radius:8px; }
+#legend { display:flex; align-items:center; gap:8px; margin-top:8px; font-size:12px; color:#666; flex-wrap:wrap; }
+#catNote { font-size:12px; color:#8a6d1a; background:#fff8e1; border:1px solid #f0dfa0; border-radius:8px; padding:8px 12px; margin-top:10px; }
+#detail { margin-top:16px; }
+
+.card { background:#f7f7f5; border-radius:12px; padding:16px 20px; }
+.card h3 { margin:0 0 10px; font-size:15px; font-weight:600; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
+.card h3 span.meta { font-size:12px; color:#666; font-weight:400; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.col-title { font-size:12px; font-weight:600; margin-bottom:6px; }
+.col-title.yes { color:#a32d2d; }
+.col-title.no { color:#3b6d11; }
+.acct { padding:3px 0; border-bottom:1px solid #e5e5e5; font-size:13px; }
+.acct .name { font-weight:600; }
+.acct .sub { color:#666; font-size:12px; }
+.none { color:#999; font-size:13px; }
+.assignRow { display:flex; align-items:center; gap:8px; margin:10px 0 4px; font-size:13px; }
+.assignRow select { padding:5px 8px; border-radius:6px; border:1px solid #ccc; font-size:13px; }
+.assignBadge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:11px; font-weight:600; color:#fff; }
+.cross { margin-top:14px; border-top:1px solid #e5e5e5; padding-top:10px; }
+.cross .line { font-size:12.5px; padding:3px 0; }
+.cross .cname { font-weight:600; }
+
+table.cpm { border-collapse:collapse; font-size:12.5px; margin:6px 0; }
+table.cpm td, table.cpm th { border:1px solid #ddd; padding:3px 8px; text-align:left; }
+
+#tip { display:none; position:fixed; pointer-events:none; background:#fff; border:1px solid #ccc; border-radius:8px; padding:8px 10px; font-size:12px; color:#0b0b0b; z-index:10; box-shadow:0 2px 8px rgba(0,0,0,.15); max-width:280px; }
+
+path { stroke:#c7c7c2; stroke-width:0.75; cursor:pointer; }

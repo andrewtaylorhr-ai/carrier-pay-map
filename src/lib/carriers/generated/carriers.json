@@ -1,0 +1,51 @@
+{
+  "swift": {
+    "label": "Swift",
+    "color": "#2a78d6",
+    "logo": "/logos/swift.png",
+    "cats": [
+      "Local",
+      "Regional",
+      "Dedicated",
+      "OTR"
+    ]
+  },
+  "usx": {
+    "label": "USX",
+    "color": "#d97706",
+    "logo": "/logos/usx.png",
+    "cats": [
+      "OTR Solo Company",
+      "OTR Team Company",
+      "OTR Regional",
+      "Dedicated Home Weekly",
+      "Dedicated Daily/Frequently/Team"
+    ]
+  },
+  "pam": {
+    "label": "PAM",
+    "color": "#7c3aed",
+    "logo": "/logos/pam.png",
+    "cats": [
+      "OTR"
+    ]
+  },
+  "transam": {
+    "label": "TransAm",
+    "color": "#059669",
+    "logo": "/logos/transam.png",
+    "cats": [
+      "Hiring Area"
+    ]
+  },
+  "cre": {
+    "label": "CR England",
+    "color": "#dc2626",
+    "logo": "/logos/cre.png",
+    "cats": [
+      "Home Daily / Local",
+      "Home Weekly",
+      "Multi-Week OTR (Bi-Weekly+)"
+    ]
+  }
+}

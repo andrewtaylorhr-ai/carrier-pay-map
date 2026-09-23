@@ -1,0 +1,185 @@
+[
+  {
+    "name": "DT Joliet, IL",
+    "states": [
+      "Illinois",
+      "Wisconsin",
+      "Indiana",
+      "Michigan",
+      "Iowa",
+      "Kentucky"
+    ],
+    "payLow": 1500,
+    "payHigh": 1700,
+    "note": "Top performers $2,000+/wk all-in (~$1.80 CPM equiv)."
+  },
+  {
+    "name": "FD Front Royal, VA",
+    "states": [
+      "Virginia",
+      "North Carolina",
+      "Pennsylvania",
+      "New Hampshire",
+      "Ohio",
+      "West Virginia"
+    ],
+    "payLow": 1750,
+    "payHigh": 1750,
+    "note": "Within 700mi of domicile."
+  },
+  {
+    "name": "FD Morehead, KY",
+    "states": [
+      "Alabama",
+      "Georgia",
+      "Indiana",
+      "Illinois",
+      "Kentucky",
+      "North Carolina",
+      "Ohio",
+      "South Carolina",
+      "Tennessee",
+      "Virginia",
+      "West Virginia"
+    ],
+    "payLow": null,
+    "payHigh": null,
+    "note": "$335/trailer unload + $25/stop + $50/backhaul, all-in ~$1.35 CPM equiv."
+  },
+  {
+    "name": "DT Windsor, CT",
+    "states": [
+      "Connecticut",
+      "Massachusetts",
+      "New Hampshire",
+      "Vermont",
+      "New York",
+      "Rhode Island",
+      "Maine"
+    ],
+    "payLow": 1600,
+    "payHigh": 1850,
+    "note": "Within 1,066mi of domicile."
+  },
+  {
+    "name": "DT Savannah, GA",
+    "states": [
+      "Florida",
+      "Georgia",
+      "South Carolina",
+      "Alabama"
+    ],
+    "payLow": 1300,
+    "payHigh": 1600,
+    "note": ""
+  },
+  {
+    "name": "FD Maquoketa, IA",
+    "states": [
+      "Iowa"
+    ],
+    "payLow": null,
+    "payHigh": null,
+    "note": "Domicile-based; running-area states not specified. $285/trailer unload + $20/stop + $50/backhaul."
+  },
+  {
+    "name": "FD Ashley, IN",
+    "states": [
+      "Indiana",
+      "Michigan",
+      "Illinois",
+      "Ohio",
+      "Wisconsin"
+    ],
+    "payLow": 1900,
+    "payHigh": 1900,
+    "note": "Top earners $2,200/wk."
+  },
+  {
+    "name": "Kroger Roanoke, VA",
+    "states": [
+      "Virginia",
+      "West Virginia",
+      "Tennessee"
+    ],
+    "payLow": 1500,
+    "payHigh": 1500,
+    "note": "Top earners $1,750+/wk. Some Tennessee coverage."
+  },
+  {
+    "name": "FD Marianna, FL",
+    "states": [
+      "Florida",
+      "Georgia",
+      "Alabama",
+      "Mississippi",
+      "Louisiana"
+    ],
+    "payLow": 1400,
+    "payHigh": 1400,
+    "note": "$1,400+/wk."
+  },
+  {
+    "name": "Walmart Gordonsville, VA Regional",
+    "states": [
+      "Virginia",
+      "North Carolina",
+      "Maryland",
+      "Delaware",
+      "West Virginia"
+    ],
+    "payLow": 1300,
+    "payHigh": 1300,
+    "note": ""
+  },
+  {
+    "name": "Tractor Supply Frankfort, NY",
+    "states": [
+      "New Jersey",
+      "New Hampshire",
+      "New York",
+      "Pennsylvania",
+      "Maine",
+      "Massachusetts",
+      "Vermont"
+    ],
+    "payLow": 1400,
+    "payHigh": 1400,
+    "note": "Long Island optional."
+  },
+  {
+    "name": "Tractor Supply Colonie, NY",
+    "states": [
+      "New York",
+      "New Jersey",
+      "Pennsylvania",
+      "Connecticut",
+      "Massachusetts",
+      "Rhode Island",
+      "New Hampshire",
+      "Vermont",
+      "Maine"
+    ],
+    "payLow": 1500,
+    "payHigh": 1500,
+    "note": ""
+  },
+  {
+    "name": "MDI Hickory, NC",
+    "states": [
+      "North Carolina"
+    ],
+    "payLow": null,
+    "payHigh": null,
+    "note": "80mi radius, home weekly. Pay not confirmed — needs manual re-check."
+  },
+  {
+    "name": "Michael's Berlin, NJ",
+    "states": [
+      "New Jersey"
+    ],
+    "payLow": 1415,
+    "payHigh": 1415,
+    "note": "50mi radius; pay based on experience."
+  }
+]

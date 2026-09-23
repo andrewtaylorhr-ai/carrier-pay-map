@@ -1,0 +1,324 @@
+[
+  {
+    "city": "Birmingham",
+    "state": "Alabama",
+    "tier": "Tier 1",
+    "hometime": "10-14 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Dallas",
+    "state": "Texas",
+    "tier": "Tier 1",
+    "hometime": "10-14 days",
+    "division": "SCS"
+  },
+  {
+    "city": "El Paso",
+    "state": "Texas",
+    "tier": "Tier 1",
+    "hometime": "10-14 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Orlando",
+    "state": "Florida",
+    "tier": "Tier 1",
+    "hometime": "10-14 days",
+    "division": "SEC"
+  },
+  {
+    "city": "Springdale",
+    "state": "Arkansas",
+    "tier": "Tier 1",
+    "hometime": "10-14 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Duncan",
+    "state": "South Carolina",
+    "tier": "Tier 2",
+    "hometime": "7-10 days",
+    "division": "SEC"
+  },
+  {
+    "city": "Detroit/Romulus",
+    "state": "Michigan",
+    "tier": "Tier 2",
+    "hometime": "7-10 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Deptford",
+    "state": "New Jersey",
+    "tier": "Tier 2",
+    "hometime": "7-10 days",
+    "division": null
+  },
+  {
+    "city": "Atlanta",
+    "state": "Georgia",
+    "tier": "Tier 2",
+    "hometime": "7-10 days",
+    "division": "SEC"
+  },
+  {
+    "city": "Charlotte",
+    "state": "North Carolina",
+    "tier": "Tier 2",
+    "hometime": "10-14 days",
+    "division": "SEC"
+  },
+  {
+    "city": "Louisville",
+    "state": "Kentucky",
+    "tier": "Tier 2",
+    "hometime": "10-14 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Durham",
+    "state": "North Carolina",
+    "tier": "Tier 2",
+    "hometime": "10-14 days",
+    "division": "SEC"
+  },
+  {
+    "city": "Camphill",
+    "state": "Pennsylvania",
+    "tier": "Tier 3",
+    "hometime": "5-7 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Houston",
+    "state": "Texas",
+    "tier": "Tier 3",
+    "hometime": "10-14 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Secaucus",
+    "state": "New Jersey",
+    "tier": "Tier 3",
+    "hometime": "5-7 days",
+    "division": null
+  },
+  {
+    "city": "Elkridge",
+    "state": "Maryland",
+    "tier": "Tier 3",
+    "hometime": "7-10 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Memphis",
+    "state": "Tennessee",
+    "tier": "Tier 3",
+    "hometime": "7-10 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Kansas City",
+    "state": "Kansas",
+    "tier": "Tier 7",
+    "hometime": "7-10 days",
+    "division": null
+  },
+  {
+    "city": "Brook Park",
+    "state": "Ohio",
+    "tier": "Tier 7",
+    "hometime": "7-10 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Indianapolis",
+    "state": "Indiana",
+    "tier": "Tier 7",
+    "hometime": "10-14 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Williamsport",
+    "state": "Pennsylvania",
+    "tier": "Tier 7",
+    "hometime": "5-7 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Laredo",
+    "state": "Texas",
+    "tier": "Tier 7",
+    "hometime": "7-10 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Columbus",
+    "state": "Ohio",
+    "tier": "Tier 7",
+    "hometime": "7-10 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Hammond",
+    "state": "Indiana",
+    "tier": "Tier 7",
+    "hometime": "10-14 days",
+    "division": "MNE"
+  },
+  {
+    "city": "Nashville",
+    "state": "Tennessee",
+    "tier": "Tier 7",
+    "hometime": "5-7 days",
+    "division": "SCS"
+  },
+  {
+    "city": "Kalamazoo",
+    "state": "Michigan",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Ft Wayne",
+    "state": "Indiana",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Cincinnati",
+    "state": "Ohio",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "San Antonio",
+    "state": "Texas",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "St Louis",
+    "state": "Missouri",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Oklahoma City",
+    "state": "Oklahoma",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Austin",
+    "state": "Texas",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Springfield",
+    "state": "Missouri",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Joplin",
+    "state": "Missouri",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Tulsa",
+    "state": "Oklahoma",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Little Rock",
+    "state": "Arkansas",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Knoxville",
+    "state": "Tennessee",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Jackson",
+    "state": "Mississippi",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Chattanooga",
+    "state": "Tennessee",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Richmond",
+    "state": "Virginia",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Montgomery",
+    "state": "Alabama",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Macon",
+    "state": "Georgia",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Columbia",
+    "state": "South Carolina",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Raleigh",
+    "state": "North Carolina",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Pittsburg",
+    "state": "Pennsylvania",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  },
+  {
+    "city": "Jacksonville",
+    "state": "Florida",
+    "tier": "Unconfirmed",
+    "hometime": "7-10 or 10-14 days",
+    "division": null
+  }
+]

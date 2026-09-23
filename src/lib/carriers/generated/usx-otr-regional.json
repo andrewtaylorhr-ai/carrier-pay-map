@@ -1,0 +1,56 @@
+{
+  "northeast": {
+    "states": [
+      "Maine",
+      "New Hampshire",
+      "Vermont",
+      "Massachusetts",
+      "Rhode Island",
+      "Connecticut",
+      "New York",
+      "New Jersey",
+      "Pennsylvania",
+      "Delaware",
+      "Maryland",
+      "Virginia",
+      "West Virginia",
+      "Ohio",
+      "North Carolina"
+    ],
+    "cpm": [
+      [
+        "3-11mo",
+        0.8
+      ],
+      [
+        "1yr",
+        0.81
+      ],
+      [
+        "2yr",
+        0.82
+      ],
+      [
+        "3yr",
+        0.83
+      ],
+      [
+        "4yr",
+        0.84
+      ],
+      [
+        "5+yr",
+        0.85
+      ]
+    ],
+    "note": "Shippensburg, PA orientation. Top 20% earn $1,700+/wk. State list is an approximate reading of \"N. NC to ME, west to E. Ohio, VA-ME\" — confirm exact boundary before treating as final."
+  },
+  "southeast": {
+    "note": "Ellenwood, GA based. Multi-region Southeast, home weekly. No explicit state list captured; CPM breakdown not captured.",
+    "pay": 1100
+  },
+  "westcoast": {
+    "note": "Western 11 states + TX (vague reference in source, no explicit list). No CPM breakdown captured.",
+    "pay": 1100
+  }
+}

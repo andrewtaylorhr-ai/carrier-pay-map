@@ -1,0 +1,32 @@
+{
+  "Tier 1": {
+    "students": 0.35,
+    "mo3": 0.45,
+    "yr1": 0.5,
+    "yr3": 0.55
+  },
+  "Tier 2": {
+    "students": 0.35,
+    "mo3": 0.5,
+    "yr1": 0.55,
+    "yr3": 0.6
+  },
+  "Tier 3": {
+    "students": 0.35,
+    "mo3": 0.55,
+    "yr1": 0.6,
+    "yr3": 0.65
+  },
+  "Tier 7": {
+    "students": 0.35,
+    "mo3": 0.7,
+    "yr1": null,
+    "yr3": null
+  },
+  "Unconfirmed": {
+    "students": null,
+    "mo3": null,
+    "yr1": null,
+    "yr3": null
+  }
+}

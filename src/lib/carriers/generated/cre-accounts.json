@@ -1,0 +1,848 @@
+[
+  {
+    "name": "99 Ranch Team",
+    "states": [
+      "California"
+    ],
+    "cadence": "weekly",
+    "type": "Team",
+    "avgWeekly": 1762,
+    "avgAnnual": 91669,
+    "top10Weekly": 1897,
+    "top10Annual": 98673,
+    "hometime": "34-Hour Reset Weekly",
+    "notes": "Trucks parked at CRE facility, cannot be taken home."
+  },
+  {
+    "name": "Anheuser Busch East",
+    "states": [
+      "Florida",
+      "Iowa",
+      "California",
+      "Kansas",
+      "District of Columbia",
+      "Connecticut",
+      "Georgia",
+      "Alabama",
+      "Arkansas",
+      "Delaware",
+      "Idaho",
+      "Illinois",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Montana",
+      "Nebraska",
+      "New Hampshire",
+      "New Jersey",
+      "New York",
+      "North Carolina",
+      "Ohio",
+      "Oklahoma",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "Texas",
+      "Vermont",
+      "Virginia",
+      "West Virginia",
+      "Wisconsin",
+      "Indiana",
+      "Utah",
+      "Colorado",
+      "Wyoming",
+      "Washington",
+      "Oregon",
+      "Arizona",
+      "Nevada"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "2-3 Weeks Out W/ 2-3 Days Home",
+    "notes": "Broad dry-van AB account covering nearly all 48 states + DC. No pay figures captured — confirm before quoting."
+  },
+  {
+    "name": "Anheuser Busch East (TN, IN, KY, MO)",
+    "states": [
+      "Tennessee",
+      "Indiana",
+      "Kentucky",
+      "Missouri"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "2-3 Weeks Out W/ 2-3 Days Home",
+    "notes": "Regional subset of the broader AB East account; no numeric pay data."
+  },
+  {
+    "name": "Anheuser-Busch Mat. Local",
+    "states": [
+      "Colorado"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1448,
+    "avgAnnual": 75328,
+    "top10Weekly": 1619,
+    "top10Annual": 84235,
+    "hometime": "Home Daily — night shift, incl. weekends",
+    "notes": "Fort Collins, CO brewery account (delivers to Windsor, CO)."
+  },
+  {
+    "name": "Anheuser Busch West",
+    "states": [
+      "Arizona",
+      "New Mexico",
+      "California",
+      "Colorado",
+      "Utah",
+      "Nevada",
+      "North Dakota",
+      "Wyoming",
+      "South Dakota",
+      "Oregon",
+      "Washington"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "avgWeekly": 1519,
+    "avgAnnual": 78988,
+    "top10Weekly": 1870,
+    "top10Annual": 97240,
+    "hometime": "Home every 2 weeks for 2 days",
+    "notes": "Covers most western/central states; ~2,500 mi/wk."
+  },
+  {
+    "name": "Autoliv Teams",
+    "states": [
+      "Utah",
+      "Idaho",
+      "Indiana"
+    ],
+    "cadence": "weekly",
+    "type": "Team",
+    "bonusLane": true,
+    "hometime": "34-hour reset weekly (home weekly)",
+    "notes": "Pre-made teams must live within 50mi of each other; ~6,000 mi/wk; no pay figures captured."
+  },
+  {
+    "name": "Chicago, IL - Intermodal",
+    "states": [
+      "Illinois"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1280,
+    "avgAnnual": 66560,
+    "top10Weekly": 1550,
+    "top10Annual": 80600,
+    "hometime": "Home daily, 2 consecutive days off/wk",
+    "notes": "Intermodal/rail-ramp at McCook, IL; occasional OH/MI/KY/IA/WI regional runs."
+  },
+  {
+    "name": "Christopher Ranch Teams",
+    "states": [
+      "California"
+    ],
+    "cadence": "multiweek",
+    "type": "Team",
+    "bonusLane": true,
+    "hometime": "34-hr weekly DOT reset (can be at home); otherwise every 2-3 weeks, 1 day off per week out (up to 5)",
+    "notes": "Refrigerated freight ex Gilroy, CA; ~4,900 mi/wk; no pay figures captured."
+  },
+  {
+    "name": "Coke - Wilsonville, OR - Local",
+    "states": [
+      "Oregon"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1419,
+    "avgAnnual": 73788,
+    "top10Weekly": 1681,
+    "top10Annual": 87412,
+    "hometime": "Home Daily",
+    "notes": "Route Wilsonville, OR ↔ Bellevue, WA; hazmat required within 60 days."
+  },
+  {
+    "name": "Country Fresh",
+    "states": [
+      "Pennsylvania"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "hometime": "Home Weekly (34-hour reset)",
+    "notes": "Stop pay $25/stop; PA ↔ OH/KY/VA/NY/CT/MA/ME; no avg/top10 $ figures."
+  },
+  {
+    "name": "Dollar Tree - Joliet, IL",
+    "states": [
+      "Illinois"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "hometime": "34-hr weekly reset (falls Sat or Sun)",
+    "notes": "Per-load pay only: $340/load, ~3 loads/wk + $25 backhaul; hand-unload via rollers. 6mo exp & ≤2 jobs/yr required."
+  },
+  {
+    "name": "Dollar Tree - Ocala, FL",
+    "states": [
+      "Florida"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1418,
+    "avgAnnual": 73779,
+    "top10Weekly": 1464,
+    "top10Annual": 76152,
+    "hometime": "Weekly (34-hr reset)",
+    "notes": "$1,400/wk guaranteed min if avail. 5.5 days w/ no service issues; hand-unload via rollers."
+  },
+  {
+    "name": "Dollar Tree - Phoenix, AZ",
+    "states": [
+      "Arizona",
+      "Nevada",
+      "Utah",
+      "California"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1500,
+    "avgAnnual": 78000,
+    "top10Weekly": 1500,
+    "top10Annual": 78000,
+    "hometime": "34-hr rest period weekly",
+    "notes": "Top = Avg in source (no distinct top tier given). 6mo exp & ≤2 jobs/yr required. Hand-unload, boxes to 50lb."
+  },
+  {
+    "name": "Dollar Tree - Ridgefield, WA",
+    "states": [
+      "Washington",
+      "Oregon"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 2102,
+    "avgAnnual": 109320,
+    "top10Weekly": 2570,
+    "top10Annual": 133639,
+    "hometime": "Weekly home time; full clock, OT after 40hrs; no stop/unload pay",
+    "notes": "Figures are the 1+ year tenure column. 6mo exp & ≤2 jobs/yr required."
+  },
+  {
+    "name": "Dollar Tree - South Carolina",
+    "states": [
+      "North Carolina",
+      "Kentucky",
+      "Virginia",
+      "Tennessee"
+    ],
+    "cadence": "weekly",
+    "type": "Solo",
+    "bonusLane": true,
+    "hometime": "34-hr reset weekly (home Fri/Sat or Sat/Sun night)",
+    "notes": "Despite the name, hiring-radius states are NC/KY/VA/TN only (dispatch hub Cowpens, SC). $1,400/wk guarantee if 5.5 days worked; $320/load unload pay. 6mo exp & ≤2 jobs/yr required."
+  },
+  {
+    "name": "Dollar Tree - Warrensburg, MO",
+    "states": [
+      "North Dakota",
+      "Colorado",
+      "Nebraska",
+      "Iowa",
+      "Minnesota",
+      "Montana",
+      "South Dakota",
+      "Missouri"
+    ],
+    "cadence": "weekly",
+    "type": "Solo",
+    "bonusLane": true,
+    "avgWeekly": 1610,
+    "avgAnnual": 83000,
+    "top10Weekly": 2099,
+    "top10Annual": 109000,
+    "hometime": "Weekly 34-hr reset (day off typically Sat/Sun)",
+    "notes": "$320/load, ~2 loads/wk + up to 3% safe/on-time bonus. 6mo exp & ≤2 jobs/yr required."
+  },
+  {
+    "name": "Dollar Tree - West Memphis, AR",
+    "states": [
+      "Arkansas"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "hometime": "Home Weekly (34-hr rest)",
+    "notes": "$200/load, ~3 loads/wk (no rolled-up weekly $ given); rotocart/lift-gate unload; orientation in Dallas, TX."
+  },
+  {
+    "name": "Family Dollar - Oklahoma",
+    "states": [
+      "Texas",
+      "Oklahoma"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1666,
+    "avgAnnual": 86646,
+    "top10Weekly": 2089,
+    "top10Annual": 108631,
+    "hometime": "Once/wk for a 34-hr reset (date varies w/ freight demand)",
+    "notes": "$1,400/wk guarantee if 5.5 days worked; hand-unload via rollers, boxes to 75lb. 6mo exp & ≤2 jobs/yr required."
+  },
+  {
+    "name": "Family Dollar - St George, UT",
+    "states": [
+      "New Mexico",
+      "Utah"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1759,
+    "avgAnnual": 91000,
+    "top10Weekly": 2274,
+    "top10Annual": 118000,
+    "hometime": "34-hr reset weekly (days off vary w/ demand)",
+    "notes": "$320/load, ~1-2 loads/wk; hand-unload via rollers, ~3000 pcs/trailer."
+  },
+  {
+    "name": "Georgia Pacific - I95 North",
+    "states": [
+      "Florida",
+      "Georgia"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "Out 14 days / earn 2 days home time (1 extra day off per extra wk out)",
+    "notes": "No-touch, 50/50 live-load/drop-hook; ~2,000mi/wk, 2 stops/wk; no pay figures captured."
+  },
+  {
+    "name": "Georgia Pacific - Pacific Southwest",
+    "states": [
+      "Georgia"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "2 days every two weeks out (extend for 1 day off/extra wk)",
+    "notes": "Data-quality caveat: hiring-area lines list only Rincon/Atlanta, GA despite the \"Pacific Southwest\" name — likely a copy-paste error in source; confirm actual coverage before use. No pay figures captured."
+  },
+  {
+    "name": "Georgia Pacific - I95 South",
+    "states": [
+      "Florida",
+      "Georgia"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "hometime": "6-8 days out, planned home for 34-hr reset",
+    "notes": "No-touch freight, ~2,000mi/wk, 2 stops/wk; no pay figures captured."
+  },
+  {
+    "name": "Georgia Pacific - I-5 North",
+    "states": [
+      "California",
+      "Arizona",
+      "Utah",
+      "Oregon",
+      "Washington",
+      "Nevada"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "avgWeekly": 1344,
+    "avgAnnual": 69928,
+    "top10Weekly": 1623,
+    "top10Annual": 84438,
+    "hometime": "2 full days off bi-weekly (every 10-14 days)",
+    "notes": "~2,000mi/wk; lanes run Ontario/Rancho Cucamonga, CA. A near-duplicate sheet shows alt figures (Avg $1,363/wk, Top10 $1,612/wk, Solo, hiring NV/AZ/UT/OR/WA only — no CA)."
+  },
+  {
+    "name": "Harbor Freight - Regional Washington",
+    "states": [
+      "Washington",
+      "Oregon",
+      "California",
+      "Utah",
+      "Colorado"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "avgWeekly": 1505,
+    "avgAnnual": 78260,
+    "top10Weekly": 1634,
+    "top10Annual": 84968,
+    "hometime": "Min. 2 weeks out, 34-hr reset as needed (1 day off/extra wk)",
+    "notes": "10/week bonus lane; multi-stop (~18 stops/wk), no-touch; ex Tacoma/Puyallup, WA DC."
+  },
+  {
+    "name": "Harbor Freight Tools",
+    "states": [
+      "Texas"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1130,
+    "avgAnnual": 58760,
+    "hometime": "Varies day-to-day to every other day",
+    "notes": "none"
+  },
+  {
+    "name": "Harbor Freight - Regional Rockies",
+    "states": [
+      "Colorado",
+      "Utah"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "Min. 2 weeks out, 34-hr reset as needed (1 day off/extra wk)",
+    "notes": "10/wk bonus lane; ~2,300mi/wk, ~18 stops/wk, no-touch; no pay figures captured (a duplicate sheet notes stop pay $20/stop, detention $20/hr)."
+  },
+  {
+    "name": "Harrisburg, PA - Intermodal",
+    "states": [
+      "Pennsylvania"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1485,
+    "avgAnnual": 77241,
+    "top10Weekly": 2047,
+    "top10Annual": 106482,
+    "hometime": "Multiple times/wk (day cab, returns to yard daily)",
+    "notes": "Intermodal/rail-ramp near Ono, PA."
+  },
+  {
+    "name": "Hershey Reese - Yard Jockey",
+    "states": [
+      "Pennsylvania"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1176,
+    "avgAnnual": 61152,
+    "top10Annual": 115209,
+    "hometime": "3.5 days on / 3.5 days off (1 weekend day required); day/night shifts",
+    "notes": "Yard jockey/spotter role, hourly pay — not OTR driving. Source's Top Weekly figure is unreliable (shown as N/A alongside a populated Top Annualized); use Top Annualized only with caution."
+  },
+  {
+    "name": "ICL Pennsylvania",
+    "states": [
+      "Pennsylvania"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1775,
+    "avgAnnual": 92332,
+    "top10Weekly": 2084,
+    "top10Annual": 108368,
+    "hometime": "Home weekly (34-hr reset, weekend or mid-week)",
+    "notes": "Container/chassis drop-hook near Philadelphia, PA; TWIC required, Hazmat/Tanker within 30 days, 6mo exp required."
+  },
+  {
+    "name": "Kroger - Denver, CO Regional & Local",
+    "states": [
+      "Colorado"
+    ],
+    "cadence": "daily",
+    "bonusLane": true,
+    "hometime": "LOCAL: Home Daily. REGIONAL: home every other day (34-hr reset, possibly more)",
+    "notes": "20/wk bonus lane; combined Local+Regional; CPM scale 0.70-0.80 by experience; stop pay $17 (avg 13 stops); $1,000 winter mountain bonus Nov-Mar. Source gives only a pay range ($1,450-$1,581/wk), no discrete avg/top10."
+  },
+  {
+    "name": "Lidl - Fredericksburg, VA",
+    "states": [
+      "Virginia"
+    ],
+    "cadence": "daily",
+    "bonusLane": true,
+    "hometime": "2 consecutive days off per week",
+    "notes": "Physically demanding local fleet; electric pallet jack, multi-temp trailers; no pay figures captured."
+  },
+  {
+    "name": "Lidl - Perryville, MD",
+    "states": [
+      "Maryland"
+    ],
+    "cadence": "daily",
+    "bonusLane": true,
+    "hometime": "Home daily (7-day/wk operation, no set days off)",
+    "notes": "Physically demanding, must pull 75lb, electric pallet jack; remote orientation only; no pay figures captured."
+  },
+  {
+    "name": "Metropolitan Teams",
+    "states": [
+      "Nevada"
+    ],
+    "cadence": "weekly",
+    "type": "Team",
+    "bonusLane": true,
+    "avgWeekly": 1710,
+    "avgAnnual": 88943,
+    "top10Weekly": 2133,
+    "top10Annual": 110916,
+    "hometime": "Home weekly (34-hr reset)",
+    "notes": "Data-quality note: the sheet literally titled \"Metropolitan Teams\" is blank in source — figures pulled from a populated duplicate (\"Metropolitan Warehouse - TEAM\"). ~4,200-5,000mi/wk, dry freight ex Mira Loma, CA."
+  },
+  {
+    "name": "Pet Smart - AZ",
+    "states": [
+      "Arizona",
+      "California"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1355,
+    "avgAnnual": 70461,
+    "hometime": "Home 2 days/wk plus reset (34-hr targeted, may vary; works holidays)",
+    "notes": "~3.5 loads/wk, 9 stops/wk avg; 24/7 operation."
+  },
+  {
+    "name": "Pet Smart - California",
+    "states": [
+      "California"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1163,
+    "avgAnnual": 60476,
+    "top10Weekly": 1342,
+    "top10Annual": 69784,
+    "hometime": "Home every other night (0500-1700 Mon-Fri, some weekend work)",
+    "notes": "Multi-stop regional pickups/deliveries in Greater LA, daily return to Colton, CA."
+  },
+  {
+    "name": "Portland, OR - Intermodal",
+    "states": [
+      "Oregon"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1240,
+    "avgAnnual": 64480,
+    "top10Weekly": 1750,
+    "top10Annual": 91000,
+    "hometime": "Home Daily (5-day schedule, optional 6th day)",
+    "notes": "Intermodal, day cab, dispatch within 0-300mi of rail ramp."
+  },
+  {
+    "name": "Recovery - 48 States",
+    "states": [
+      "Alabama",
+      "Arizona",
+      "Arkansas",
+      "California",
+      "Colorado",
+      "Connecticut",
+      "Delaware",
+      "Florida",
+      "Georgia",
+      "Idaho",
+      "Illinois",
+      "Indiana",
+      "Iowa",
+      "Kansas",
+      "Kentucky",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Missouri",
+      "Montana",
+      "Nebraska",
+      "Nevada",
+      "New Hampshire",
+      "New Jersey",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "North Dakota",
+      "Ohio",
+      "Oklahoma",
+      "Oregon",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "South Dakota",
+      "Tennessee",
+      "Texas",
+      "Utah",
+      "Vermont",
+      "Virginia",
+      "Washington",
+      "West Virginia",
+      "Wisconsin",
+      "Wyoming"
+    ],
+    "cadence": "multiweek",
+    "bonusLane": true,
+    "hometime": "3-4 weeks out; 1 day home per week worked; home once a month",
+    "notes": "NOT standard freight hauling — equipment recovery/repositioning role (moving tractors/trailers between fleets/terminals). Pay is detention/layover/breakdown/travel-based ($20/hr detention after 2hrs, $200/24hr layover, $150/24hr breakdown, $150 travel), no avg/top10 weekly $ given. Longest home-time cycle of any CR England account in this list."
+  },
+  {
+    "name": "Schreiber Teams",
+    "states": [
+      "Utah",
+      "Missouri"
+    ],
+    "cadence": "multiweek",
+    "type": "Team",
+    "bonusLane": true,
+    "hometime": "3-4 days home every 3-4 weeks out",
+    "notes": "Must be a pre-made team; ~4,900mi/wk; refrigerated freight, static weekly routes; no pay figures captured."
+  },
+  {
+    "name": "Smithfield Regional NC",
+    "states": [
+      "North Carolina"
+    ],
+    "cadence": "weekly",
+    "avgWeekly": 1512,
+    "avgAnnual": 78624,
+    "top10Weekly": 1763,
+    "top10Annual": 91676,
+    "hometime": "34-hr reset weekly (Home Weekly, potentially 2 days)",
+    "notes": "Night-driving primarily; ~1,481mi/wk; reefer freight; source notes pay is by-the-load based on experience — treat figures as averages."
+  },
+  {
+    "name": "Sysco Mentor",
+    "states": [
+      "Pennsylvania",
+      "Ohio",
+      "Massachusetts",
+      "Virginia",
+      "Maryland",
+      "New Jersey"
+    ],
+    "cadence": "weekly",
+    "avgWeekly": 1550,
+    "avgAnnual": 80600,
+    "hometime": "Home weekly typical; guaranteed ≥ every other weekend for 34-hr reset; Front Royal domicile guaranteed weekly",
+    "notes": "Mentor role (+$200/wk when paired w/ mentee; 6mo exp & 25+ required). Hazmat required within 90 days; night driving required. Source explicitly says top-10% figures aren't achievable for a new hire — excluded."
+  },
+  {
+    "name": "Target - Albany Long Haul",
+    "states": [
+      "Oregon"
+    ],
+    "cadence": "weekly",
+    "avgWeekly": 1700,
+    "avgAnnual": 88400,
+    "top10Weekly": 2200,
+    "top10Annual": 114400,
+    "hometime": "Home weekly for a 34-hr reset, 5-day schedule, 2 consecutive days off/wk",
+    "notes": "Deliveries to MT/ID from Albany, OR; drop-and-hook only."
+  },
+  {
+    "name": "Target - FL - Condo",
+    "states": [
+      "North Carolina"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "hometime": "Home time weekly for a 34-hr reset",
+    "notes": "Radius origin is Robbins, NC — tagged NC per the literal-state rule despite the \"Target - FL\" nickname; loads originate Lake City, FL, deliveries to FL/GA/LA/MS/NC/SC; no pay figures captured."
+  },
+  {
+    "name": "Target - Florida Teams",
+    "states": [
+      "Florida",
+      "North Carolina",
+      "South Carolina",
+      "Georgia"
+    ],
+    "cadence": "weekly",
+    "type": "Team",
+    "bonusLane": true,
+    "avgWeekly": 1335,
+    "avgAnnual": 69420,
+    "top10Weekly": 1743,
+    "top10Annual": 90636,
+    "hometime": "At least 34hrs home each week (loads start/end Lake City, FL)",
+    "notes": "Runs I-95 FL/SC/NC/VA w/ occasional TN/GA. A near-duplicate sheet (\"Target Florida Team\") shows notably higher figures (Avg $2,013/wk, Annual $104,720) — flagged as alt data, not used."
+  },
+  {
+    "name": "Target - Fontana, CA",
+    "states": [
+      "California"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1395,
+    "avgAnnual": 72548,
+    "top10Weekly": 1858,
+    "top10Annual": 96660,
+    "hometime": "Home Daily (start 1400-1700, 6 days/wk incl. weekends, 10-12hr shifts)",
+    "notes": "Day cab local fleet, multi-stop, ~1,400mi/wk set lanes, 28ft trailers w/ manual pallet jack/lift gate."
+  },
+  {
+    "name": "Target - Rialto, CA - Local",
+    "states": [
+      "California"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1395,
+    "avgAnnual": 72548,
+    "top10Weekly": 1858,
+    "top10Annual": 96660,
+    "hometime": "Home Daily (start 1400-1700, 6 days/wk incl. weekends, 10-12hr shifts)",
+    "notes": "Pay figures identical to the Target - Fontana, CA sheet (both day-cab local fleets, shared data in source). Hook-and-drop, no-touch freight."
+  },
+  {
+    "name": "Target - Stuarts Draft Condo",
+    "states": [
+      "West Virginia",
+      "Maryland",
+      "New Jersey",
+      "Pennsylvania",
+      "Virginia"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1510,
+    "avgAnnual": 78561,
+    "top10Weekly": 1871,
+    "top10Annual": 97329,
+    "hometime": "Home Weekly for a 34-hr reset (24/7 operation, day/night shifts)",
+    "notes": "Condo fleet, ~1,921mi/wk set lanes, mostly drop-hook; trucks may go home within 35mi of last delivery."
+  },
+  {
+    "name": "Target - Stuarts Draft - Local",
+    "states": [
+      "Virginia"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1510,
+    "avgAnnual": 78561,
+    "top10Weekly": 1871,
+    "top10Annual": 97329,
+    "hometime": "Home Daily (5 days/wk normal, 6 during surge; 24/7 operation)",
+    "notes": "Preloaded, hook-and-drop, no-touch, ~1,772mi/wk set lanes."
+  },
+  {
+    "name": "Target - Teams - California",
+    "states": [
+      "California"
+    ],
+    "cadence": "weekly",
+    "type": "Team",
+    "bonusLane": true,
+    "avgWeekly": 1578,
+    "avgAnnual": 82083,
+    "top10Weekly": 1834,
+    "top10Annual": 95382,
+    "hometime": "34-hr reset weekly, set day off",
+    "notes": "~3,361mi/wk; loads start/end Rialto, CA, deliver AZ/UT/NV/throughout CA; CPM split pay."
+  },
+  {
+    "name": "Target - West Jefferson, OH",
+    "states": [
+      "Illinois",
+      "Kentucky",
+      "Indiana",
+      "Ohio"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1864,
+    "avgAnnual": 96934,
+    "top10Weekly": 2507,
+    "top10Annual": 130371,
+    "hometime": "2-3 days home weekly with a 34-hr reset",
+    "notes": "~2,030mi/wk; shuttles/full loads from Whitestown IN & Demotte IN to Chicago area; tri-temp/dual-temp reefer."
+  },
+  {
+    "name": "WalMart Baltimore, MD - REGIONAL",
+    "states": [
+      "Maryland"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1530,
+    "avgAnnual": 79560,
+    "top10Weekly": 2091,
+    "top10Annual": 108732,
+    "hometime": "34-hr reset weekly, +possible 10-hr home breaks if parked at Baltimore Yard (2-3 days home/wk possible)",
+    "notes": "~1,900mi/wk; candy freight; $1,375 guarantee if avail. 5 days; delivers PA/DE/NY/NJ/WV/VA/NC/DC (no NYC boroughs); remote orientation, Monday starts."
+  },
+  {
+    "name": "WalMart - Casa Grande LOCAL",
+    "states": [
+      "Arizona"
+    ],
+    "cadence": "daily",
+    "bonusLane": true,
+    "avgWeekly": 1268,
+    "avgAnnual": 65938,
+    "top10Weekly": 1504,
+    "top10Annual": 78228,
+    "hometime": "Home Daily (any shift)",
+    "notes": "8-15 loads/wk, 3-4 stops/load; slip-seat day cab, trucks can't be taken home, runs within 225mi radius of DC."
+  },
+  {
+    "name": "WalMart - Pottsville, PA - Box",
+    "states": [
+      "Pennsylvania"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1530,
+    "avgAnnual": 79560,
+    "top10Weekly": 2091,
+    "top10Annual": 108732,
+    "hometime": "Home Daily (5-day schedule incl. weekends, optional 6th day)",
+    "notes": "Local, no-touch, live unload; Pottsville, PA ↔ Philadelphia, PA."
+  },
+  {
+    "name": "WalMart - Shafter Condo",
+    "states": [
+      "California"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1284,
+    "avgAnnual": 66811,
+    "top10Weekly": 1624,
+    "top10Annual": 84482,
+    "hometime": "34-hr reset weekly (linehaul drivers typically off 34-48hrs/wk, possible mid-week home)",
+    "notes": "~1,700mi/wk; delivers throughout CA and NV. Figures identical to the WalMart - Shafter LOCAL account (shared source data)."
+  },
+  {
+    "name": "WalMart - Shafter LOCAL",
+    "states": [
+      "California"
+    ],
+    "cadence": "daily",
+    "bonusLane": true,
+    "avgWeekly": 1284,
+    "avgAnnual": 66811,
+    "top10Weekly": 1624,
+    "top10Annual": 84482,
+    "hometime": "Home Daily, typically 2 consecutive days off/wk",
+    "notes": "~2-3 stops/load with backhaul to DC; delivers throughout Southern CA from Shafter Walmart DC."
+  },
+  {
+    "name": "WalMart - Southern, CA Condo",
+    "states": [
+      "California"
+    ],
+    "cadence": "weekly",
+    "bonusLane": true,
+    "avgWeekly": 1570,
+    "avgAnnual": 81674,
+    "top10Weekly": 1570,
+    "top10Annual": 81674,
+    "hometime": "Home Weekly: 34-hr reset weekly (70-hr work week typical)",
+    "notes": "Top = Avg in source (no distinct top tier given). Routes originate Colton/Fontana/Riverside, CA DCs, deliver CA/NV/AZ."
+  },
+  {
+    "name": "WalMart - Southern CA - Local",
+    "states": [
+      "California"
+    ],
+    "cadence": "daily",
+    "avgWeekly": 1554,
+    "avgAnnual": 80830,
+    "top10Weekly": 2122,
+    "top10Annual": 110379,
+    "hometime": "Home Daily (6-day wk during peak, 1 day off)",
+    "notes": "Day cab, slip-seat; ~1,700mi/wk, 1-2 stops/day; LA Basin/Inland Empire/Orange County/San Diego County."
+  }
+]

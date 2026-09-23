@@ -1,0 +1,85 @@
+[
+  {
+    "name": "Target Newton, NC",
+    "states": [
+      "North Carolina"
+    ],
+    "payLow": 1000,
+    "payHigh": 1200,
+    "note": "60mi radius, home weekly."
+  },
+  {
+    "name": "Meijer",
+    "states": [
+      "Ohio",
+      "Kentucky",
+      "Indiana"
+    ],
+    "payLow": 1500,
+    "payHigh": 1500,
+    "note": "Within 250mi of DC. Top earners $1,750+/wk."
+  },
+  {
+    "name": "Kroger Roanoke, VA (Team variant)",
+    "states": [
+      "Virginia",
+      "West Virginia"
+    ],
+    "payLow": 1450,
+    "payHigh": 1450,
+    "note": "WV backhaul to Indianapolis."
+  },
+  {
+    "name": "Walmart Henderson, NC",
+    "states": [
+      "South Carolina",
+      "North Carolina",
+      "Tennessee",
+      "Virginia"
+    ],
+    "payLow": 1200,
+    "payHigh": 1200,
+    "note": "Within 300mi; must work full schedule."
+  },
+  {
+    "name": "Staple Terre Haute, IN",
+    "states": [
+      "Indiana"
+    ],
+    "payLow": 1450,
+    "payHigh": 1450,
+    "note": "Originates/ends Terre Haute IN; delivers Midwest/TX/FL/GA/TN/CO (~$75-85k/yr)."
+  },
+  {
+    "name": "Target Newton (Team, $5k split SOB)",
+    "states": [
+      "North Carolina",
+      "Virginia",
+      "Tennessee",
+      "Georgia",
+      "Alabama",
+      "Maryland"
+    ],
+    "payLow": 1500,
+    "payHigh": 1700,
+    "note": "Team position."
+  },
+  {
+    "name": "Quad Graphics (Sussex, WI)",
+    "states": [
+      "Wisconsin"
+    ],
+    "payLow": 1400,
+    "payHigh": 1400,
+    "note": "150mi radius; home every 2 weeks; no-touch freight."
+  },
+  {
+    "name": "Quad Graphics (Martinsburg, WV)",
+    "states": [
+      "West Virginia"
+    ],
+    "payLow": 1400,
+    "payHigh": 1400,
+    "note": "150mi radius; home every 2 weeks; no-touch freight."
+  }
+]

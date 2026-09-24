@@ -56,7 +56,7 @@ export function UploadPanel({
     try {
       const records = parseDriverUpdatesWorkbook(pendingBuffer, carrierName.trim(), pendingFile.name);
       if (records.length === 0) {
-        setError('No rows found under "Active" / "DQ" / "Hired" tabs — check the file has those tab names.');
+        setError("No driver rows found in that file — couldn't detect a name column on any sheet.");
         return;
       }
       const active = records.filter((r) => r.status === "Active").length;
@@ -69,9 +69,7 @@ export function UploadPanel({
       setPendingBuffer(null);
       if (fileRef.current) fileRef.current.value = "";
     } catch {
-      setError(
-        "Couldn't parse that workbook. Expected tabs named Active / DQ / Hired with Name, Position, and Status of application columns."
-      );
+      setError("Couldn't parse that file — make sure it's a valid .xlsx, .xls, or .csv export.");
     }
   };
 
@@ -82,8 +80,9 @@ export function UploadPanel({
           Import driver updates
         </div>
         <div className="text-[12px] text-[var(--cpm-text-dim)] mt-0.5">
-          Upload a carrier&apos;s driver-updates workbook (Active / DQ / Hired tabs). Re-uploading the same carrier
-          name replaces its data with the latest snapshot.
+          Upload a carrier&apos;s driver-updates export (.xlsx or .csv) — Active/DQ/Hired tabs, one flat sheet with a
+          Status column, whatever that carrier sends. Re-uploading the same carrier name replaces its data with the
+          latest snapshot.
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-2">

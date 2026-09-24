@@ -18,7 +18,7 @@ export function Tooltip({ state }: { state: TooltipState }) {
         display: "block",
         position: "fixed",
         pointerEvents: "none",
-        background: "#171b24",
+        background: "#262b36",
         border: "1px solid rgba(255,255,255,.2)",
         borderRadius: 8,
         padding: "8px 10px",

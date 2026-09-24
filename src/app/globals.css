@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0d12;
+  --background: #1a1d24;
   --foreground: #e8e9ee;
 }
 
@@ -18,19 +18,19 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* --- Dark dashboard surfaces (Class A Recruiting theme) --- */
+/* --- Dark dashboard surfaces (Class A Recruiting brand: #1a1d24 / #d4a137) --- */
 .app-dark {
-  --cpm-bg: #0b0d12;
-  --cpm-map-bg: #11141b;
+  --cpm-bg: #1a1d24;
+  --cpm-map-bg: #20242c;
   --cpm-panel: rgba(255, 255, 255, 0.045);
-  --cpm-panel-alt: #161a22;
+  --cpm-panel-alt: #252a34;
   --cpm-border: rgba(255, 255, 255, 0.1);
   --cpm-border-strong: rgba(255, 255, 255, 0.2);
   --cpm-text: #e8e9ee;
   --cpm-text-dim: #9aa0ad;
   --cpm-text-faint: #6b7280;
-  --cpm-accent: #f5a623;
-  --cpm-accent-strong: #ffc35c;
+  --cpm-accent: #d4a137;
+  --cpm-accent-strong: #e6bb5e;
   --cpm-red: #e5484d;
   --cpm-red-soft: rgba(229, 72, 77, 0.16);
   --cpm-green: #22c55e;
@@ -38,7 +38,7 @@ body {
 
   background-color: var(--cpm-bg);
   background-image:
-    radial-gradient(900px 480px at 12% -10%, rgba(245, 166, 35, 0.08), transparent 60%),
+    radial-gradient(900px 480px at 12% -10%, rgba(212, 161, 55, 0.08), transparent 60%),
     radial-gradient(700px 480px at 105% 0%, rgba(91, 155, 216, 0.06), transparent 55%);
   background-attachment: fixed;
   color: var(--cpm-text);
@@ -116,7 +116,7 @@ body {
 #map { width:100%; max-width:1352px; margin:0 auto; display:block; }
 #map svg { background:var(--cpm-map-bg); border-radius:8px; }
 #legend { display:flex; align-items:center; gap:8px; margin-top:8px; font-size:12px; color:var(--cpm-text-dim); flex-wrap:wrap; }
-#catNote { font-size:12px; color:#f0c674; background:rgba(245,166,35,.1); border:1px solid rgba(245,166,35,.35); border-radius:8px; padding:8px 12px; margin-top:10px; }
+#catNote { font-size:12px; color:#e6c078; background:rgba(212,161,55,.1); border:1px solid rgba(212,161,55,.35); border-radius:8px; padding:8px 12px; margin-top:10px; }
 #detail { margin-top:16px; }
 
 .card { background:var(--cpm-panel); border:1px solid var(--cpm-border); border-radius:12px; padding:16px 20px; }
@@ -140,6 +140,6 @@ body {
 table.cpm { border-collapse:collapse; font-size:12.5px; margin:6px 0; }
 table.cpm td, table.cpm th { border:1px solid var(--cpm-border-strong); padding:3px 8px; text-align:left; }
 
-#tip { display:none; position:fixed; pointer-events:none; background:#171b24; border:1px solid var(--cpm-border-strong); border-radius:8px; padding:8px 10px; font-size:12px; color:var(--cpm-text); z-index:10; box-shadow:0 4px 16px rgba(0,0,0,.5); max-width:280px; }
+#tip { display:none; position:fixed; pointer-events:none; background:#262b36; border:1px solid var(--cpm-border-strong); border-radius:8px; padding:8px 10px; font-size:12px; color:var(--cpm-text); z-index:10; box-shadow:0 4px 16px rgba(0,0,0,.5); max-width:280px; }
 
 path { stroke:rgba(255,255,255,.18); stroke-width:0.75; cursor:pointer; }

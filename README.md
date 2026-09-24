@@ -2,7 +2,7 @@
 
 CDL-A carrier pay comparison and recruiter strategy tool for Class A Recruiting.
 
-Live site: **https://carrier-pay-mapp.vercel.app**
+Live site: **https://andrewtaylorhr-ai.github.io/carrier-pay-map/**
 
 ## What it is
 
@@ -16,10 +16,21 @@ U.S. Xpress, PAM, TransAm, CR England, plus more to come), with two views:
 
 ## Stack
 
-Next.js (App Router) + React + TypeScript + Tailwind, deployed on Vercel with
-auto-deploy on every push to `main`. D3 (`d3-selection`, `d3-geo`, `d3-scale`,
-`d3-scale-chromatic`, `topojson-client`) drives the choropleth map; `xlsx`
-handles the per-recruiter Excel export.
+Next.js (App Router) + React + TypeScript + Tailwind, built as a static
+export (`output: "export"`, no server/API routes needed) and deployed to
+GitHub Pages via the `.github/workflows/deploy-pages.yml` GitHub Actions
+workflow — auto-deploys on every push to `main`, no third-party dashboard
+involved. D3 (`d3-selection`, `d3-geo`, `d3-scale`, `d3-scale-chromatic`,
+`topojson-client`) drives the choropleth map; `xlsx` handles the
+per-recruiter Excel export.
+
+Because GitHub Pages serves this as a project page (not a `*.github.io` user
+page), the app is built with `basePath: "/carrier-pay-map"` in production.
+Any code that references a `public/` asset by absolute path (the topojson
+fetch in `ChoroplethMap.tsx`, the carrier logo `<img>` in `Toolbar.tsx`) must
+prefix it with `BASE_PATH` from `src/lib/basePath.ts` — plain `next/link`
+and CSS `url()` inside `globals.css` don't need this, only raw
+`fetch()`/`<img src>` calls do.
 
 ## Source
 
@@ -28,7 +39,7 @@ Carrier pay/coverage data and business logic live in `src/lib/carriers/`
 prototype). UI components are in `src/components/carrier-map/`.
 
 To update data, edit the relevant module under `src/lib/carriers/` and push —
-Vercel rebuilds and redeploys automatically.
+GitHub Actions rebuilds and redeploys to Pages automatically.
 
 ## Notes
 
@@ -37,5 +48,9 @@ Vercel rebuilds and redeploys automatically.
 - Recruiter roster and recruiter-to-state / carrier-to-state assignments are
   stored in the browser's `localStorage`, so they're per-device, not shared
   across users viewing the site. This is a solo-user internal tool by design.
-- Previously hosted as a static single-file HTML app on GitHub Pages
-  (`docs/index.html`); retired in favor of this Next.js app on Vercel.
+- Originally a static single-file HTML app on GitHub Pages
+  (`docs/index.html`), rebuilt as this Next.js app. Briefly hosted on Vercel,
+  but that project got connected to a stale auto-generated repo and never
+  actually deployed pushes from here — moved back to GitHub Pages (via a
+  proper GitHub Actions static-export workflow this time) since it's a
+  better fit for a solo-user internal tool with no server-side needs anyway.

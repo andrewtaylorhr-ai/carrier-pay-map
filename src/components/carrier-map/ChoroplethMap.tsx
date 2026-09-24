@@ -10,6 +10,7 @@ import { CARRIERS } from "@/lib/carriers/data";
 import { getStateRecord } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useMapStyle } from "@/lib/hooks/useMapStyle";
+import { BASE_PATH } from "@/lib/basePath";
 import { renderStateLabels } from "./stateLabels";
 import { Tooltip, type TooltipState } from "./Tooltip";
 
@@ -58,7 +59,7 @@ export function ChoroplethMap() {
     labelGRef.current = labelG;
 
     let cancelled = false;
-    fetch("/data/states-albers-10m.json")
+    fetch(`${BASE_PATH}/data/states-albers-10m.json`)
       .then((r) => r.json())
       .then((us: Topology) => {
         if (cancelled) return;

@@ -2,6 +2,7 @@
 
 import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
+import { BASE_PATH } from "@/lib/basePath";
 
 export function Toolbar() {
   const { currentCarrier, setCarrier, currentCat, setCat, strategyMode, setStrategyMode, setSelectedState } = useCarrierMap();
@@ -29,7 +30,7 @@ export function Toolbar() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c.logo} alt={c.label} className="carrierLogo" />
+                <img src={`${BASE_PATH}${c.logo}`} alt={c.label} className="carrierLogo" />
               </button>
             );
           })}

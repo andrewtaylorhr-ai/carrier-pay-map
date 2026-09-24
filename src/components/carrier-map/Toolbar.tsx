@@ -24,7 +24,7 @@ export function Toolbar() {
                 className={active ? "active" : undefined}
                 style={{
                   borderColor: c.color,
-                  background: active ? `${c.color}18` : "#fff",
+                  background: active ? `${c.color}22` : "var(--cpm-panel-alt)",
                   boxShadow: active ? `0 3px 10px ${c.color}55` : undefined,
                 }}
               >

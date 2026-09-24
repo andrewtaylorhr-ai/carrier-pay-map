@@ -82,7 +82,7 @@ export function ChoroplethMap() {
                 `<div style="font-weight:600;margin-bottom:4px">${name}</div>` +
                 `<div>Carrier: ${assigned ? CARRIERS[assigned].label : "— unassigned —"}</div>` +
                 `<div>Recruiter${recs.length > 1 ? "s" : ""}: ${recs.length ? recs.join(", ") : "— unassigned —"}</div>` +
-                `<div style="margin-top:2px;color:#2a78d6">Click to assign / see all carriers</div>`;
+                `<div style="margin-top:2px;color:#7ab8f5">Click to assign / see all carriers</div>`;
             } else {
               const rec = getStateRecord(currentCarrier, currentCat, name);
               if (!rec) {
@@ -92,7 +92,7 @@ export function ChoroplethMap() {
               html =
                 `<div style="font-weight:600;margin-bottom:4px">${name} — ${CARRIERS[currentCarrier].label}</div>` +
                 rec.tooltipLines.map((l) => `<div>${l}</div>`).join("") +
-                `<div style="margin-top:4px;color:#2a78d6">Click for details</div>`;
+                `<div style="margin-top:4px;color:#7ab8f5">Click for details</div>`;
             }
             setTooltip({ visible: true, x: event.clientX + 14, y: event.clientY + 14, html });
           })

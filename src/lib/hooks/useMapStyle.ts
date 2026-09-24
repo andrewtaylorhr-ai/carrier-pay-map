@@ -30,11 +30,11 @@ export interface MapStyle {
   getRecruiterLabel: (stateName: string) => string;
 }
 
-const UNASSIGNED_FILL = "#f0efec";
-const NO_DATA_FILL = "#f0efec";
-const NO_VALUE_FILL = "#b9c9dc";
-const FLAT_NO_FILL = "#f4c7c3";
-const DEFAULT_STROKE = "#c7c7c2";
+const UNASSIGNED_FILL = "#232733";
+const NO_DATA_FILL = "#232733";
+const NO_VALUE_FILL = "#3a4a63";
+const FLAT_NO_FILL = "#6b3a3a";
+const DEFAULT_STROKE = "rgba(255,255,255,0.18)";
 
 export function useMapStyle(): MapStyle {
   const {

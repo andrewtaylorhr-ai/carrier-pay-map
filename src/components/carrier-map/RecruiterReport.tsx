@@ -42,7 +42,7 @@ export function RecruiterReport() {
             .map((cat) => {
               const rec = getStateRecord(id, cat, state);
               if (!rec) return "";
-              return `<div style="margin:4px 0 10px"><div style="font-size:12px;font-weight:600;color:#555">${cat}</div>${rec.detail}</div>`;
+              return `<div style="margin:4px 0 10px"><div style="font-size:12px;font-weight:600;color:#9aa0ad">${cat}</div>${rec.detail}</div>`;
             })
             .filter(Boolean)
             .join("");

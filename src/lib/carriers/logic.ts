@@ -310,7 +310,7 @@ function creState(cat: string, state: string): StateRecord | null {
             : "Pay not confirmed"
         }</div>
         <div class="sub">Home time: ${a.hometime}</div>
-        ${a.notes && a.notes !== "none" ? `<div class="sub" style="color:#888">${a.notes}</div>` : ""}
+        ${a.notes && a.notes !== "none" ? `<div class="sub" style="color:#9aa0ad">${a.notes}</div>` : ""}
       </div>`
       )
       .join("")}`,

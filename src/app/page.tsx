@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-[1400px] px-6 py-6">
       <h1 className="text-xl font-semibold mb-1">CDL-A multi-carrier pay &amp; strategy map</h1>
-      <p className="text-[13px] text-[#666] mb-4">
+      <p className="text-[13px] text-[#9aa0ad] mb-4">
         Pick a carrier and category to see pay by state. Switch to Strategy mode to lock in which carrier each state is
         assigned to for your recruiters.
       </p>

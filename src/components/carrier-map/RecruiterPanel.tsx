@@ -33,11 +33,11 @@ export function RecruiterPanel() {
           {r}: {counts[r]}
         </span>
       ))}
-      <span className="rchip" style={{ color: "#999", cursor: "default" }}>
+      <span className="rchip" style={{ color: "#6b7280", cursor: "default" }}>
         Unassigned: {unassignedCount}
       </span>
       {recruiterFilter && (
-        <span className="rchip" style={{ color: "#a32d2d", borderColor: "#e3a49e" }} onClick={() => setRecruiterFilter("")}>
+        <span className="rchip" style={{ color: "#ff9a9d", borderColor: "rgba(229,72,77,.45)" }} onClick={() => setRecruiterFilter("")}>
           ✕ Clear filter
         </span>
       )}

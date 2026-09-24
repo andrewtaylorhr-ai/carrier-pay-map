@@ -65,7 +65,7 @@ export function Legend() {
           hires here
         </span>
         <span style={{ marginLeft: 12 }}>
-          <Dot color="#f4c7c3" />
+          <Dot color="#6b3a3a" />
           does not hire
         </span>
         <span style={{ marginLeft: 12 }}>gray = no data</span>

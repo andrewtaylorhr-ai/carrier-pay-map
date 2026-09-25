@@ -35,10 +35,15 @@ function normalizeAccount(raw: string): string {
   return raw.replace(/\s+/g, " ").trim().toUpperCase();
 }
 
-// Common name-prefix patterns (McIntosh, MacDonald, O'Brien, DeSousa) have a
-// legitimate internal capital — don't flatten those, only re-case the rest
-// of the word around the prefix.
-const NAME_PREFIX_RE = /^(Mc|Mac|O'|De|Di|La|Le|Van|Von)([A-Za-z].*)$/i;
+// Only "Mc" and "O'" are safe to special-case: no common first name starts
+// with either, so preserving an internal capital there (McIntosh, O'Brien)
+// never collides with an ordinary name. Broader prefixes (Mac, De, Di, La,
+// Le, Van, Von) were tried and reverted — they collided with real first
+// names in this data (Macy -> "MacY", Lauren -> "LaUren", Laurie Larsen ->
+// "LaUrie LaRsen", Lance -> "LaNce"), which is worse than the rare miss on
+// an all-caps "MACDONALD"/"LAFLEUR"-style surname falling back to plain
+// title-case.
+const NAME_PREFIX_RE = /^(Mc|O')([A-Za-z].*)$/i;
 
 function titleCaseWord(word: string): string {
   if (word.length === 0) return word;

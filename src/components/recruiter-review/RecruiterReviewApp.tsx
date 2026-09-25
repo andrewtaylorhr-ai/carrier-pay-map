@@ -6,6 +6,7 @@ import {
   carrierHireRanked,
   monthlyHiresByCarrier,
   monthlyHiresByRecruiter,
+  recruiterCarrierMatrix,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
   recruiterHireRanked,
@@ -21,6 +22,7 @@ import { RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
 import { MonthlyHiresTable } from "./MonthlyHiresTable";
 import { CarrierTrendChart } from "./CarrierTrendChart";
+import { RecruiterCarrierTable } from "./RecruiterCarrierTable";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
@@ -197,6 +199,7 @@ export function RecruiterReviewApp() {
   const carrierSlices = useMemo(() => carrierSlicesFor(carrierRows), [carrierRows]);
   const monthlyMatrix = useMemo(() => monthlyHiresByRecruiter(records, SINCE_MONTHS), [records]);
   const carrierTrend = useMemo(() => monthlyHiresByCarrier(records, SINCE_MONTHS), [records]);
+  const recruiterCarrierGrid = useMemo(() => recruiterCarrierMatrix(records, SINCE_MONTHS), [records]);
 
   const dateBounds = useMemo(() => {
     const dates = records
@@ -269,6 +272,10 @@ export function RecruiterReviewApp() {
 
           <div className="flex">
             <CarrierTrendChart trend={carrierTrend} />
+          </div>
+
+          <div className="flex">
+            <RecruiterCarrierTable matrix={recruiterCarrierGrid} />
           </div>
 
           <div className="flex">

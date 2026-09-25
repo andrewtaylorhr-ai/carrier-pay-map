@@ -305,3 +305,41 @@ export function monthlyHiresByRecruiter(records: HirePerformanceRecord[], sinceM
 
   return { months, rows };
 }
+
+// --- Recruiter x carrier matrix ("which recruiter placed with which carrier") ---
+
+export interface RecruiterCarrierMatrix {
+  /** Carrier names, ranked by total volume desc (same order as carrierHireRanked). */
+  carriers: string[];
+  /** Ranked by total volume, same order as recruiterHireRanked. */
+  rows: { recruiter: string; total: number; counts: number[] }[];
+}
+
+// Same window as recruiterHireRanked/carrierHireRanked (see inWindow) — but
+// not date-bucketed, so undated records are kept here the same way they are
+// in those two rollups (unlike the monthly/daily grids, which have to drop
+// them). Answers "which recruiter is behind carrier X's hires" directly,
+// rather than requiring a click-through per recruiter card.
+export function recruiterCarrierMatrix(records: HirePerformanceRecord[], sinceMonths = 6): RecruiterCarrierMatrix {
+  const windowed = inWindow(records, sinceMonths);
+
+  const carrierTotals = new Map<string, number>();
+  windowed.forEach((r) => carrierTotals.set(r.carrier, (carrierTotals.get(r.carrier) ?? 0) + 1));
+  const carriers = Array.from(carrierTotals.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([carrier]) => carrier);
+  const carrierIndex = new Map(carriers.map((c, i) => [c, i]));
+
+  const byRecruiter = new Map<string, number[]>();
+  windowed.forEach((r) => {
+    if (!byRecruiter.has(r.recruiter)) byRecruiter.set(r.recruiter, new Array(carriers.length).fill(0));
+    const counts = byRecruiter.get(r.recruiter)!;
+    counts[carrierIndex.get(r.carrier)!] += 1;
+  });
+
+  const rows = Array.from(byRecruiter.entries())
+    .map(([recruiter, counts]) => ({ recruiter, total: counts.reduce((a, b) => a + b, 0), counts }))
+    .sort((a, b) => b.total - a.total);
+
+  return { carriers, rows };
+}

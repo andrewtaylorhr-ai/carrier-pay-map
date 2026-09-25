@@ -272,6 +272,43 @@ export function accountDqRanked(data: CarrierActivityData, topN = 12): AccountDq
     .slice(0, topN);
 }
 
+// --- Most successful accounts (mirror of accountDqRanked, ranked by hires) ---
+
+export interface AccountSuccessRow {
+  carrier: string;
+  account: string;
+  counts: StatusCounts;
+  hireRate: number | null;
+}
+
+// Answers "which account/lane is actually converting" — the positive mirror
+// of accountDqRanked. Same carrier+account keying (see accountDqRanked for
+// why: several carriers have no account column and would otherwise collapse
+// into one meaningless "UNSPECIFIED" bucket across carriers). Requires a
+// minimum submission count so a single-lucky-hire lane with 1 submission
+// doesn't outrank real volume; ranked by hire count first (most successful
+// in absolute terms), hire rate as tiebreaker.
+const MIN_SUBMISSIONS_FOR_SUCCESS = 5;
+
+export function accountSuccessRanked(data: CarrierActivityData, topN = 12): AccountSuccessRow[] {
+  const map = new Map<string, { carrier: string; account: string; records: DriverRecord[] }>();
+  Object.keys(data).forEach((carrier) => {
+    data[carrier].records.forEach((r) => {
+      const key = `${carrier} ${r.account}`;
+      if (!map.has(key)) map.set(key, { carrier, account: r.account, records: [] });
+      map.get(key)!.records.push(r);
+    });
+  });
+  return Array.from(map.values())
+    .map(({ carrier, account, records }) => {
+      const counts = carrierTotals(records);
+      return { carrier, account, counts, hireRate: hireRate(counts) };
+    })
+    .filter((r) => r.counts.total >= MIN_SUBMISSIONS_FOR_SUCCESS && r.counts.hired > 0)
+    .sort((a, b) => b.counts.hired - a.counts.hired || (b.hireRate ?? 0) - (a.hireRate ?? 0))
+    .slice(0, topN);
+}
+
 // --- Key insights -------------------------------------------------------------
 // Every line here is derived directly from the same rows the tables/charts
 // render — no synthetic period-over-period comparisons, since the data model

@@ -5,6 +5,7 @@ import { Award, Calendar, Percent, Users, XCircle } from "lucide-react";
 import { dateRange } from "@/lib/activity/analyze";
 import {
   accountDqRanked,
+  accountSuccessRanked,
   buildKeyInsights,
   carrierVolumeRanked,
   groupedForChart,
@@ -17,6 +18,7 @@ import { SubmissionsChart } from "./SubmissionsChart";
 import { CarrierDonut } from "./CarrierDonut";
 import { CarrierPerformanceTable } from "./CarrierPerformanceTable";
 import { AccountDqPanel } from "./AccountDqPanel";
+import { AccountSuccessPanel } from "./AccountSuccessPanel";
 import { DqReasonsPanel } from "./DqReasonsPanel";
 import { KeyInsights } from "./KeyInsights";
 
@@ -37,6 +39,7 @@ export function InsightsDashboard({
   const chartSlices = useMemo(() => groupedForChart(carrierRows), [carrierRows]);
   const dqReasons = useMemo(() => overallDqReasons(data), [data]);
   const accountDqRows = useMemo(() => accountDqRanked(data), [data]);
+  const accountSuccessRows = useMemo(() => accountSuccessRanked(data), [data]);
   const insights = useMemo(() => buildKeyInsights(data, carrierRows), [data, carrierRows]);
   const carriers = useMemo(() => Object.keys(data).sort(), [data]);
   const range = useMemo(() => dateRange(Object.values(data).flatMap((e) => e.records)), [data]);
@@ -84,7 +87,10 @@ export function InsightsDashboard({
 
       <CarrierPerformanceTable rows={carrierRows} onSelectCarrier={onSelectCarrier} />
 
-      <AccountDqPanel rows={accountDqRows} />
+      <div className="flex flex-col lg:flex-row gap-4">
+        <AccountSuccessPanel rows={accountSuccessRows} />
+        <AccountDqPanel rows={accountDqRows} />
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
         <DqReasonsPanel reasons={dqReasons} totalDq={totals.totalDq} />

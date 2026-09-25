@@ -6,6 +6,7 @@
 // derived here and documented as such, never fabricated outright.
 
 import { accountBreakdown, carrierTotals, hireRate, type StatusCounts } from "./analyze";
+import { dqReasonsForRecords, type DqReasonRow } from "./dqReasons";
 import type { CarrierActivityData, DriverRecord } from "./types";
 
 // Chart palette — used consistently across the bar chart, donut chart, and
@@ -86,13 +87,17 @@ export function overallTotals(data: CarrierActivityData): OverallTotals {
   };
 }
 
-// --- Carrier volume (bar chart + donut chart + "Top carriers" table) --------
+// --- Carrier volume + rejection reasons (bar chart, donut, carrier performance table) ---
 
 export interface CarrierVolumeRow {
   carrier: string;
   counts: StatusCounts;
   rate: number | null;
+  /** DQ share of decided outcomes (dq / (hired + dq)) — the mirror of `rate`. Null under the same conditions `rate` is null. */
+  dqRate: number | null;
   recruiterCount: number;
+  /** Categorized rejection reasons for this carrier's DQ records, most-common first. */
+  dqReasons: DqReasonRow[];
   color: string;
 }
 
@@ -104,7 +109,15 @@ export function carrierVolumeRanked(data: CarrierActivityData): CarrierVolumeRow
       data[carrier].records.forEach((r) => {
         if (r.recruiter) recruiters.add(r.recruiter);
       });
-      return { carrier, counts, rate: hireRate(counts), recruiterCount: recruiters.size };
+      const rate = hireRate(counts);
+      return {
+        carrier,
+        counts,
+        rate,
+        dqRate: rate !== null ? 1 - rate : null,
+        recruiterCount: recruiters.size,
+        dqReasons: dqReasonsForRecords(data[carrier].records),
+      };
     })
     .sort((a, b) => b.counts.total - a.counts.total)
     .map((row, i) => ({ ...row, color: colorForIndex(i) }));
@@ -205,6 +218,14 @@ export function recruiterPerformance(data: CarrierActivityData): RecruiterPerfRo
     .sort((a, b) => b.counts.total - a.counts.total);
 }
 
+// Rejection-reason breakdown across every carrier combined — feeds the
+// dashboard's top-level "Total rejections" KPI sub-label and the standalone
+// reasons panel, so the "why" behind DQs is visible at a glance before
+// drilling into any one carrier.
+export function overallDqReasons(data: CarrierActivityData): DqReasonRow[] {
+  return dqReasonsForRecords(Object.values(data).flatMap((e) => e.records));
+}
+
 // --- Key insights -------------------------------------------------------------
 // Every line here is derived directly from the same rows the tables/charts
 // render — no synthetic period-over-period comparisons, since the data model
@@ -212,11 +233,7 @@ export function recruiterPerformance(data: CarrierActivityData): RecruiterPerfRo
 
 const MIN_RESOLVED_FOR_INSIGHT = 3;
 
-export function buildKeyInsights(
-  data: CarrierActivityData,
-  carrierRows: CarrierVolumeRow[],
-  recruiterRows: RecruiterPerfRow[]
-): string[] {
+export function buildKeyInsights(data: CarrierActivityData, carrierRows: CarrierVolumeRow[]): string[] {
   const insights: string[] = [];
   const totals = overallTotals(data);
 
@@ -226,11 +243,21 @@ export function buildKeyInsights(
     insights.push(`${top.carrier} leads submission volume with ${top.counts.total} drivers (${share}% of all activity).`);
   }
 
-  const ratedRecruiters = recruiterRows.filter((r) => r.counts.hired + r.counts.dq >= MIN_RESOLVED_FOR_INSIGHT && r.rate !== null);
-  if (ratedRecruiters.length > 0) {
-    const bestRecruiter = [...ratedRecruiters].sort((a, b) => (b.rate as number) - (a.rate as number))[0];
+  const overallReasons = overallDqReasons(data);
+  if (overallReasons.length > 0 && totals.totalDq > 0) {
+    const top = overallReasons[0];
+    const share = Math.round((top.count / totals.totalDq) * 100);
+    insights.push(`"${top.label}" is the most common rejection reason, accounting for ${top.count} of ${totals.totalDq} DQs (${share}%).`);
+  }
+
+  const dqRatedCarriers = carrierRows.filter((r) => r.counts.hired + r.counts.dq >= MIN_RESOLVED_FOR_INSIGHT && r.dqRate !== null);
+  if (dqRatedCarriers.length > 0) {
+    const worst = [...dqRatedCarriers].sort((a, b) => (b.dqRate as number) - (a.dqRate as number))[0];
+    const worstTopReason = worst.dqReasons[0];
     insights.push(
-      `${bestRecruiter.recruiter} has the strongest hire rate at ${Math.round((bestRecruiter.rate as number) * 100)}% across ${bestRecruiter.counts.total} submissions.`
+      `${worst.carrier} has the highest rejection rate at ${Math.round((worst.dqRate as number) * 100)}%${
+        worstTopReason ? `, most often for "${worstTopReason.label}" (${worstTopReason.count})` : ""
+      }.`
     );
   }
 
@@ -248,30 +275,6 @@ export function buildKeyInsights(
   if (stateTotals.size > 0) {
     const [topState, topStateCount] = Array.from(stateTotals.entries()).sort((a, b) => b[1] - a[1])[0];
     insights.push(`${topState} shows the most account activity (${topStateCount} submissions) among states detected in account names.`);
-  }
-
-  if (ratedRecruiters.length > 1) {
-    const avgRate = ratedRecruiters.reduce((sum, r) => sum + (r.rate as number), 0) / ratedRecruiters.length;
-    const laggards = ratedRecruiters.filter((r) => (r.rate as number) < avgRate - 0.15);
-    if (laggards.length > 0) {
-      const names = laggards
-        .sort((a, b) => (a.rate as number) - (b.rate as number))
-        .slice(0, 2)
-        .map((r) => r.recruiter)
-        .join(", ");
-      insights.push(`${names} ${laggards.length > 1 ? "are" : "is"} tracking well below the team's average hire rate — worth a pipeline review.`);
-    }
-  }
-
-  if (carrierRows.length > 1 && recruiterRows.length > 0) {
-    const underusing = recruiterRows.filter((r) => r.counts.total >= MIN_RESOLVED_FOR_INSIGHT && r.carrierCount === 1);
-    if (underusing.length > 0) {
-      const names = underusing
-        .slice(0, 2)
-        .map((r) => r.recruiter)
-        .join(", ");
-      insights.push(`${names} ${underusing.length > 1 ? "are" : "is"} working a single carrier while ${carrierRows.length} are active — cross-training could open more volume.`);
-    }
   }
 
   return insights;

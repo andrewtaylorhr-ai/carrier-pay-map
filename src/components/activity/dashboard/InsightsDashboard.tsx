@@ -1,21 +1,21 @@
 "use client";
 
 import { useMemo } from "react";
-import { Award, Calendar, Percent, Sparkles, Users } from "lucide-react";
+import { Award, Calendar, Percent, Users, XCircle } from "lucide-react";
 import { dateRange } from "@/lib/activity/analyze";
 import {
   buildKeyInsights,
   carrierVolumeRanked,
   groupedForChart,
+  overallDqReasons,
   overallTotals,
-  recruiterPerformance,
 } from "@/lib/activity/dashboardStats";
 import type { CarrierActivityData } from "@/lib/activity/types";
 import { StatCard } from "./StatCard";
 import { SubmissionsChart } from "./SubmissionsChart";
 import { CarrierDonut } from "./CarrierDonut";
-import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
-import { TopCarriersTable } from "./TopCarriersTable";
+import { CarrierPerformanceTable } from "./CarrierPerformanceTable";
+import { DqReasonsPanel } from "./DqReasonsPanel";
 import { KeyInsights } from "./KeyInsights";
 
 function formatDate(iso: string): string {
@@ -33,8 +33,8 @@ export function InsightsDashboard({
   const totals = useMemo(() => overallTotals(data), [data]);
   const carrierRows = useMemo(() => carrierVolumeRanked(data), [data]);
   const chartSlices = useMemo(() => groupedForChart(carrierRows), [carrierRows]);
-  const recruiterRows = useMemo(() => recruiterPerformance(data), [data]);
-  const insights = useMemo(() => buildKeyInsights(data, carrierRows, recruiterRows), [data, carrierRows, recruiterRows]);
+  const dqReasons = useMemo(() => overallDqReasons(data), [data]);
+  const insights = useMemo(() => buildKeyInsights(data, carrierRows), [data, carrierRows]);
   const carriers = useMemo(() => Object.keys(data).sort(), [data]);
   const range = useMemo(() => dateRange(Object.values(data).flatMap((e) => e.records)), [data]);
 
@@ -66,7 +66,12 @@ export function InsightsDashboard({
         <StatCard icon={Users} label="Total submissions" value={String(totals.totalSubmissions)} sub={`${totals.carrierCount} carriers`} />
         <StatCard icon={Award} label="Total hires" value={String(totals.totalHires)} sub={`${totals.totalActive} still active`} />
         <StatCard icon={Percent} label="Hire rate" value={totals.hireRate != null ? `${Math.round(totals.hireRate * 100)}%` : "—"} sub={`${totals.totalDq} DQ'd`} />
-        <StatCard icon={Sparkles} label="Recruiters detected" value={String(totals.recruiterCount)} sub="best-effort, parsed from notes" />
+        <StatCard
+          icon={XCircle}
+          label="Total rejections"
+          value={String(totals.totalDq)}
+          sub={dqReasons.length > 0 ? `top reason: ${dqReasons[0].label}` : "no DQs yet"}
+        />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
@@ -74,10 +79,10 @@ export function InsightsDashboard({
         <CarrierDonut slices={chartSlices} total={totals.totalSubmissions} />
       </div>
 
-      <RecruiterPerformanceTable rows={recruiterRows} carriers={carriers} onSelectCarrier={onSelectCarrier} />
+      <CarrierPerformanceTable rows={carrierRows} onSelectCarrier={onSelectCarrier} />
 
       <div className="flex flex-col lg:flex-row gap-4">
-        <TopCarriersTable rows={carrierRows} onSelectCarrier={onSelectCarrier} />
+        <DqReasonsPanel reasons={dqReasons} totalDq={totals.totalDq} />
         <KeyInsights insights={insights} />
       </div>
     </div>

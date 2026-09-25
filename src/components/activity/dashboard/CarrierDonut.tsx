@@ -3,11 +3,19 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { ChartSlice } from "@/lib/activity/dashboardStats";
 
-export function CarrierDonut({ slices, total }: { slices: ChartSlice[]; total: number }) {
+export function CarrierDonut({
+  slices,
+  total,
+  title = "Carrier performance",
+}: {
+  slices: ChartSlice[];
+  total: number;
+  title?: string;
+}) {
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 flex-1 min-w-0">
       <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-3">
-        Carrier performance
+        {title}
       </div>
       {slices.length === 0 ? (
         <div className="text-[12px] text-[var(--cpm-text-faint)] py-8 text-center">No data.</div>

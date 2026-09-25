@@ -8,6 +8,9 @@ import {
   type RecruiterHireRow,
 } from "@/lib/activity/hirePerformance";
 import { useHirePerformance } from "@/lib/hooks/useHirePerformance";
+import { CarrierDonut } from "@/components/activity/dashboard/CarrierDonut";
+import type { ChartSlice } from "@/lib/activity/dashboardStats";
+import { OUTCOME_COLOR, RecruiterHireChart } from "./RecruiterHireChart";
 
 const SINCE_MONTHS = 6;
 
@@ -200,10 +203,18 @@ export function RecruiterReviewApp() {
       acc.confirmed += r.confirmed;
       acc.pending += r.pending;
       acc.reversed += r.reversed;
+      acc.unclear += r.unclear;
       return acc;
     },
-    { total: 0, confirmed: 0, pending: 0, reversed: 0 }
+    { total: 0, confirmed: 0, pending: 0, reversed: 0, unclear: 0 }
   );
+
+  const outcomeSlices: ChartSlice[] = [
+    { name: "Confirmed", value: totals.confirmed, color: OUTCOME_COLOR.confirmed },
+    { name: "Pending", value: totals.pending, color: OUTCOME_COLOR.pending },
+    { name: "Reversed", value: totals.reversed, color: OUTCOME_COLOR.reversed },
+    { name: "Unclear", value: totals.unclear, color: OUTCOME_COLOR.unclear },
+  ].filter((s) => s.value > 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -232,6 +243,11 @@ export function RecruiterReviewApp() {
                 <span className="text-[var(--cpm-red)] font-semibold">{totals.reversed} reversed</span>
               </div>
             </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-4">
+            <RecruiterHireChart rows={rows} />
+            <CarrierDonut slices={outcomeSlices} total={totals.total} title="Hire outcome breakdown" />
           </div>
 
           <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">

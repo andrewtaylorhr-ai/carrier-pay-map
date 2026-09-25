@@ -226,6 +226,52 @@ export function overallDqReasons(data: CarrierActivityData): DqReasonRow[] {
   return dqReasonsForRecords(Object.values(data).flatMap((e) => e.records));
 }
 
+// --- DQs by account (carrier performance table's account-level companion) ---
+
+export interface AccountDqRow {
+  carrier: string;
+  account: string;
+  counts: StatusCounts;
+  dqRate: number | null;
+  dqReasons: DqReasonRow[];
+}
+
+// Answers "which account/lane are the rejections actually coming from" —
+// one level more specific than the per-carrier DQ view. Keyed by
+// carrier+account together (not account alone): several carriers' exports
+// have no account column at all and every one of their rows falls back to
+// the literal "UNSPECIFIED" placeholder (see parseWorkbook.ts) — merging
+// those across unrelated carriers would produce a meaningless combined
+// bucket, same reasoning as crossCarrierAccountBreakdown in analyze.ts.
+// Only accounts with at least one DQ are included, ranked by DQ count,
+// capped to topN so a carrier with dozens of lanes doesn't blow out the
+// dashboard.
+export function accountDqRanked(data: CarrierActivityData, topN = 12): AccountDqRow[] {
+  const map = new Map<string, { carrier: string; account: string; records: DriverRecord[] }>();
+  Object.keys(data).forEach((carrier) => {
+    data[carrier].records.forEach((r) => {
+      const key = `${carrier} ${r.account}`;
+      if (!map.has(key)) map.set(key, { carrier, account: r.account, records: [] });
+      map.get(key)!.records.push(r);
+    });
+  });
+  return Array.from(map.values())
+    .map(({ carrier, account, records }) => {
+      const counts = carrierTotals(records);
+      const rate = hireRate(counts);
+      return {
+        carrier,
+        account,
+        counts,
+        dqRate: rate !== null ? 1 - rate : null,
+        dqReasons: dqReasonsForRecords(records),
+      };
+    })
+    .filter((r) => r.counts.dq > 0)
+    .sort((a, b) => b.counts.dq - a.counts.dq)
+    .slice(0, topN);
+}
+
 // --- Key insights -------------------------------------------------------------
 // Every line here is derived directly from the same rows the tables/charts
 // render — no synthetic period-over-period comparisons, since the data model

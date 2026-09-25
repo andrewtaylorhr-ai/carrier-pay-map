@@ -1,0 +1,58 @@
+import type { AccountDqRow } from "@/lib/activity/dashboardStats";
+
+function pct(n: number | null): string {
+  if (n == null) return "—";
+  return `${Math.round(n * 100)}%`;
+}
+
+// Same card-list shape as CarrierPerformanceTable, one level more specific:
+// each card is a carrier+account pair rather than a whole carrier, so
+// "which account is this carrier's rejections coming from" is answerable
+// without opening a spreadsheet.
+export function AccountDqPanel({ rows }: { rows: AccountDqRow[] }) {
+  return (
+    <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
+      <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-0.5">
+        DQs by account
+      </div>
+      <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
+        Top accounts/lanes by rejection count, and why, per carrier.
+      </div>
+      {rows.length === 0 ? (
+        <div className="text-[12px] text-[var(--cpm-text-faint)] py-4 text-center">No DQ records yet.</div>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {rows.map((r) => (
+            <div
+              key={`${r.carrier} ${r.account}`}
+              className="rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-3"
+            >
+              <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5">
+                <span className="min-w-0">
+                  <span className="font-semibold text-[13.5px] text-[var(--cpm-text)] truncate">{r.account}</span>
+                  <span className="text-[11.5px] text-[var(--cpm-text-faint)] ml-2">{r.carrier}</span>
+                </span>
+                <div className="flex items-center gap-3 text-[12px] text-[var(--cpm-text-dim)] shrink-0">
+                  <span>{r.counts.total} submissions</span>
+                  <span className="text-[var(--cpm-red)] font-semibold">
+                    {r.counts.dq} DQ · {pct(r.dqRate)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {r.dqReasons.map((reason) => (
+                  <span
+                    key={reason.label}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]/40 whitespace-nowrap"
+                  >
+                    {reason.label} <span className="opacity-80">({reason.count})</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

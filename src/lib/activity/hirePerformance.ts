@@ -140,11 +140,34 @@ export function parseHirePerformanceWorkbook(buffer: ArrayBuffer, sourceFile: st
 
 // --- Per-recruiter rollup ---------------------------------------------------
 
+// Shared by recruiterHireRanked and hireTrendByMonth — anchored to the most
+// recent record date IN THE FILE, not wall-clock "today" (see
+// recruiterHireRanked for why). Rows with no date at all are kept rather
+// than dropped.
+function inWindow(records: HirePerformanceRecord[], sinceMonths: number): HirePerformanceRecord[] {
+  const allDates = records
+    .map((r) => r.hiredDate ?? r.submittedDate)
+    .filter((d): d is string => !!d)
+    .sort();
+  const latest = allDates.length > 0 ? allDates[allDates.length - 1] : null;
+  const cutoff = latest ? new Date(latest) : new Date();
+  cutoff.setMonth(cutoff.getMonth() - sinceMonths);
+  const cutoffIso = cutoff.toISOString().slice(0, 10);
+
+  return records.filter((r) => {
+    const d = r.hiredDate ?? r.submittedDate;
+    return !d || d >= cutoffIso;
+  });
+}
+
 export interface HireIssue {
   name: string;
+  recruiter: string;
   carrier: string;
   note: string;
   outcome: "pending" | "reversed";
+  /** hiredDate ?? submittedDate — for sorting a cross-recruiter "most recent" list. */
+  date?: string;
 }
 
 export interface RecruiterHireRow {
@@ -172,22 +195,8 @@ export interface RecruiterHireRow {
 // all are kept rather than dropped (this file's dates are dense, but a
 // future upload isn't guaranteed to be).
 export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonths = 6): RecruiterHireRow[] {
-  const allDates = records
-    .map((r) => r.hiredDate ?? r.submittedDate)
-    .filter((d): d is string => !!d)
-    .sort();
-  const latest = allDates.length > 0 ? allDates[allDates.length - 1] : null;
-  const cutoff = latest ? new Date(latest) : new Date();
-  cutoff.setMonth(cutoff.getMonth() - sinceMonths);
-  const cutoffIso = cutoff.toISOString().slice(0, 10);
-
-  const inWindow = records.filter((r) => {
-    const d = r.hiredDate ?? r.submittedDate;
-    return !d || d >= cutoffIso;
-  });
-
   const map = new Map<string, RecruiterHireRow>();
-  inWindow.forEach((r) => {
+  inWindow(records, sinceMonths).forEach((r) => {
     if (!map.has(r.recruiter)) {
       map.set(r.recruiter, {
         recruiter: r.recruiter,
@@ -205,7 +214,14 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
     row[r.outcome] += 1;
     if (!row.carriers.includes(r.carrier)) row.carriers.push(r.carrier);
     if (r.outcome === "pending" || r.outcome === "reversed") {
-      row.issues.push({ name: r.name, carrier: r.carrier, note: r.note, outcome: r.outcome });
+      row.issues.push({
+        name: r.name,
+        recruiter: r.recruiter,
+        carrier: r.carrier,
+        note: r.note,
+        outcome: r.outcome,
+        date: r.hiredDate ?? r.submittedDate,
+      });
     }
   });
 
@@ -215,4 +231,30 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
       issues: row.issues.sort((a, b) => (a.outcome === b.outcome ? 0 : a.outcome === "reversed" ? -1 : 1)),
     }))
     .sort((a, b) => (b.reversed * 3 + b.pending) - (a.reversed * 3 + a.pending) || b.total - a.total);
+}
+
+// --- Monthly outcome trend (for the "hires over time" chart) ---------------
+
+export interface MonthlyOutcomeRow {
+  /** YYYY-MM */
+  month: string;
+  confirmed: number;
+  pending: number;
+  reversed: number;
+  unclear: number;
+}
+
+// Same window as recruiterHireRanked, bucketed by month. Records with no
+// date can't be placed on a timeline and are excluded here (they're still
+// counted everywhere else — this chart alone undercounts by that amount).
+export function hireTrendByMonth(records: HirePerformanceRecord[], sinceMonths = 6): MonthlyOutcomeRow[] {
+  const map = new Map<string, MonthlyOutcomeRow>();
+  inWindow(records, sinceMonths).forEach((r) => {
+    const d = r.hiredDate ?? r.submittedDate;
+    if (!d) return;
+    const month = d.slice(0, 7);
+    if (!map.has(month)) map.set(month, { month, confirmed: 0, pending: 0, reversed: 0, unclear: 0 });
+    map.get(month)![r.outcome] += 1;
+  });
+  return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));
 }

@@ -1,40 +1,55 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, UserCheck, Users } from "lucide-react";
+import { Building2, TrendingUp, UserCheck, Users } from "lucide-react";
 import {
   carrierHireRanked,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
   recruiterHireRanked,
-  type HireIssue,
+  type CarrierHireRow,
   type HirePerformanceRecord,
   type RecruiterHireRow,
 } from "@/lib/activity/hirePerformance";
 import { useHirePerformance } from "@/lib/hooks/useHirePerformance";
 import { CarrierDonut } from "@/components/activity/dashboard/CarrierDonut";
 import { StatCard } from "@/components/activity/dashboard/StatCard";
-import type { ChartSlice } from "@/lib/activity/dashboardStats";
-import { OUTCOME_COLOR, RecruiterHireChart } from "./RecruiterHireChart";
+import { CHART_OTHERS_COLOR, colorForIndex, type ChartSlice } from "@/lib/activity/dashboardStats";
+import { RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
-import { RecentIssuesTable } from "./RecentIssuesTable";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
 
 const SINCE_MONTHS = 6;
+const DONUT_TOP_N = 6;
 
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString();
 }
 
+function pct(n: number, d: number): string {
+  if (d === 0) return "—";
+  return `${Math.round((n / d) * 100)}%`;
+}
+
+// Groups the tail of a carrier-volume ranking into a single gray "Others"
+// slice, same top-N pattern as dashboardStats.groupedForChart — but that
+// helper is coupled to CarrierVolumeRow's shape (r.counts.total, r.color),
+// not the simpler CarrierHireRow this page works with, so it's reimplemented
+// inline here.
+function carrierSlicesFor(rows: CarrierHireRow[], topN = DONUT_TOP_N): ChartSlice[] {
+  const head = rows.slice(0, topN).map((r, i) => ({ name: r.carrier, value: r.total, color: colorForIndex(i) }));
+  const tail = rows.slice(topN);
+  if (tail.length === 0) return head;
+  const othersTotal = tail.reduce((sum, r) => sum + r.total, 0);
+  return [...head, { name: "Others", value: othersTotal, color: CHART_OTHERS_COLOR }];
+}
+
 interface ImportSummary {
   total: number;
   recruiters: number;
-  confirmed: number;
-  pending: number;
-  reversed: number;
 }
 
 function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerformanceRecord[], sourceFile: string) => void }) {
@@ -56,9 +71,6 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
       setSummary({
         total: records.length,
         recruiters: new Set(records.map((r) => r.recruiter)).size,
-        confirmed: records.filter((r) => r.outcome === "confirmed").length,
-        pending: records.filter((r) => r.outcome === "pending").length,
-        reversed: records.filter((r) => r.outcome === "reversed").length,
       });
     } catch {
       setError(`Couldn't parse "${file.name}" — make sure it's a valid .xlsx export.`);
@@ -74,10 +86,9 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
           Import hire performance report
         </div>
         <div className="text-[12px] text-[var(--cpm-text-dim)] mt-0.5">
-          Upload the recruiter &ldquo;Performance&rdquo; workbook (.xlsx) — one row per Hired driver with a follow-up
-          note. Every row starts confirmed (this file only ever has Hired drivers) unless the note says otherwise:
-          &ldquo;no dispatch yet&rdquo; = still pending, &ldquo;not hired&rdquo; = reversed. Re-uploading replaces the
-          whole dataset with the latest export.
+          Upload the recruiter &ldquo;Performance&rdquo; workbook (.xlsx) — one row per Hired driver. This source only
+          ever contains Hired drivers, so every row counts as a hire. Re-uploading replaces the whole dataset with the
+          latest export.
         </div>
       </div>
       <input
@@ -92,53 +103,22 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
       {error && <div className="text-[12px] text-[var(--cpm-red)]">{error}</div>}
       {summary && (
         <div className="text-[12px] text-[var(--cpm-green)]">
-          Imported {summary.total} hires across {summary.recruiters} recruiters — {summary.confirmed} confirmed,{" "}
-          {summary.pending} still pending dispatch, {summary.reversed} reversed.
+          Imported {summary.total} hires across {summary.recruiters} recruiters.
         </div>
       )}
     </div>
   );
 }
 
-function pct(n: number, d: number): string {
-  if (d === 0) return "—";
-  return `${Math.round((n / d) * 100)}%`;
-}
-
-function OutcomeBadge({ outcome }: { outcome: "pending" | "reversed" }) {
-  return (
-    <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
-        outcome === "reversed"
-          ? "bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]/40"
-          : "bg-[color-mix(in_srgb,var(--cpm-accent)_16%,transparent)] text-[var(--cpm-accent)] border border-[var(--cpm-accent)]/40"
-      }`}
-    >
-      {outcome}
-    </span>
-  );
-}
-
-function RecruiterRow({ row }: { row: RecruiterHireRow }) {
-  const [expanded, setExpanded] = useState(false);
-  const clean = row.reversed === 0 && row.pending === 0;
-
+function RecruiterRow({ row, total }: { row: RecruiterHireRow; total: number }) {
   return (
     <div className="rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-3">
       <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5">
-        <span className="flex items-center gap-2 min-w-0">
-          <span className="font-bold text-[13.5px] text-[var(--cpm-text)]">{row.recruiter}</span>
-          {clean && (
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--cpm-green)]">clean</span>
-          )}
-        </span>
+        <span className="font-bold text-[13.5px] text-[var(--cpm-text)]">{row.recruiter}</span>
         <div className="flex items-center gap-3 text-[12px] text-[var(--cpm-text-dim)] shrink-0">
           <span>{row.total} hires</span>
-          <span className="text-[var(--cpm-green)] font-semibold">
-            {row.confirmed} confirmed · {pct(row.confirmed, row.total)}
-          </span>
-          {row.pending > 0 && <span className="text-[var(--cpm-accent)] font-semibold">{row.pending} pending</span>}
-          {row.reversed > 0 && <span className="text-[var(--cpm-red)] font-semibold">{row.reversed} reversed</span>}
+          <span className="text-[var(--cpm-text-faint)]">{pct(row.total, total)} of total</span>
+          <span>Top carrier: {row.topCarrier}</span>
         </div>
       </div>
       <div className="flex flex-wrap gap-1.5 mt-2">
@@ -151,34 +131,6 @@ function RecruiterRow({ row }: { row: RecruiterHireRow }) {
           </span>
         ))}
       </div>
-      {row.issues.length > 0 && (
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={() => setExpanded((e) => !e)}
-            className="text-[11.5px] font-semibold text-[var(--cpm-accent)] hover:underline"
-          >
-            {expanded ? "Hide" : "Show"} {row.issues.length} driver{row.issues.length === 1 ? "" : "s"} needing follow-up
-          </button>
-          {expanded && (
-            <div className="flex flex-col gap-1.5 mt-2">
-              {row.issues.map((issue, i) => (
-                <div
-                  key={`${issue.name}-${i}`}
-                  className="rounded-md border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-2 text-[12px]"
-                >
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-[var(--cpm-text)]">{issue.name}</span>
-                    <span className="text-[var(--cpm-text-faint)]">{issue.carrier}</span>
-                    <OutcomeBadge outcome={issue.outcome} />
-                  </div>
-                  <div className="text-[var(--cpm-text-dim)] mt-0.5">{issue.note || "No note."}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -195,14 +147,7 @@ export function RecruiterReviewApp() {
   const rows = useMemo(() => recruiterHireRanked(records, SINCE_MONTHS), [records]);
   const trendRows = useMemo(() => hireTrendByMonth(records, SINCE_MONTHS), [records]);
   const carrierRows = useMemo(() => carrierHireRanked(records, SINCE_MONTHS), [records]);
-  const recentIssues = useMemo<HireIssue[]>(
-    () =>
-      rows
-        .flatMap((r) => r.issues)
-        .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
-        .slice(0, 15),
-    [rows]
-  );
+  const carrierSlices = useMemo(() => carrierSlicesFor(carrierRows), [carrierRows]);
 
   const dateBounds = useMemo(() => {
     const dates = records
@@ -214,22 +159,8 @@ export function RecruiterReviewApp() {
 
   if (!mounted) return null;
 
-  const totals = rows.reduce(
-    (acc, r) => {
-      acc.total += r.total;
-      acc.confirmed += r.confirmed;
-      acc.pending += r.pending;
-      acc.reversed += r.reversed;
-      return acc;
-    },
-    { total: 0, confirmed: 0, pending: 0, reversed: 0 }
-  );
-
-  const outcomeSlices: ChartSlice[] = [
-    { name: "Confirmed", value: totals.confirmed, color: OUTCOME_COLOR.confirmed },
-    { name: "Pending", value: totals.pending, color: OUTCOME_COLOR.pending },
-    { name: "Reversed", value: totals.reversed, color: OUTCOME_COLOR.reversed },
-  ].filter((s) => s.value > 0);
+  const total = rows.reduce((sum, r) => sum + r.total, 0);
+  const avgPerMonth = trendRows.length > 0 ? Math.round(total / trendRows.length) : 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -254,25 +185,10 @@ export function RecruiterReviewApp() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard icon={Users} label="Total hires" value={String(totals.total)} sub={`${rows.length} recruiters`} />
-            <StatCard
-              icon={CheckCircle2}
-              label="Confirmed"
-              value={String(totals.confirmed)}
-              sub={`${pct(totals.confirmed, totals.total)} of hires`}
-            />
-            <StatCard
-              icon={AlertTriangle}
-              label="Needs follow-up"
-              value={String(totals.pending + totals.reversed)}
-              sub={`${totals.pending} pending · ${totals.reversed} reversed`}
-            />
-            <StatCard
-              icon={UserCheck}
-              label="Active recruiters"
-              value={String(rows.length)}
-              sub={`${carrierRows.length} carriers used`}
-            />
+            <StatCard icon={Users} label="Total hires" value={String(total)} sub={`${rows.length} recruiters`} />
+            <StatCard icon={UserCheck} label="Active recruiters" value={String(rows.length)} sub="in this window" />
+            <StatCard icon={Building2} label="Carriers used" value={String(carrierRows.length)} sub="in this window" />
+            <StatCard icon={TrendingUp} label="Avg / month" value={String(avgPerMonth)} sub={`over ${trendRows.length} month${trendRows.length === 1 ? "" : "s"}`} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
@@ -280,13 +196,13 @@ export function RecruiterReviewApp() {
               <HireTrendChart rows={trendRows} />
             </div>
             <div className="lg:col-span-4 flex">
-              <ManagerInsights rows={rows} carrierRows={carrierRows} trendRows={trendRows} totals={totals} />
+              <ManagerInsights rows={rows} carrierRows={carrierRows} trendRows={trendRows} total={total} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
             <div className="lg:col-span-8 flex">
-              <RecruiterPerformanceTable rows={rows} total={totals.total} />
+              <RecruiterPerformanceTable rows={rows} total={total} />
             </div>
             <div className="lg:col-span-4 flex">
               <ActionCenter />
@@ -298,12 +214,8 @@ export function RecruiterReviewApp() {
               <RecruiterHireChart rows={rows} />
             </div>
             <div id="carrier-breakdown" className="flex">
-              <CarrierDonut slices={outcomeSlices} total={totals.total} title="Hire outcome breakdown" />
+              <CarrierDonut slices={carrierSlices} total={total} title="Hires by carrier" />
             </div>
-          </div>
-
-          <div id="needs-follow-up" className="flex">
-            <RecentIssuesTable issues={recentIssues} />
           </div>
 
           <div id="recruiter-detail" className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
@@ -311,10 +223,8 @@ export function RecruiterReviewApp() {
               Recruiter detail
             </div>
             <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
-              Ranked worst-first — reversed and still-pending hires surface at the top so a problem is easy to spot,
-              then check whether it shows up for other recruiters too. Outcome is read from each hire&apos;s
-              follow-up note, not a status field the source file doesn&apos;t have — a hire counts as confirmed
-              unless its note says otherwise.
+              Ranked by volume, highest producer first. Every hire in this source file is already Hired — this page
+              tracks volume, not outcome.
             </div>
             {rows.length === 0 ? (
               <div className="text-[12px] text-[var(--cpm-text-faint)] py-4 text-center">
@@ -323,7 +233,7 @@ export function RecruiterReviewApp() {
             ) : (
               <div className="flex flex-col gap-2.5">
                 {rows.map((row) => (
-                  <RecruiterRow key={row.recruiter} row={row} />
+                  <RecruiterRow key={row.recruiter} row={row} total={total} />
                 ))}
               </div>
             )}

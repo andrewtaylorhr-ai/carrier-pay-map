@@ -1,15 +1,14 @@
 "use client";
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { MonthlyOutcomeRow } from "@/lib/activity/hirePerformance";
-import { OUTCOME_COLOR } from "./RecruiterHireChart";
+import type { MonthlyHireRow } from "@/lib/activity/hirePerformance";
 
 export function formatMonth(month: string): string {
   const [y, m] = month.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: "short", year: "2-digit" });
 }
 
-export function HireTrendChart({ rows }: { rows: MonthlyOutcomeRow[] }) {
+export function HireTrendChart({ rows }: { rows: MonthlyHireRow[] }) {
   const chartData = rows.map((r) => ({ ...r, label: formatMonth(r.month) }));
 
   return (
@@ -47,10 +46,9 @@ export function HireTrendChart({ rows }: { rows: MonthlyOutcomeRow[] }) {
               }}
               labelStyle={{ color: "var(--cpm-text)", fontWeight: 600 }}
               itemStyle={{ color: "var(--cpm-text-dim)" }}
+              formatter={(value) => [String(value), "Hires"]}
             />
-            <Area type="monotone" dataKey="confirmed" stackId="1" stroke={OUTCOME_COLOR.confirmed} fill={OUTCOME_COLOR.confirmed} fillOpacity={0.55} />
-            <Area type="monotone" dataKey="pending" stackId="1" stroke={OUTCOME_COLOR.pending} fill={OUTCOME_COLOR.pending} fillOpacity={0.55} />
-            <Area type="monotone" dataKey="reversed" stackId="1" stroke={OUTCOME_COLOR.reversed} fill={OUTCOME_COLOR.reversed} fillOpacity={0.55} />
+            <Area type="monotone" dataKey="total" name="Hires" stroke="#22c55e" fill="#22c55e" fillOpacity={0.45} />
           </AreaChart>
         </ResponsiveContainer>
       )}

@@ -4,9 +4,8 @@
 // here — those belong to the separate Pay Map tool, not this hire-performance
 // data. Only sections that actually exist on this page get a card.
 const ACTIONS = [
-  { key: "recruiter", label: "Recruiter", question: "Who needs attention?", targetId: "recruiter-detail" },
+  { key: "recruiter", label: "Recruiter", question: "Who's producing the most?", targetId: "recruiter-detail" },
   { key: "carrier", label: "Carrier", question: "Which carriers are we placing with most?", targetId: "carrier-breakdown" },
-  { key: "followup", label: "Follow-up", question: "Which hires need action?", targetId: "needs-follow-up" },
   { key: "trend", label: "Trend", question: "What changed month to month?", targetId: "hires-trend" },
 ] as const;
 

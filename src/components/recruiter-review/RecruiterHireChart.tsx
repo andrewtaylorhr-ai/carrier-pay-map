@@ -3,45 +3,23 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { RecruiterHireRow } from "@/lib/activity/hirePerformance";
 
-export const OUTCOME_COLOR = {
-  confirmed: "#22c55e",
-  pending: "#d4a137",
-  reversed: "#e5484d",
-} as const;
+const BAR_COLOR = "#22c55e";
 
-// Capped so the chart stays readable — this list is already sorted
-// worst-first (see recruiterHireRanked), so a cap here just means "the
-// recruiters most worth looking at", not an arbitrary truncation.
+// Capped so the chart stays readable — this list is already sorted by
+// volume (see recruiterHireRanked), so a cap here just means "the top
+// producers", not an arbitrary truncation.
 const MAX_BARS = 12;
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1">
-      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
-      {label}
-    </span>
-  );
-}
 
 export function RecruiterHireChart({ rows }: { rows: RecruiterHireRow[] }) {
   const chartData = rows.slice(0, MAX_BARS).map((r) => ({
     recruiter: r.recruiter,
-    confirmed: r.confirmed,
-    pending: r.pending,
-    reversed: r.reversed,
+    total: r.total,
   }));
 
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 flex-1 min-w-0">
-      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-        <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)]">
-          Hires by recruiter{rows.length > MAX_BARS ? ` (top ${MAX_BARS} needing the most attention)` : ""}
-        </div>
-        <div className="flex items-center gap-3 text-[11px] text-[var(--cpm-text-faint)]">
-          <LegendDot color={OUTCOME_COLOR.confirmed} label="Confirmed" />
-          <LegendDot color={OUTCOME_COLOR.pending} label="Pending" />
-          <LegendDot color={OUTCOME_COLOR.reversed} label="Reversed" />
-        </div>
+      <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-3">
+        Hires by recruiter{rows.length > MAX_BARS ? ` (top ${MAX_BARS} by volume)` : ""}
       </div>
       {chartData.length === 0 ? (
         <div className="text-[12px] text-[var(--cpm-text-faint)] py-8 text-center">No data.</div>
@@ -74,10 +52,9 @@ export function RecruiterHireChart({ rows }: { rows: RecruiterHireRow[] }) {
               }}
               labelStyle={{ color: "var(--cpm-text)", fontWeight: 600 }}
               itemStyle={{ color: "var(--cpm-text-dim)" }}
+              formatter={(value) => [String(value), "Hires"]}
             />
-            <Bar dataKey="confirmed" stackId="a" fill={OUTCOME_COLOR.confirmed} />
-            <Bar dataKey="pending" stackId="a" fill={OUTCOME_COLOR.pending} />
-            <Bar dataKey="reversed" stackId="a" fill={OUTCOME_COLOR.reversed} radius={[0, 4, 4, 0]} />
+            <Bar dataKey="total" name="Hires" fill={BAR_COLOR} radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}

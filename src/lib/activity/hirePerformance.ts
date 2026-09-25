@@ -9,7 +9,7 @@
 import * as XLSX from "xlsx";
 import { parseDateValue, titleCaseName } from "./parseWorkbook";
 
-export type HireOutcome = "confirmed" | "pending" | "reversed" | "unclear";
+export type HireOutcome = "confirmed" | "pending" | "reversed";
 
 export interface HirePerformanceRecord {
   id: string;
@@ -78,15 +78,21 @@ function normalizeCarrierLabel(raw: string): string {
 // strip-then-recheck below handles that by removing every negated
 // occurrence first and only then checking what's left for a bare
 // "dispatched".
+//
+// No note, or a note with no tracking language at all, defaults to
+// "confirmed" — this source only ever contains Hired drivers (there's no
+// Active/DQ status here), so absent an explicit negative signal ("not
+// hired") or an explicit stuck signal ("no dispatch yet"), there's nothing
+// to indicate the hire didn't stick.
 export function classifyHireOutcome(note: string): HireOutcome {
   const text = note.trim();
-  if (!text) return "unclear";
+  if (!text) return "confirmed";
   if (/not hired/i.test(text)) return "reversed";
   if (/invoice/i.test(text)) return "confirmed";
   const stripped = text.replace(/\b(no|not)\s+(yet\s+)?dispatch(ed)?\b/gi, "");
   if (/\bdispatched\b/i.test(stripped)) return "confirmed";
   if (/\b(no|not)\s+(yet\s+)?dispatch(ed)?\b/i.test(text)) return "pending";
-  return "unclear";
+  return "confirmed";
 }
 
 // --- Parsing ---------------------------------------------------------------
@@ -176,7 +182,6 @@ export interface RecruiterHireRow {
   confirmed: number;
   pending: number;
   reversed: number;
-  unclear: number;
   carriers: string[];
   /** The pending/reversed hires behind this recruiter's numbers, most concerning first — for "find the problem, then fix it". */
   issues: HireIssue[];
@@ -204,7 +209,6 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
         confirmed: 0,
         pending: 0,
         reversed: 0,
-        unclear: 0,
         carriers: [],
         issues: [],
       });
@@ -241,7 +245,6 @@ export interface MonthlyOutcomeRow {
   confirmed: number;
   pending: number;
   reversed: number;
-  unclear: number;
 }
 
 // Same window as recruiterHireRanked, bucketed by month. Records with no
@@ -253,7 +256,7 @@ export function hireTrendByMonth(records: HirePerformanceRecord[], sinceMonths =
     const d = r.hiredDate ?? r.submittedDate;
     if (!d) return;
     const month = d.slice(0, 7);
-    if (!map.has(month)) map.set(month, { month, confirmed: 0, pending: 0, reversed: 0, unclear: 0 });
+    if (!map.has(month)) map.set(month, { month, confirmed: 0, pending: 0, reversed: 0 });
     map.get(month)![r.outcome] += 1;
   });
   return Array.from(map.values()).sort((a, b) => a.month.localeCompare(b.month));

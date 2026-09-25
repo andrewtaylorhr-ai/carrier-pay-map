@@ -31,7 +31,6 @@ interface ImportSummary {
   confirmed: number;
   pending: number;
   reversed: number;
-  unclear: number;
 }
 
 function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerformanceRecord[], sourceFile: string) => void }) {
@@ -56,7 +55,6 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
         confirmed: records.filter((r) => r.outcome === "confirmed").length,
         pending: records.filter((r) => r.outcome === "pending").length,
         reversed: records.filter((r) => r.outcome === "reversed").length,
-        unclear: records.filter((r) => r.outcome === "unclear").length,
       });
     } catch {
       setError(`Couldn't parse "${file.name}" — make sure it's a valid .xlsx export.`);
@@ -73,9 +71,9 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
         </div>
         <div className="text-[12px] text-[var(--cpm-text-dim)] mt-0.5">
           Upload the recruiter &ldquo;Performance&rdquo; workbook (.xlsx) — one row per Hired driver with a follow-up
-          note. Whether a hire actually stuck is read from that note (mentions of &ldquo;invoice&rdquo; or
-          &ldquo;dispatched&rdquo; = confirmed, &ldquo;no dispatch yet&rdquo; = still pending, &ldquo;not hired&rdquo;
-          = reversed). Re-uploading replaces the whole dataset with the latest export.
+          note. Every row starts confirmed (this file only ever has Hired drivers) unless the note says otherwise:
+          &ldquo;no dispatch yet&rdquo; = still pending, &ldquo;not hired&rdquo; = reversed. Re-uploading replaces the
+          whole dataset with the latest export.
         </div>
       </div>
       <input
@@ -91,8 +89,7 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
       {summary && (
         <div className="text-[12px] text-[var(--cpm-green)]">
           Imported {summary.total} hires across {summary.recruiters} recruiters — {summary.confirmed} confirmed,{" "}
-          {summary.pending} still pending dispatch, {summary.reversed} reversed, {summary.unclear} with no
-          follow-up signal in the note.
+          {summary.pending} still pending dispatch, {summary.reversed} reversed.
         </div>
       )}
     </div>
@@ -218,17 +215,15 @@ export function RecruiterReviewApp() {
       acc.confirmed += r.confirmed;
       acc.pending += r.pending;
       acc.reversed += r.reversed;
-      acc.unclear += r.unclear;
       return acc;
     },
-    { total: 0, confirmed: 0, pending: 0, reversed: 0, unclear: 0 }
+    { total: 0, confirmed: 0, pending: 0, reversed: 0 }
   );
 
   const outcomeSlices: ChartSlice[] = [
     { name: "Confirmed", value: totals.confirmed, color: OUTCOME_COLOR.confirmed },
     { name: "Pending", value: totals.pending, color: OUTCOME_COLOR.pending },
     { name: "Reversed", value: totals.reversed, color: OUTCOME_COLOR.reversed },
-    { name: "Unclear", value: totals.unclear, color: OUTCOME_COLOR.unclear },
   ].filter((s) => s.value > 0);
 
   return (
@@ -288,8 +283,8 @@ export function RecruiterReviewApp() {
             <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
               Ranked worst-first — reversed and still-pending hires surface at the top so a problem is easy to spot,
               then check whether it shows up for other recruiters too. Outcome is read from each hire&apos;s
-              follow-up note, not a status field the source file doesn&apos;t have — some hires have no
-              dispatch-tracking language at all and land in neither bucket.
+              follow-up note, not a status field the source file doesn&apos;t have — a hire counts as confirmed
+              unless its note says otherwise.
             </div>
             {rows.length === 0 ? (
               <div className="text-[12px] text-[var(--cpm-text-faint)] py-4 text-center">

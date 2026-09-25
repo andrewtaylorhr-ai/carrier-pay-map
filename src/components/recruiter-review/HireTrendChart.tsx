@@ -51,7 +51,6 @@ export function HireTrendChart({ rows }: { rows: MonthlyOutcomeRow[] }) {
             <Area type="monotone" dataKey="confirmed" stackId="1" stroke={OUTCOME_COLOR.confirmed} fill={OUTCOME_COLOR.confirmed} fillOpacity={0.55} />
             <Area type="monotone" dataKey="pending" stackId="1" stroke={OUTCOME_COLOR.pending} fill={OUTCOME_COLOR.pending} fillOpacity={0.55} />
             <Area type="monotone" dataKey="reversed" stackId="1" stroke={OUTCOME_COLOR.reversed} fill={OUTCOME_COLOR.reversed} fillOpacity={0.55} />
-            <Area type="monotone" dataKey="unclear" stackId="1" stroke={OUTCOME_COLOR.unclear} fill={OUTCOME_COLOR.unclear} fillOpacity={0.4} />
           </AreaChart>
         </ResponsiveContainer>
       )}

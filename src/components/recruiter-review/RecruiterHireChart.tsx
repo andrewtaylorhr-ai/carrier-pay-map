@@ -7,7 +7,6 @@ export const OUTCOME_COLOR = {
   confirmed: "#22c55e",
   pending: "#d4a137",
   reversed: "#e5484d",
-  unclear: "#6b7280",
 } as const;
 
 // Capped so the chart stays readable — this list is already sorted
@@ -30,7 +29,6 @@ export function RecruiterHireChart({ rows }: { rows: RecruiterHireRow[] }) {
     confirmed: r.confirmed,
     pending: r.pending,
     reversed: r.reversed,
-    unclear: r.unclear,
   }));
 
   return (
@@ -43,7 +41,6 @@ export function RecruiterHireChart({ rows }: { rows: RecruiterHireRow[] }) {
           <LegendDot color={OUTCOME_COLOR.confirmed} label="Confirmed" />
           <LegendDot color={OUTCOME_COLOR.pending} label="Pending" />
           <LegendDot color={OUTCOME_COLOR.reversed} label="Reversed" />
-          <LegendDot color={OUTCOME_COLOR.unclear} label="Unclear" />
         </div>
       </div>
       {chartData.length === 0 ? (
@@ -80,8 +77,7 @@ export function RecruiterHireChart({ rows }: { rows: RecruiterHireRow[] }) {
             />
             <Bar dataKey="confirmed" stackId="a" fill={OUTCOME_COLOR.confirmed} />
             <Bar dataKey="pending" stackId="a" fill={OUTCOME_COLOR.pending} />
-            <Bar dataKey="reversed" stackId="a" fill={OUTCOME_COLOR.reversed} />
-            <Bar dataKey="unclear" stackId="a" fill={OUTCOME_COLOR.unclear} radius={[0, 4, 4, 0]} />
+            <Bar dataKey="reversed" stackId="a" fill={OUTCOME_COLOR.reversed} radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
       )}

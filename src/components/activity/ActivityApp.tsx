@@ -15,6 +15,7 @@ import {
 import type { DateRange } from "@/lib/activity/analyze";
 import type { CarrierActivityData, DriverRecord, DriverStatus } from "@/lib/activity/types";
 import { useActivityData } from "@/lib/hooks/useActivityData";
+import { InsightsDashboard } from "./dashboard/InsightsDashboard";
 import { UploadPanel } from "./UploadPanel";
 
 function pct(n: number | null): string {
@@ -151,6 +152,8 @@ export function ActivityApp() {
 
   return (
     <div className="flex flex-col gap-5">
+      {carriers.length > 0 && <InsightsDashboard data={data} onSelectCarrier={selectCarrier} />}
+
       <UploadPanel onImport={handleImport} />
 
       {carriers.length === 0 ? (

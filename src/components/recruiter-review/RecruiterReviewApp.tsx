@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Building2, TrendingUp, UserCheck, Users } from "lucide-react";
+import { Building2, ChevronDown, ChevronUp, TrendingUp, UserCheck, Users } from "lucide-react";
 import {
   carrierHireRanked,
+  dailyHiresByRecruiter,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
   recruiterHireRanked,
@@ -17,6 +18,7 @@ import { StatCard } from "@/components/activity/dashboard/StatCard";
 import { CHART_OTHERS_COLOR, colorForIndex, type ChartSlice } from "@/lib/activity/dashboardStats";
 import { RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
+import { DailyHiresTable } from "./DailyHiresTable";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
@@ -110,17 +112,36 @@ function UploadHireReportPanel({ onImport }: { onImport: (records: HirePerforman
   );
 }
 
+function formatHireDate(iso: string | null): string {
+  if (!iso) return "No date";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString();
+}
+
 function RecruiterRow({ row, total }: { row: RecruiterHireRow; total: number }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <div className="rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-3">
-      <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5">
-        <span className="font-bold text-[13.5px] text-[var(--cpm-text)]">{row.recruiter}</span>
+      <button
+        type="button"
+        onClick={() => setExpanded((e) => !e)}
+        className="w-full flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5 text-left"
+      >
+        <span className="flex items-center gap-1.5">
+          {expanded ? (
+            <ChevronUp size={14} className="text-[var(--cpm-text-faint)] shrink-0" />
+          ) : (
+            <ChevronDown size={14} className="text-[var(--cpm-text-faint)] shrink-0" />
+          )}
+          <span className="font-bold text-[13.5px] text-[var(--cpm-text)]">{row.recruiter}</span>
+        </span>
         <div className="flex items-center gap-3 text-[12px] text-[var(--cpm-text-dim)] shrink-0">
           <span>{row.total} hires</span>
           <span className="text-[var(--cpm-text-faint)]">{pct(row.total, total)} of total</span>
           <span>Top carrier: {row.topCarrier}</span>
         </div>
-      </div>
+      </button>
       <div className="flex flex-wrap gap-1.5 mt-2">
         {row.carriers.map((c) => (
           <span
@@ -131,6 +152,30 @@ function RecruiterRow({ row, total }: { row: RecruiterHireRow; total: number }) 
           </span>
         ))}
       </div>
+      {expanded && (
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full text-[12px]">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wide text-[var(--cpm-text-faint)] border-b border-[var(--cpm-border)]">
+                <th className="py-1.5 pr-2 font-semibold">Driver</th>
+                <th className="py-1.5 pr-2 font-semibold">Carrier</th>
+                <th className="py-1.5 pr-2 font-semibold">Account</th>
+                <th className="py-1.5 pl-2 font-semibold text-right">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {row.hires.map((h, i) => (
+                <tr key={`${h.name}-${i}`} className="border-b border-[var(--cpm-border)] last:border-0">
+                  <td className="py-1.5 pr-2 text-[var(--cpm-text)] whitespace-nowrap">{h.name}</td>
+                  <td className="py-1.5 pr-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{h.carrier}</td>
+                  <td className="py-1.5 pr-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{h.account || "—"}</td>
+                  <td className="py-1.5 pl-2 text-[var(--cpm-text-dim)] whitespace-nowrap text-right">{formatHireDate(h.date)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -148,6 +193,7 @@ export function RecruiterReviewApp() {
   const trendRows = useMemo(() => hireTrendByMonth(records, SINCE_MONTHS), [records]);
   const carrierRows = useMemo(() => carrierHireRanked(records, SINCE_MONTHS), [records]);
   const carrierSlices = useMemo(() => carrierSlicesFor(carrierRows), [carrierRows]);
+  const dailyMatrix = useMemo(() => dailyHiresByRecruiter(records, SINCE_MONTHS), [records]);
 
   const dateBounds = useMemo(() => {
     const dates = records
@@ -218,13 +264,17 @@ export function RecruiterReviewApp() {
             </div>
           </div>
 
+          <div className="flex">
+            <DailyHiresTable matrix={dailyMatrix} />
+          </div>
+
           <div id="recruiter-detail" className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
             <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-0.5">
               Recruiter detail
             </div>
             <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
-              Ranked by volume, highest producer first. Every hire in this source file is already Hired — this page
-              tracks volume, not outcome.
+              Ranked by volume, highest producer first. Click a recruiter to see every individual hire — driver,
+              carrier, account, and date.
             </div>
             {rows.length === 0 ? (
               <div className="text-[12px] text-[var(--cpm-text-faint)] py-4 text-center">

@@ -128,12 +128,22 @@ function inWindow(records: HirePerformanceRecord[], sinceMonths: number): HirePe
   });
 }
 
+export interface RecruiterHireDetail {
+  name: string;
+  carrier: string;
+  account: string;
+  /** YYYY-MM-DD, or null when the record has neither a hired nor submitted date. */
+  date: string | null;
+}
+
 export interface RecruiterHireRow {
   recruiter: string;
   total: number;
   carriers: string[];
   /** The carrier this recruiter has placed the most hires with. */
   topCarrier: string;
+  /** Every individual hire, most recent first (undated hires last). */
+  hires: RecruiterHireDetail[];
 }
 
 // Ranked by volume, highest producer first — every row here is a hire, so
@@ -150,12 +160,13 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
   const carrierCounts = new Map<string, Map<string, number>>();
   inWindow(records, sinceMonths).forEach((r) => {
     if (!map.has(r.recruiter)) {
-      map.set(r.recruiter, { recruiter: r.recruiter, total: 0, carriers: [], topCarrier: "" });
+      map.set(r.recruiter, { recruiter: r.recruiter, total: 0, carriers: [], topCarrier: "", hires: [] });
       carrierCounts.set(r.recruiter, new Map());
     }
     const row = map.get(r.recruiter)!;
     row.total += 1;
     if (!row.carriers.includes(r.carrier)) row.carriers.push(r.carrier);
+    row.hires.push({ name: r.name, carrier: r.carrier, account: r.account, date: r.hiredDate ?? r.submittedDate ?? null });
     const counts = carrierCounts.get(r.recruiter)!;
     counts.set(r.carrier, (counts.get(r.carrier) ?? 0) + 1);
   });
@@ -163,7 +174,9 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
   return Array.from(map.values())
     .map((row) => {
       const top = Array.from(carrierCounts.get(row.recruiter)!.entries()).sort((a, b) => b[1] - a[1])[0];
-      return { ...row, topCarrier: top ? top[0] : "—" };
+      // Most recent hire first; hires with no date at all sort last.
+      const hires = [...row.hires].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+      return { ...row, hires, topCarrier: top ? top[0] : "—" };
     })
     .sort((a, b) => b.total - a.total);
 }
@@ -209,4 +222,38 @@ export function hireTrendByMonth(records: HirePerformanceRecord[], sinceMonths =
   return Array.from(map.entries())
     .map(([month, total]) => ({ month, total }))
     .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+// --- Daily hires by recruiter (recruiter x day grid) ----------------------
+
+export interface DailyHireMatrix {
+  /** YYYY-MM-DD, ascending. Only days with at least one hire (by anyone) are
+   *  included — a full trailing-6-month calendar would be mostly empty
+   *  columns and wouldn't read as anything but noise. */
+  days: string[];
+  /** Ranked by total volume, same order as recruiterHireRanked. */
+  rows: { recruiter: string; total: number; counts: number[] }[];
+}
+
+// Same window/anchoring as recruiterHireRanked (see inWindow) — undated
+// records can't be placed on a day and are excluded here, same tradeoff as
+// hireTrendByMonth.
+export function dailyHiresByRecruiter(records: HirePerformanceRecord[], sinceMonths = 6): DailyHireMatrix {
+  const dated = inWindow(records, sinceMonths).filter((r) => r.hiredDate ?? r.submittedDate);
+  const days = Array.from(new Set(dated.map((r) => (r.hiredDate ?? r.submittedDate) as string))).sort();
+  const dayIndex = new Map(days.map((d, i) => [d, i]));
+
+  const byRecruiter = new Map<string, number[]>();
+  dated.forEach((r) => {
+    const day = (r.hiredDate ?? r.submittedDate) as string;
+    if (!byRecruiter.has(r.recruiter)) byRecruiter.set(r.recruiter, new Array(days.length).fill(0));
+    const counts = byRecruiter.get(r.recruiter)!;
+    counts[dayIndex.get(day)!] += 1;
+  });
+
+  const rows = Array.from(byRecruiter.entries())
+    .map(([recruiter, counts]) => ({ recruiter, total: counts.reduce((a, b) => a + b, 0), counts }))
+    .sort((a, b) => b.total - a.total);
+
+  return { days, rows };
 }

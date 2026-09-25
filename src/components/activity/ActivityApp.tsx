@@ -9,6 +9,8 @@ import {
   dateRange,
   hireRate,
   recruiterBreakdown,
+  worstAccounts,
+  worstCarriers,
 } from "@/lib/activity/analyze";
 import type { DateRange } from "@/lib/activity/analyze";
 import type { CarrierActivityData, DriverRecord, DriverStatus } from "@/lib/activity/types";
@@ -81,11 +83,13 @@ export function ActivityApp() {
     setFilter(null);
   };
 
-  // Jump to a carrier AND immediately filter its records to one account's
-  // hires — used by the "top accounts" list in Overall performance below.
-  const selectCarrierAccount = (carrier: string, account: string) => {
+  // Jump to a carrier AND immediately filter its records to one account +
+  // status — used by the Overall performance lists below: "Hired" for the
+  // top-accounts list (see who got hired there), "DQ" for the worst-accounts
+  // list (see why they're getting disqualified).
+  const selectCarrierAccount = (carrier: string, account: string, status: DriverStatus) => {
     setSelected(carrier);
-    setFilter({ field: "account", key: account, status: "Hired" });
+    setFilter({ field: "account", key: account, status });
   };
 
   const handleImport = (carrier: string, records: DriverRecord[], sourceFile: string) => {
@@ -355,12 +359,14 @@ function OverallPerformance({
 }: {
   data: CarrierActivityData;
   onSelectCarrier: (carrier: string) => void;
-  onSelectAccount: (carrier: string, account: string) => void;
+  onSelectAccount: (carrier: string, account: string, status: DriverStatus) => void;
 }) {
   const carrierRows = carrierRanking(data).filter((r) => r.counts.hired > 0);
   const accountRows = crossCarrierAccountBreakdown(data)
     .filter((r) => r.counts.hired > 0)
     .slice(0, 10);
+  const worstCarrierRows = worstCarriers(data).slice(0, 10);
+  const worstAccountRows = worstAccounts(data).slice(0, 10);
 
   const topCarrier = carrierRows[0];
   const topAccount = accountRows[0];
@@ -402,7 +408,7 @@ function OverallPerformance({
                 </div>
                 <button
                   type="button"
-                  onClick={() => onSelectAccount(topAccount.carrier, topAccount.account)}
+                  onClick={() => onSelectAccount(topAccount.carrier, topAccount.account, "Hired")}
                   className="text-[14px] font-semibold text-[var(--cpm-accent)] hover:underline"
                 >
                   {topAccount.account}
@@ -444,7 +450,7 @@ function OverallPerformance({
                   <button
                     key={`${r.carrier}__${r.account}`}
                     type="button"
-                    onClick={() => onSelectAccount(r.carrier, r.account)}
+                    onClick={() => onSelectAccount(r.carrier, r.account, "Hired")}
                     className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent)]"
                   >
                     <span className="text-[var(--cpm-text)]">
@@ -456,6 +462,70 @@ function OverallPerformance({
               </div>
             </div>
           </div>
+
+          {(worstCarrierRows.length > 0 || worstAccountRows.length > 0) && (
+            <div className="mt-4 pt-4 border-t border-[var(--cpm-border)]">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-red)] mb-0.5">
+                Underperforming
+              </div>
+              <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-2">
+                Lowest hire rate among carriers/accounts with at least 3 decided outcomes (hired + DQ) — click to see
+                the DQ notes.
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)] mb-1">
+                    Carriers by lowest hire rate
+                  </div>
+                  {worstCarrierRows.length === 0 ? (
+                    <div className="text-[12px] text-[var(--cpm-text-faint)]">Not enough decided outcomes yet.</div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      {worstCarrierRows.map((r) => (
+                        <button
+                          key={r.carrier}
+                          type="button"
+                          onClick={() => onSelectCarrier(r.carrier)}
+                          className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-red)]"
+                        >
+                          <span className="text-[var(--cpm-text)]">{r.carrier}</span>
+                          <span className="text-[var(--cpm-text-dim)]">
+                            {pct(r.rate)} · {r.counts.dq} DQ
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)] mb-1">
+                    Accounts by lowest hire rate (across all carriers)
+                  </div>
+                  {worstAccountRows.length === 0 ? (
+                    <div className="text-[12px] text-[var(--cpm-text-faint)]">Not enough decided outcomes yet.</div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      {worstAccountRows.map((r) => (
+                        <button
+                          key={`${r.carrier}__${r.account}`}
+                          type="button"
+                          onClick={() => onSelectAccount(r.carrier, r.account, "DQ")}
+                          className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-red)]"
+                        >
+                          <span className="text-[var(--cpm-text)]">
+                            {r.account} <span className="text-[var(--cpm-text-faint)]">({r.carrier})</span>
+                          </span>
+                          <span className="text-[var(--cpm-text-dim)]">
+                            {pct(r.rate)} · {r.counts.dq} DQ
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -315,10 +315,17 @@ export function accountSuccessRanked(data: CarrierActivityData, topN = 12): Acco
 
 // --- Most-hired states (best-effort, derived from account names) -------------
 
+export interface StateCarrierHires {
+  carrier: string;
+  hired: number;
+}
+
 export interface StateHireRow {
   state: string;
   counts: StatusCounts;
   hireRate: number | null;
+  /** Which carriers those hires came from in this state, most-hires first. */
+  byCarrier: StateCarrierHires[];
 }
 
 // Answers "which state are we actually hiring in" — same best-effort state
@@ -329,22 +336,32 @@ export interface StateHireRow {
 // fan-out precedent as recruiterPerformance's byState map. Ranked by hire
 // count so it reads as "where the wins are coming from", not just volume.
 export function stateHireRanked(data: CarrierActivityData, topN = 15): StateHireRow[] {
-  const map = new Map<string, StatusCounts>();
-  Object.values(data).forEach((entry) => {
-    entry.records.forEach((r) => {
+  const map = new Map<string, { counts: StatusCounts; byCarrier: Map<string, number> }>();
+  Object.keys(data).forEach((carrier) => {
+    data[carrier].records.forEach((r) => {
       const states = statesFromAccount(r.account);
       states.forEach((s) => {
-        if (!map.has(s)) map.set(s, { active: 0, dq: 0, hired: 0, total: 0 });
-        const counts = map.get(s)!;
-        counts.total += 1;
-        if (r.status === "Active") counts.active += 1;
-        else if (r.status === "DQ") counts.dq += 1;
-        else if (r.status === "Hired") counts.hired += 1;
+        if (!map.has(s)) map.set(s, { counts: { active: 0, dq: 0, hired: 0, total: 0 }, byCarrier: new Map() });
+        const entry = map.get(s)!;
+        entry.counts.total += 1;
+        if (r.status === "Active") entry.counts.active += 1;
+        else if (r.status === "DQ") entry.counts.dq += 1;
+        else if (r.status === "Hired") {
+          entry.counts.hired += 1;
+          entry.byCarrier.set(carrier, (entry.byCarrier.get(carrier) ?? 0) + 1);
+        }
       });
     });
   });
   return Array.from(map.entries())
-    .map(([state, counts]) => ({ state, counts, hireRate: hireRate(counts) }))
+    .map(([state, { counts, byCarrier }]) => ({
+      state,
+      counts,
+      hireRate: hireRate(counts),
+      byCarrier: Array.from(byCarrier.entries())
+        .map(([carrier, hired]) => ({ carrier, hired }))
+        .sort((a, b) => b.hired - a.hired),
+    }))
     .filter((r) => r.counts.hired > 0)
     .sort((a, b) => b.counts.hired - a.counts.hired || (b.hireRate ?? 0) - (a.hireRate ?? 0))
     .slice(0, topN);

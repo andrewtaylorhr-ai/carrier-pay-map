@@ -30,7 +30,7 @@ export function AccountDqPanel({ rows }: { rows: AccountDqRow[] }) {
               <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5">
                 <span className="min-w-0">
                   <span className="font-semibold text-[13.5px] text-[var(--cpm-text)] truncate">{r.account}</span>
-                  <span className="text-[11.5px] text-[var(--cpm-text-faint)] ml-2">{r.carrier}</span>
+                  <span className="text-[13.5px] font-medium text-[var(--cpm-text-dim)] ml-2">{r.carrier}</span>
                 </span>
                 <div className="flex items-center gap-3 text-[12px] text-[var(--cpm-text-dim)] shrink-0">
                   <span>{r.counts.total} submissions</span>

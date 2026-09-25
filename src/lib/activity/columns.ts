@@ -63,6 +63,24 @@ export const STATUS_FALLBACK_ALIASES = ["update"];
 
 export const NOTE_ALIASES = ["notes", "note", "update", "status of application", "decision code"];
 
+// Priority-ordered: prefer the column most likely to mean "when this
+// application/submission happened" over ones that mean something narrower
+// (an exit date) or are only populated for a subset of rows. Roughly half of
+// the 12 real carrier files this was built against have no date column at
+// all (Bay & Bay, NFI, PAM, TA Dedicated, Transco, Hub Group) — that's fine,
+// it just means recordDate stays undefined for that carrier, same
+// conservative "don't guess" stance as the recruiter field.
+export const DATE_ALIASES = [
+  "submission date",
+  "submitted",
+  "orientation date",
+  "created on",
+  "start date",
+  "date",
+  "last updated",
+  "term date",
+];
+
 const RECRUITER_ALIASES = ["recruiter", "assigned recruiter", "assigned to", "admin dropdown"];
 const RECRUITER_HEADER_RE = /recruiter/i;
 

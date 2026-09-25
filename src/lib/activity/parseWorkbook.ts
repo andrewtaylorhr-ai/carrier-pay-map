@@ -16,6 +16,7 @@ import * as XLSX from "xlsx";
 import { extractRecruiter } from "./extractRecruiter";
 import {
   ACCOUNT_ALIASES,
+  DATE_ALIASES,
   NOTE_ALIASES,
   STATUS_ALWAYS_ALIASES,
   STATUS_FALLBACK_ALIASES,
@@ -59,12 +60,53 @@ function titleCaseName(raw: string): string {
   return raw.replace(/\s+/g, " ").trim().split(" ").map(titleCaseWord).join(" ");
 }
 
+const MDY_RE = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+const ISO_PREFIX_RE = /^(\d{4})-(\d{2})-(\d{2})/;
+
+// Best-effort date extraction. Cell values arrive in three shapes depending
+// on how the source file typed the column: a real Date object (thanks to
+// `cellDates: true` below), a bare Excel serial number (untyped/older
+// files), or plain text ("9/28/2026"). Date objects from SheetJS are built
+// with Date.UTC, so they must be read back with the UTC getters — reading
+// them with local getters would shift the day in any timezone behind UTC.
+// Text dates are parsed manually for the common mm/dd/yyyy and yyyy-mm-dd
+// shapes (also timezone-safe) before falling back to the JS Date parser.
+function parseDateValue(v: unknown): string | undefined {
+  if (v instanceof Date) {
+    if (isNaN(v.getTime())) return undefined;
+    return `${v.getUTCFullYear()}-${String(v.getUTCMonth() + 1).padStart(2, "0")}-${String(v.getUTCDate()).padStart(2, "0")}`;
+  }
+  if (typeof v === "number") {
+    if (v < 1 || v > 60000) return undefined; // sanity bound: excel serials for ~1900-2064
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    if (isNaN(d.getTime())) return undefined;
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  }
+  if (typeof v === "string") {
+    const s = v.trim();
+    if (!s) return undefined;
+    const mdy = s.match(MDY_RE);
+    if (mdy) {
+      const [, m, d, y] = mdy;
+      const year = y.length === 2 ? `20${y}` : y;
+      return `${year.padStart(4, "0")}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    const iso = s.match(ISO_PREFIX_RE);
+    if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+    const parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) {
+      return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`;
+    }
+  }
+  return undefined;
+}
+
 export function parseDriverUpdatesWorkbook(
   buffer: ArrayBuffer,
   carrier: string,
   sourceFile: string
 ): DriverRecord[] {
-  const wb = XLSX.read(buffer, { type: "array" });
+  const wb = XLSX.read(buffer, { type: "array", cellDates: true });
   const records: DriverRecord[] = [];
   const importedAt = new Date().toISOString();
 
@@ -82,6 +124,7 @@ export function parseDriverUpdatesWorkbook(
     const accountHeader = pickHeader(headers, ACCOUNT_ALIASES);
     const noteHeader = pickHeader(headers, NOTE_ALIASES);
     const recruiterHeader = pickRecruiterHeader(headers);
+    const dateHeader = pickHeader(headers, DATE_ALIASES);
 
     // Only trust "Update" as a status source when there's no tab default to
     // fall back on — otherwise it's often pure narrative text, not a status.
@@ -111,6 +154,8 @@ export function parseDriverUpdatesWorkbook(
       // above: fix how it's typed, don't guess at merging different spellings.
       const recruiter = rawRecruiter ? titleCaseName(rawRecruiter) : undefined;
 
+      const recordDate = dateHeader ? parseDateValue(row[dateHeader]) : undefined;
+
       records.push({
         id: `${carrier}__${sheetName}__${i}__${name}`,
         carrier,
@@ -121,6 +166,7 @@ export function parseDriverUpdatesWorkbook(
         recruiter,
         importedAt,
         sourceFile,
+        recordDate,
       });
     });
   }

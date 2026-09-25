@@ -61,3 +61,19 @@ export function accountBreakdown(records: DriverRecord[]): BreakdownRow[] {
 export function recruiterBreakdown(records: DriverRecord[]): BreakdownRow[] {
   return breakdownBy(records, (r) => r.recruiter);
 }
+
+export interface DateRange {
+  from: string;
+  to: string;
+}
+
+// Span of `recordDate` across a batch — the date range the source file's
+// data actually covers (not when it was imported into this app). Null when
+// none of the records have a recordDate — either that carrier's export has
+// no date column at all, or a value on every row failed to parse.
+export function dateRange(records: DriverRecord[]): DateRange | null {
+  const dates = records.map((r) => r.recordDate).filter((d): d is string => !!d);
+  if (dates.length === 0) return null;
+  dates.sort();
+  return { from: dates[0], to: dates[dates.length - 1] };
+}

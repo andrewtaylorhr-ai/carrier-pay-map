@@ -25,6 +25,13 @@ export interface DriverRecord {
   importedAt: string;
   /** Original uploaded filename, kept for traceability. */
   sourceFile: string;
+  /**
+   * Best-effort date (YYYY-MM-DD) pulled from a date-ish column in the source
+   * file (Submission Date, Submitted, Orientation Date, Created On, Start
+   * Date, Last Updated, Term Date...). Undefined when that carrier's export
+   * has no such column — roughly half of them don't (see columns.ts).
+   */
+  recordDate?: string;
 }
 
 export interface CarrierActivityEntry {

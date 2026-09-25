@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { accountBreakdown, carrierTotals, hireRate, recruiterBreakdown } from "@/lib/activity/analyze";
-import type { DriverRecord } from "@/lib/activity/types";
+import { accountBreakdown, carrierTotals, dateRange, hireRate, recruiterBreakdown } from "@/lib/activity/analyze";
+import type { DateRange } from "@/lib/activity/analyze";
+import type { DriverRecord, DriverStatus } from "@/lib/activity/types";
 import { useActivityData } from "@/lib/hooks/useActivityData";
 import { UploadPanel } from "./UploadPanel";
 
@@ -11,12 +12,40 @@ function pct(n: number | null): string {
   return `${Math.round(n * 100)}%`;
 }
 
+// `recordDate` is stored as a plain YYYY-MM-DD string (see parseWorkbook.ts)
+// specifically so formatting it can't hit timezone-shift bugs — parse the
+// parts directly instead of routing through `new Date(isoString)`.
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString();
+}
+
+function formatRange(range: DateRange | null): string | null {
+  if (!range) return null;
+  return range.from === range.to ? formatDate(range.from) : `${formatDate(range.from)} – ${formatDate(range.to)}`;
+}
+
+// What the "Raw records" table below is currently narrowed to, driven by
+// clicking a row (or a status sub-count) in one of the breakdown cards —
+// this is how "why are these DQ/Hired" gets answered: filter down to the
+// account/recruiter + status in question, then read the Note column.
+interface RecordFilter {
+  field: "account" | "recruiter";
+  key: string;
+  status: DriverStatus | null;
+}
+
+function sameFilter(a: RecordFilter | null, b: RecordFilter): boolean {
+  return !!a && a.field === b.field && a.key === b.key && a.status === b.status;
+}
+
 export function ActivityApp() {
   const [data, setData] = useActivityData();
   const [selected, setSelected] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [renaming, setRenaming] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [filter, setFilter] = useState<RecordFilter | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -28,6 +57,14 @@ export function ActivityApp() {
     if (!selected && carriers.length) setSelected(carriers[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, carriers.join("|")]);
+
+  // A filter drilled into one carrier's data doesn't carry meaning for
+  // another carrier — clear it whenever the selected carrier changes.
+  useEffect(() => setFilter(null), [selected]);
+
+  const toggleFilter = (next: RecordFilter) => {
+    setFilter((prev) => (sameFilter(prev, next) ? null : next));
+  };
 
   const handleImport = (carrier: string, records: DriverRecord[], sourceFile: string) => {
     setData((prev) => ({
@@ -77,6 +114,14 @@ export function ActivityApp() {
 
   const activeEntry = selected ? data[selected] : null;
   const activeRecords = activeEntry?.records ?? [];
+  const filteredRecords = filter
+    ? activeRecords.filter((r) => {
+        const fieldValue = filter.field === "account" ? r.account : r.recruiter;
+        if (fieldValue !== filter.key) return false;
+        if (filter.status && r.status !== filter.status) return false;
+        return true;
+      })
+    : activeRecords;
 
   return (
     <div className="flex flex-col gap-5">
@@ -94,6 +139,7 @@ export function ActivityApp() {
             {carriers.map((c) => {
               const counts = carrierTotals(data[c].records);
               const rate = hireRate(counts);
+              const range = formatRange(dateRange(data[c].records));
               const active = c === selected;
               return (
                 <div
@@ -173,6 +219,9 @@ export function ActivityApp() {
                   <div className="text-[11px] text-[var(--cpm-text-faint)] mt-1">
                     Updated {new Date(data[c].updatedAt).toLocaleDateString()}
                   </div>
+                  <div className="text-[11px] text-[var(--cpm-text-faint)] mt-0.5">
+                    Data: {range ?? "no dates in source file"}
+                  </div>
                 </div>
               );
             })}
@@ -184,16 +233,27 @@ export function ActivityApp() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <BreakdownCard
                   title="By account / lane"
-                  hint="Which accounts see the most submission volume for this carrier."
+                  hint="Which accounts see the most submission volume — click a count to see those drivers' notes below."
+                  field="account"
                   rows={accountBreakdown(activeRecords)}
+                  activeFilter={filter}
+                  onToggle={toggleFilter}
                 />
                 <BreakdownCard
                   title="By recruiter (detected)"
                   hint="Best-effort — only rows where a name was parsed out of the notes."
+                  field="recruiter"
                   rows={recruiterBreakdown(activeRecords)}
+                  activeFilter={filter}
+                  onToggle={toggleFilter}
                 />
               </div>
-              <RecordsTable records={activeRecords} />
+              <RecordsTable
+                records={filteredRecords}
+                totalCount={activeRecords.length}
+                filter={filter}
+                onClear={() => setFilter(null)}
+              />
             </div>
           )}
         </>
@@ -215,7 +275,8 @@ function ComparisonTable({
       const rate = hireRate(counts);
       const topAccount = accountBreakdown(data[c].records)[0];
       const topRecruiter = recruiterBreakdown(data[c].records)[0];
-      return { carrier: c, counts, rate, topAccount, topRecruiter };
+      const range = formatRange(dateRange(data[c].records));
+      return { carrier: c, counts, rate, topAccount, topRecruiter, range };
     })
     .sort((a, b) => (b.rate ?? -1) - (a.rate ?? -1));
 
@@ -233,6 +294,7 @@ function ComparisonTable({
               <th className="py-1.5 pr-4">Hire rate</th>
               <th className="py-1.5 pr-4">Top account</th>
               <th className="py-1.5 pr-4">Top recruiter</th>
+              <th className="py-1.5 pr-4">Data range</th>
             </tr>
           </thead>
           <tbody>
@@ -247,6 +309,7 @@ function ComparisonTable({
                 <td className="py-1.5 pr-4 text-[var(--cpm-text-dim)]">
                   {r.topRecruiter ? `${r.topRecruiter.key} (${r.topRecruiter.counts.total})` : "—"}
                 </td>
+                <td className="py-1.5 pr-4 text-[var(--cpm-text-faint)]">{r.range ?? "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -259,12 +322,39 @@ function ComparisonTable({
 function BreakdownCard({
   title,
   hint,
+  field,
   rows,
+  activeFilter,
+  onToggle,
 }: {
   title: string;
   hint: string;
+  field: RecordFilter["field"];
   rows: ReturnType<typeof accountBreakdown>;
+  activeFilter: RecordFilter | null;
+  onToggle: (f: RecordFilter) => void;
 }) {
+  const statusButton = (row: (typeof rows)[number], status: DriverStatus, label: string, n: number) => {
+    if (n === 0) return <span className="text-[var(--cpm-text-faint)]">{n} {label}</span>;
+    const next: RecordFilter = { field, key: row.key, status };
+    const isActive = sameFilter(activeFilter, next);
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(next);
+        }}
+        title={`Show ${label} drivers for ${row.key} (with notes) below`}
+        className={`underline decoration-dotted underline-offset-2 hover:text-[var(--cpm-accent)] ${
+          isActive ? "text-[var(--cpm-accent)] font-semibold" : ""
+        }`}
+      >
+        {n} {label}
+      </button>
+    );
+  };
+
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
       <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)]">{title}</div>
@@ -276,12 +366,25 @@ function BreakdownCard({
           {rows.map((row) => {
             const max = rows[0].counts.total;
             const width = Math.max(4, Math.round((row.counts.total / max) * 100));
+            const rowFilter: RecordFilter = { field, key: row.key, status: null };
+            const rowActive = sameFilter(activeFilter, rowFilter);
             return (
               <div key={row.key} className="text-[12.5px]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--cpm-text)] font-medium">{row.key}</span>
-                  <span className="text-[var(--cpm-text-dim)]">
-                    {row.counts.total} ({row.counts.active} active · {row.counts.dq} DQ · {row.counts.hired} hired)
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onToggle(rowFilter)}
+                    title={`Show all ${row.key} drivers (with notes) below`}
+                    className={`text-left font-medium hover:text-[var(--cpm-accent)] ${
+                      rowActive ? "text-[var(--cpm-accent)]" : "text-[var(--cpm-text)]"
+                    }`}
+                  >
+                    {row.key}
+                  </button>
+                  <span className="text-[var(--cpm-text-dim)] shrink-0">
+                    {row.counts.total} ({statusButton(row, "Active", "active", row.counts.active)} ·{" "}
+                    {statusButton(row, "DQ", "DQ", row.counts.dq)} ·{" "}
+                    {statusButton(row, "Hired", "hired", row.counts.hired)})
                   </span>
                 </div>
                 <div className="h-1.5 rounded-full bg-[var(--cpm-panel-alt)] mt-1 overflow-hidden">
@@ -296,12 +399,45 @@ function BreakdownCard({
   );
 }
 
-function RecordsTable({ records }: { records: DriverRecord[] }) {
+function RecordsTable({
+  records,
+  totalCount,
+  filter,
+  onClear,
+}: {
+  records: DriverRecord[];
+  totalCount: number;
+  filter: RecordFilter | null;
+  onClear: () => void;
+}) {
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
-      <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-2">
-        Raw records ({records.length})
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+        <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)]">
+          {filter ? (
+            <>
+              Records — {filter.field === "account" ? "account" : "recruiter"} &ldquo;{filter.key}&rdquo;
+              {filter.status ? ` · ${filter.status}` : ""} ({records.length} of {totalCount})
+            </>
+          ) : (
+            <>Raw records ({records.length})</>
+          )}
+        </div>
+        {filter && (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-[11.5px] font-semibold text-[var(--cpm-accent)] hover:underline"
+          >
+            Clear filter
+          </button>
+        )}
       </div>
+      {filter && (
+        <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-2">
+          Read the Note column below to see why each driver was {filter.status ? filter.status.toLowerCase() : "marked this way"}.
+        </div>
+      )}
       <div className="overflow-auto max-h-[420px]">
         <table className="w-full text-[12.5px] border-collapse">
           <thead className="sticky top-0 bg-[var(--cpm-panel-alt)]">
@@ -310,19 +446,31 @@ function RecordsTable({ records }: { records: DriverRecord[] }) {
               <th className="py-1.5 px-2">Account</th>
               <th className="py-1.5 px-2">Status</th>
               <th className="py-1.5 px-2">Recruiter</th>
+              <th className="py-1.5 px-2">Date</th>
               <th className="py-1.5 px-2">Note</th>
             </tr>
           </thead>
           <tbody>
-            {records.map((r) => (
-              <tr key={r.id} className="border-t border-[var(--cpm-border)] align-top">
-                <td className="py-1.5 px-2 text-[var(--cpm-text)] whitespace-nowrap">{r.name}</td>
-                <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.account}</td>
-                <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.status}</td>
-                <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.recruiter ?? "—"}</td>
-                <td className="py-1.5 px-2 text-[var(--cpm-text-faint)]">{r.note || "—"}</td>
+            {records.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-3 px-2 text-[var(--cpm-text-faint)]">
+                  No records match this filter.
+                </td>
               </tr>
-            ))}
+            ) : (
+              records.map((r) => (
+                <tr key={r.id} className="border-t border-[var(--cpm-border)] align-top">
+                  <td className="py-1.5 px-2 text-[var(--cpm-text)] whitespace-nowrap">{r.name}</td>
+                  <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.account}</td>
+                  <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.status}</td>
+                  <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">{r.recruiter ?? "—"}</td>
+                  <td className="py-1.5 px-2 text-[var(--cpm-text-dim)] whitespace-nowrap">
+                    {r.recordDate ? formatDate(r.recordDate) : "—"}
+                  </td>
+                  <td className="py-1.5 px-2 text-[var(--cpm-text-faint)]">{r.note || "—"}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

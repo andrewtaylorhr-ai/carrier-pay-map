@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Percent, Users } from "lucide-react";
+import { AlertTriangle, CheckCircle2, UserCheck, Users } from "lucide-react";
 import {
+  carrierHireRanked,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
   recruiterHireRanked,
@@ -17,6 +18,9 @@ import type { ChartSlice } from "@/lib/activity/dashboardStats";
 import { OUTCOME_COLOR, RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
 import { RecentIssuesTable } from "./RecentIssuesTable";
+import { ManagerInsights } from "./ManagerInsights";
+import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
+import { ActionCenter } from "./ActionCenter";
 
 const SINCE_MONTHS = 6;
 
@@ -190,12 +194,13 @@ export function RecruiterReviewApp() {
 
   const rows = useMemo(() => recruiterHireRanked(records, SINCE_MONTHS), [records]);
   const trendRows = useMemo(() => hireTrendByMonth(records, SINCE_MONTHS), [records]);
+  const carrierRows = useMemo(() => carrierHireRanked(records, SINCE_MONTHS), [records]);
   const recentIssues = useMemo<HireIssue[]>(
     () =>
       rows
         .flatMap((r) => r.issues)
         .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
-        .slice(0, 8),
+        .slice(0, 15),
     [rows]
   );
 
@@ -236,34 +241,55 @@ export function RecruiterReviewApp() {
         </div>
       ) : (
         <>
-          <div className="text-[11.5px] text-[var(--cpm-text-faint)]">
-            Trailing {SINCE_MONTHS}-month window —{" "}
-            {dateBounds
-              ? `full import covers ${formatDate(dateBounds.from)} – ${formatDate(dateBounds.to)}. Window is anchored to the most recent record, not today's date.`
-              : "no dated records."}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="text-[11.5px] text-[var(--cpm-text-faint)]">
+              Trailing {SINCE_MONTHS}-month window — window is anchored to the most recent record, not today&apos;s
+              date.
+            </div>
+            {dateBounds && (
+              <div className="text-[11.5px] font-semibold text-[var(--cpm-text-dim)] bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] rounded-full px-3 py-1 shrink-0">
+                {formatDate(dateBounds.from)} – {formatDate(dateBounds.to)}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatCard icon={Users} label="Total hires" value={String(totals.total)} sub={`${rows.length} recruiters`} />
+            <StatCard
+              icon={CheckCircle2}
+              label="Confirmed"
+              value={String(totals.confirmed)}
+              sub={`${pct(totals.confirmed, totals.total)} of hires`}
+            />
+            <StatCard
+              icon={AlertTriangle}
+              label="Needs follow-up"
+              value={String(totals.pending + totals.reversed)}
+              sub={`${totals.pending} pending · ${totals.reversed} reversed`}
+            />
+            <StatCard
+              icon={UserCheck}
+              label="Active recruiters"
+              value={String(rows.length)}
+              sub={`${carrierRows.length} carriers used`}
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-            <div className="lg:col-span-3 flex flex-col gap-3">
-              <StatCard icon={Users} label="Total hires" value={String(totals.total)} sub={`${rows.length} recruiters`} />
-              <StatCard
-                icon={CheckCircle2}
-                label="Confirmed"
-                value={String(totals.confirmed)}
-                sub={`${pct(totals.confirmed, totals.total)} of hires`}
-              />
-              <StatCard
-                icon={AlertTriangle}
-                label="Needs follow-up"
-                value={String(totals.pending + totals.reversed)}
-                sub={`${totals.pending} pending · ${totals.reversed} reversed`}
-              />
-            </div>
-            <div className="lg:col-span-5 flex">
+            <div id="hires-trend" className="lg:col-span-8 flex">
               <HireTrendChart rows={trendRows} />
             </div>
             <div className="lg:col-span-4 flex">
-              <RecentIssuesTable issues={recentIssues} />
+              <ManagerInsights rows={rows} carrierRows={carrierRows} trendRows={trendRows} totals={totals} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+            <div className="lg:col-span-8 flex">
+              <RecruiterPerformanceTable rows={rows} total={totals.total} />
+            </div>
+            <div className="lg:col-span-4 flex">
+              <ActionCenter />
             </div>
           </div>
 
@@ -271,12 +297,16 @@ export function RecruiterReviewApp() {
             <div className="lg:col-span-2 flex">
               <RecruiterHireChart rows={rows} />
             </div>
-            <div className="flex">
+            <div id="carrier-breakdown" className="flex">
               <CarrierDonut slices={outcomeSlices} total={totals.total} title="Hire outcome breakdown" />
             </div>
           </div>
 
-          <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
+          <div id="needs-follow-up" className="flex">
+            <RecentIssuesTable issues={recentIssues} />
+          </div>
+
+          <div id="recruiter-detail" className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
             <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-0.5">
               Recruiter detail
             </div>

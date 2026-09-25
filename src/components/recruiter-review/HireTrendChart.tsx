@@ -4,7 +4,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import type { MonthlyOutcomeRow } from "@/lib/activity/hirePerformance";
 import { OUTCOME_COLOR } from "./RecruiterHireChart";
 
-function formatMonth(month: string): string {
+export function formatMonth(month: string): string {
   const [y, m] = month.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: "short", year: "2-digit" });
 }

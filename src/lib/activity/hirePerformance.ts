@@ -183,6 +183,8 @@ export interface RecruiterHireRow {
   pending: number;
   reversed: number;
   carriers: string[];
+  /** The carrier this recruiter has placed the most hires with. */
+  topCarrier: string;
   /** The pending/reversed hires behind this recruiter's numbers, most concerning first — for "find the problem, then fix it". */
   issues: HireIssue[];
 }
@@ -201,6 +203,9 @@ export interface RecruiterHireRow {
 // future upload isn't guaranteed to be).
 export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonths = 6): RecruiterHireRow[] {
   const map = new Map<string, RecruiterHireRow>();
+  // Tracked alongside `map` rather than on the row itself — it's an
+  // implementation detail for deriving topCarrier, not part of the public shape.
+  const carrierCounts = new Map<string, Map<string, number>>();
   inWindow(records, sinceMonths).forEach((r) => {
     if (!map.has(r.recruiter)) {
       map.set(r.recruiter, {
@@ -210,13 +215,17 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
         pending: 0,
         reversed: 0,
         carriers: [],
+        topCarrier: "",
         issues: [],
       });
+      carrierCounts.set(r.recruiter, new Map());
     }
     const row = map.get(r.recruiter)!;
     row.total += 1;
     row[r.outcome] += 1;
     if (!row.carriers.includes(r.carrier)) row.carriers.push(r.carrier);
+    const counts = carrierCounts.get(r.recruiter)!;
+    counts.set(r.carrier, (counts.get(r.carrier) ?? 0) + 1);
     if (r.outcome === "pending" || r.outcome === "reversed") {
       row.issues.push({
         name: r.name,
@@ -230,11 +239,34 @@ export function recruiterHireRanked(records: HirePerformanceRecord[], sinceMonth
   });
 
   return Array.from(map.values())
-    .map((row) => ({
-      ...row,
-      issues: row.issues.sort((a, b) => (a.outcome === b.outcome ? 0 : a.outcome === "reversed" ? -1 : 1)),
-    }))
+    .map((row) => {
+      const top = Array.from(carrierCounts.get(row.recruiter)!.entries()).sort((a, b) => b[1] - a[1])[0];
+      return {
+        ...row,
+        topCarrier: top ? top[0] : "—",
+        issues: row.issues.sort((a, b) => (a.outcome === b.outcome ? 0 : a.outcome === "reversed" ? -1 : 1)),
+      };
+    })
     .sort((a, b) => (b.reversed * 3 + b.pending) - (a.reversed * 3 + a.pending) || b.total - a.total);
+}
+
+// --- Carrier volume rollup (for the "carriers used" KPI + top-carrier insight) ---
+
+export interface CarrierHireRow {
+  carrier: string;
+  total: number;
+}
+
+// Same window as recruiterHireRanked, but rolled up by carrier instead of
+// recruiter — independent of any one recruiter's breakdown.
+export function carrierHireRanked(records: HirePerformanceRecord[], sinceMonths = 6): CarrierHireRow[] {
+  const map = new Map<string, number>();
+  inWindow(records, sinceMonths).forEach((r) => {
+    map.set(r.carrier, (map.get(r.carrier) ?? 0) + 1);
+  });
+  return Array.from(map.entries())
+    .map(([carrier, total]) => ({ carrier, total }))
+    .sort((a, b) => b.total - a.total);
 }
 
 // --- Monthly outcome trend (for the "hires over time" chart) ---------------

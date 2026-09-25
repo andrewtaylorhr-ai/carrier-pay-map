@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { accountBreakdown, carrierTotals, dateRange, hireRate, recruiterBreakdown } from "@/lib/activity/analyze";
+import {
+  accountBreakdown,
+  carrierRanking,
+  carrierTotals,
+  crossCarrierAccountBreakdown,
+  dateRange,
+  hireRate,
+  recruiterBreakdown,
+} from "@/lib/activity/analyze";
 import type { DateRange } from "@/lib/activity/analyze";
-import type { DriverRecord, DriverStatus } from "@/lib/activity/types";
+import type { CarrierActivityData, DriverRecord, DriverStatus } from "@/lib/activity/types";
 import { useActivityData } from "@/lib/hooks/useActivityData";
 import { UploadPanel } from "./UploadPanel";
 
@@ -58,12 +66,26 @@ export function ActivityApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, carriers.join("|")]);
 
-  // A filter drilled into one carrier's data doesn't carry meaning for
-  // another carrier — clear it whenever the selected carrier changes.
-  useEffect(() => setFilter(null), [selected]);
-
   const toggleFilter = (next: RecordFilter) => {
     setFilter((prev) => (sameFilter(prev, next) ? null : next));
+  };
+
+  // A filter drilled into one carrier's data doesn't carry meaning for
+  // another carrier — plain carrier selection (card click, keyboard nav,
+  // fresh import) clears any active filter. This is called explicitly at
+  // each such call site instead of via a `useEffect` keyed on `selected`,
+  // because an effect would also fire — and stomp the filter — when
+  // `selectCarrierAccount` below needs to set both at once.
+  const selectCarrier = (carrier: string) => {
+    setSelected(carrier);
+    setFilter(null);
+  };
+
+  // Jump to a carrier AND immediately filter its records to one account's
+  // hires — used by the "top accounts" list in Overall performance below.
+  const selectCarrierAccount = (carrier: string, account: string) => {
+    setSelected(carrier);
+    setFilter({ field: "account", key: account, status: "Hired" });
   };
 
   const handleImport = (carrier: string, records: DriverRecord[], sourceFile: string) => {
@@ -71,7 +93,7 @@ export function ActivityApp() {
       ...prev,
       [carrier]: { records, sourceFile, updatedAt: new Date().toISOString() },
     }));
-    setSelected(carrier);
+    selectCarrier(carrier);
   };
 
   const removeCarrier = (carrier: string) => {
@@ -135,6 +157,10 @@ export function ActivityApp() {
         <>
           {carriers.length > 1 && <ComparisonTable data={data} carriers={carriers} />}
 
+          {carriers.length > 1 && (
+            <OverallPerformance data={data} onSelectCarrier={selectCarrier} onSelectAccount={selectCarrierAccount} />
+          )}
+
           <div className="flex flex-wrap gap-3">
             {carriers.map((c) => {
               const counts = carrierTotals(data[c].records);
@@ -146,12 +172,12 @@ export function ActivityApp() {
                   key={c}
                   role="button"
                   tabIndex={0}
-                  onClick={() => setSelected(c)}
+                  onClick={() => selectCarrier(c)}
                   onKeyDown={(e) => {
                     if (e.target !== e.currentTarget) return; // let the nested input/rename/remove controls handle their own keys
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      setSelected(c);
+                      selectCarrier(c);
                     }
                   }}
                   className={`text-left rounded-xl border p-3.5 min-w-[190px] transition-colors cursor-pointer ${
@@ -315,6 +341,123 @@ function ComparisonTable({
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+// "Which carrier / which account is doing the best hiring" across the whole
+// book at a glance — separate from the per-carrier detail below, which only
+// ever looks at one carrier at a time.
+function OverallPerformance({
+  data,
+  onSelectCarrier,
+  onSelectAccount,
+}: {
+  data: CarrierActivityData;
+  onSelectCarrier: (carrier: string) => void;
+  onSelectAccount: (carrier: string, account: string) => void;
+}) {
+  const carrierRows = carrierRanking(data).filter((r) => r.counts.hired > 0);
+  const accountRows = crossCarrierAccountBreakdown(data)
+    .filter((r) => r.counts.hired > 0)
+    .slice(0, 10);
+
+  const topCarrier = carrierRows[0];
+  const topAccount = accountRows[0];
+
+  return (
+    <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
+      <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-0.5">
+        Overall performance
+      </div>
+      <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
+        Most-hired carrier and account across everything imported. Click a row to jump to it.
+      </div>
+      {!topCarrier && !topAccount ? (
+        <div className="text-[12px] text-[var(--cpm-text-faint)]">No hires recorded yet across any carrier.</div>
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-4 mb-3">
+            {topCarrier && (
+              <div className="rounded-lg border border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)] px-3 py-2">
+                <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)]">
+                  Top carrier by hires
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onSelectCarrier(topCarrier.carrier)}
+                  className="text-[14px] font-semibold text-[var(--cpm-accent)] hover:underline"
+                >
+                  {topCarrier.carrier}
+                </button>
+                <div className="text-[11.5px] text-[var(--cpm-text-dim)]">
+                  {topCarrier.counts.hired} hired · {pct(topCarrier.rate)} hire rate
+                </div>
+              </div>
+            )}
+            {topAccount && (
+              <div className="rounded-lg border border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)] px-3 py-2">
+                <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)]">
+                  Top account by hires
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onSelectAccount(topAccount.carrier, topAccount.account)}
+                  className="text-[14px] font-semibold text-[var(--cpm-accent)] hover:underline"
+                >
+                  {topAccount.account}
+                </button>
+                <div className="text-[11.5px] text-[var(--cpm-text-dim)]">
+                  {topAccount.counts.hired} hired · {topAccount.carrier}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)] mb-1">
+                Carriers ranked by hires
+              </div>
+              <div className="flex flex-col gap-1">
+                {carrierRows.map((r) => (
+                  <button
+                    key={r.carrier}
+                    type="button"
+                    onClick={() => onSelectCarrier(r.carrier)}
+                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent)]"
+                  >
+                    <span className="text-[var(--cpm-text)]">{r.carrier}</span>
+                    <span className="text-[var(--cpm-text-dim)]">
+                      {r.counts.hired} hired · {pct(r.rate)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-[10.5px] uppercase tracking-wide text-[var(--cpm-text-faint)] mb-1">
+                Top accounts by hires (across all carriers)
+              </div>
+              <div className="flex flex-col gap-1">
+                {accountRows.map((r) => (
+                  <button
+                    key={`${r.carrier}__${r.account}`}
+                    type="button"
+                    onClick={() => onSelectAccount(r.carrier, r.account)}
+                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent)]"
+                  >
+                    <span className="text-[var(--cpm-text)]">
+                      {r.account} <span className="text-[var(--cpm-text-faint)]">({r.carrier})</span>
+                    </span>
+                    <span className="text-[var(--cpm-text-dim)]">{r.counts.hired} hired</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

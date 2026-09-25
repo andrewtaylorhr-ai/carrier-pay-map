@@ -56,7 +56,7 @@ function titleCaseWord(word: string): string {
   return word[0].toUpperCase() + word.slice(1).toLowerCase();
 }
 
-function titleCaseName(raw: string): string {
+export function titleCaseName(raw: string): string {
   return raw.replace(/\s+/g, " ").trim().split(" ").map(titleCaseWord).join(" ");
 }
 
@@ -71,7 +71,7 @@ const ISO_PREFIX_RE = /^(\d{4})-(\d{2})-(\d{2})/;
 // them with local getters would shift the day in any timezone behind UTC.
 // Text dates are parsed manually for the common mm/dd/yyyy and yyyy-mm-dd
 // shapes (also timezone-safe) before falling back to the JS Date parser.
-function parseDateValue(v: unknown): string | undefined {
+export function parseDateValue(v: unknown): string | undefined {
   if (v instanceof Date) {
     if (isNaN(v.getTime())) return undefined;
     return `${v.getUTCFullYear()}-${String(v.getUTCMonth() + 1).padStart(2, "0")}-${String(v.getUTCDate()).padStart(2, "0")}`;

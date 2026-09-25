@@ -11,6 +11,7 @@ import {
   groupedForChart,
   overallDqReasons,
   overallTotals,
+  recruiterDqRanked,
   stateHireRanked,
 } from "@/lib/activity/dashboardStats";
 import type { CarrierActivityData } from "@/lib/activity/types";
@@ -21,6 +22,7 @@ import { CarrierPerformanceTable } from "./CarrierPerformanceTable";
 import { AccountDqPanel } from "./AccountDqPanel";
 import { AccountSuccessPanel } from "./AccountSuccessPanel";
 import { StateHirePanel } from "./StateHirePanel";
+import { RecruiterDqPanel } from "./RecruiterDqPanel";
 import { DqReasonsPanel } from "./DqReasonsPanel";
 import { KeyInsights } from "./KeyInsights";
 
@@ -43,6 +45,7 @@ export function InsightsDashboard({
   const accountDqRows = useMemo(() => accountDqRanked(data), [data]);
   const accountSuccessRows = useMemo(() => accountSuccessRanked(data), [data]);
   const stateHireRows = useMemo(() => stateHireRanked(data), [data]);
+  const recruiterDqRows = useMemo(() => recruiterDqRanked(data), [data]);
   const insights = useMemo(() => buildKeyInsights(data, carrierRows), [data, carrierRows]);
   const carriers = useMemo(() => Object.keys(data).sort(), [data]);
   const range = useMemo(() => dateRange(Object.values(data).flatMap((e) => e.records)), [data]);
@@ -96,6 +99,8 @@ export function InsightsDashboard({
       </div>
 
       <StateHirePanel rows={stateHireRows} />
+
+      <RecruiterDqPanel rows={recruiterDqRows} />
 
       <div className="flex flex-col lg:flex-row gap-4">
         <DqReasonsPanel reasons={dqReasons} totalDq={totals.totalDq} />

@@ -367,6 +367,55 @@ export function stateHireRanked(data: CarrierActivityData, topN = 15): StateHire
     .slice(0, topN);
 }
 
+// --- Recruiter DQ diagnostic ---------------------------------------------------
+
+export interface RecruiterDqRow {
+  recruiter: string;
+  counts: StatusCounts;
+  dqRate: number | null;
+  dqReasons: DqReasonRow[];
+  /** How many of this recruiter's records carry a recordDate — see note below. */
+  datedCount: number;
+}
+
+const MIN_RESOLVED_FOR_RECRUITER_DQ = 3;
+
+// Per-recruiter mirror of accountDqRanked — answers "which recruiter has a
+// rejection problem, and why", ranked worst-DQ-rate first, so a pattern
+// caught in one recruiter's data can be checked against the rest of the
+// roster. Deliberately NOT filtered to a trailing 6-month window: recordDate
+// is missing on roughly half of all carriers' exports (see DriverRecord),
+// so date-gating would silently drop half of most recruiters' history and
+// make the ranking meaningless. `datedCount` is surfaced instead so the
+// caller can show how much of each recruiter's total is actually dated.
+// Requires a minimum number of decided (hired+dq) outcomes so a recruiter
+// with a single DQ doesn't rank as "100% DQ".
+export function recruiterDqRanked(data: CarrierActivityData, topN = 15): RecruiterDqRow[] {
+  const map = new Map<string, DriverRecord[]>();
+  Object.values(data).forEach((entry) => {
+    entry.records.forEach((r) => {
+      if (!r.recruiter) return;
+      if (!map.has(r.recruiter)) map.set(r.recruiter, []);
+      map.get(r.recruiter)!.push(r);
+    });
+  });
+  return Array.from(map.entries())
+    .map(([recruiter, records]) => {
+      const counts = carrierTotals(records);
+      const rate = hireRate(counts);
+      return {
+        recruiter,
+        counts,
+        dqRate: rate !== null ? 1 - rate : null,
+        dqReasons: dqReasonsForRecords(records),
+        datedCount: records.filter((r) => r.recordDate).length,
+      };
+    })
+    .filter((r) => r.counts.hired + r.counts.dq >= MIN_RESOLVED_FOR_RECRUITER_DQ)
+    .sort((a, b) => (b.dqRate ?? -1) - (a.dqRate ?? -1) || b.counts.dq - a.counts.dq)
+    .slice(0, topN);
+}
+
 // --- Key insights -------------------------------------------------------------
 // Every line here is derived directly from the same rows the tables/charts
 // render — no synthetic period-over-period comparisons, since the data model

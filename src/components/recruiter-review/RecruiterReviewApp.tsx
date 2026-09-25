@@ -26,6 +26,11 @@ import { RecruiterCarrierTable } from "./RecruiterCarrierTable";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
+import { DataTransferControls } from "@/components/shared/DataTransferControls";
+
+function isHirePerformanceRecordArray(value: unknown): value is HirePerformanceRecord[] {
+  return Array.isArray(value) && value.every((r) => r && typeof r === "object" && "recruiter" in r && "carrier" in r);
+}
 
 const SINCE_MONTHS = 6;
 const DONUT_TOP_N = 6;
@@ -217,6 +222,14 @@ export function RecruiterReviewApp() {
   return (
     <div className="flex flex-col gap-4">
       <UploadHireReportPanel onImport={handleImport} />
+
+      <DataTransferControls
+        data={records}
+        hasData={records.length > 0}
+        onImport={setRecords}
+        exportFilename="recruiter-review-hires"
+        validate={isHirePerformanceRecordArray}
+      />
 
       {records.length === 0 ? (
         <div className="text-[13px] text-[var(--cpm-text-dim)] py-8 text-center">

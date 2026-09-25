@@ -17,6 +17,14 @@ import type { CarrierActivityData, DriverRecord, DriverStatus } from "@/lib/acti
 import { useActivityData } from "@/lib/hooks/useActivityData";
 import { InsightsDashboard } from "./dashboard/InsightsDashboard";
 import { UploadPanel } from "./UploadPanel";
+import { DataTransferControls } from "@/components/shared/DataTransferControls";
+
+function isCarrierActivityData(value: unknown): value is CarrierActivityData {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  return Object.values(value).every(
+    (entry) => entry && typeof entry === "object" && "records" in entry && Array.isArray((entry as { records: unknown }).records)
+  );
+}
 
 function pct(n: number | null): string {
   if (n == null) return "—";
@@ -155,6 +163,14 @@ export function ActivityApp() {
       {carriers.length > 0 && <InsightsDashboard data={data} onSelectCarrier={selectCarrier} />}
 
       <UploadPanel onImport={handleImport} />
+
+      <DataTransferControls
+        data={data}
+        hasData={carriers.length > 0}
+        onImport={setData}
+        exportFilename="carrier-activity"
+        validate={isCarrierActivityData}
+      />
 
       {carriers.length === 0 ? (
         <div className="text-[13px] text-[var(--cpm-text-dim)] py-8 text-center">

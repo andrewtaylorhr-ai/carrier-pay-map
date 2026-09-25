@@ -224,6 +224,52 @@ export function hireTrendByMonth(records: HirePerformanceRecord[], sinceMonths =
     .sort((a, b) => a.month.localeCompare(b.month));
 }
 
+// --- Monthly hires by carrier (multi-line trend, one line per carrier) -----
+
+export interface MonthlyCarrierTrend {
+  /** YYYY-MM, ascending — same bucketing as hireTrendByMonth. */
+  months: string[];
+  /** One entry per carrier, counts aligned to `months`. Ranked by total
+   *  volume, highest first. Carriers beyond MAX_CARRIER_LINES are rolled
+   *  into a trailing "Other" series so a long tail of one-off carriers
+   *  doesn't turn the chart into unreadable spaghetti. */
+  series: { carrier: string; counts: number[] }[];
+}
+
+const MAX_CARRIER_LINES = 6;
+
+// Same window/month-bucketing as hireTrendByMonth, split out per carrier
+// instead of summed — this answers "which carrier" for that chart. Records
+// with no date are excluded here for the same reason hireTrendByMonth
+// excludes them: they can't be placed on a timeline.
+export function monthlyHiresByCarrier(records: HirePerformanceRecord[], sinceMonths = 6): MonthlyCarrierTrend {
+  const dated = inWindow(records, sinceMonths).filter((r) => r.hiredDate ?? r.submittedDate);
+  const months = Array.from(new Set(dated.map((r) => (r.hiredDate ?? r.submittedDate)!.slice(0, 7)))).sort();
+  const monthIndex = new Map(months.map((m, i) => [m, i]));
+
+  const byCarrier = new Map<string, number[]>();
+  const totals = new Map<string, number>();
+  dated.forEach((r) => {
+    const month = (r.hiredDate ?? r.submittedDate)!.slice(0, 7);
+    if (!byCarrier.has(r.carrier)) byCarrier.set(r.carrier, new Array(months.length).fill(0));
+    byCarrier.get(r.carrier)![monthIndex.get(month)!] += 1;
+    totals.set(r.carrier, (totals.get(r.carrier) ?? 0) + 1);
+  });
+
+  const ranked = Array.from(byCarrier.entries()).sort((a, b) => (totals.get(b[0]) ?? 0) - (totals.get(a[0]) ?? 0));
+  const head = ranked.slice(0, MAX_CARRIER_LINES);
+  const tail = ranked.slice(MAX_CARRIER_LINES);
+
+  const series = head.map(([carrier, counts]) => ({ carrier, counts }));
+  if (tail.length > 0) {
+    const otherCounts = new Array(months.length).fill(0);
+    tail.forEach(([, counts]) => counts.forEach((c, i) => (otherCounts[i] += c)));
+    series.push({ carrier: "Other", counts: otherCounts });
+  }
+
+  return { months, series };
+}
+
 // --- Monthly hires by recruiter (recruiter x month grid) -------------------
 
 export interface MonthlyHireMatrix {

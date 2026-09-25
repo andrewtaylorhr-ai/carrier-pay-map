@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, ChevronDown, ChevronUp, TrendingUp, UserCheck, Users } from "lucide-react";
 import {
   carrierHireRanked,
+  monthlyHiresByCarrier,
   monthlyHiresByRecruiter,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
@@ -19,6 +20,7 @@ import { CHART_OTHERS_COLOR, colorForIndex, type ChartSlice } from "@/lib/activi
 import { RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
 import { MonthlyHiresTable } from "./MonthlyHiresTable";
+import { CarrierTrendChart } from "./CarrierTrendChart";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
@@ -194,6 +196,7 @@ export function RecruiterReviewApp() {
   const carrierRows = useMemo(() => carrierHireRanked(records, SINCE_MONTHS), [records]);
   const carrierSlices = useMemo(() => carrierSlicesFor(carrierRows), [carrierRows]);
   const monthlyMatrix = useMemo(() => monthlyHiresByRecruiter(records, SINCE_MONTHS), [records]);
+  const carrierTrend = useMemo(() => monthlyHiresByCarrier(records, SINCE_MONTHS), [records]);
 
   const dateBounds = useMemo(() => {
     const dates = records
@@ -262,6 +265,10 @@ export function RecruiterReviewApp() {
             <div id="carrier-breakdown" className="flex">
               <CarrierDonut slices={carrierSlices} total={total} title="Hires by carrier" />
             </div>
+          </div>
+
+          <div className="flex">
+            <CarrierTrendChart trend={carrierTrend} />
           </div>
 
           <div className="flex">

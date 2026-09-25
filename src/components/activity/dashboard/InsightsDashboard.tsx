@@ -11,6 +11,7 @@ import {
   groupedForChart,
   overallDqReasons,
   overallTotals,
+  stateHireRanked,
 } from "@/lib/activity/dashboardStats";
 import type { CarrierActivityData } from "@/lib/activity/types";
 import { StatCard } from "./StatCard";
@@ -19,6 +20,7 @@ import { CarrierDonut } from "./CarrierDonut";
 import { CarrierPerformanceTable } from "./CarrierPerformanceTable";
 import { AccountDqPanel } from "./AccountDqPanel";
 import { AccountSuccessPanel } from "./AccountSuccessPanel";
+import { StateHirePanel } from "./StateHirePanel";
 import { DqReasonsPanel } from "./DqReasonsPanel";
 import { KeyInsights } from "./KeyInsights";
 
@@ -40,6 +42,7 @@ export function InsightsDashboard({
   const dqReasons = useMemo(() => overallDqReasons(data), [data]);
   const accountDqRows = useMemo(() => accountDqRanked(data), [data]);
   const accountSuccessRows = useMemo(() => accountSuccessRanked(data), [data]);
+  const stateHireRows = useMemo(() => stateHireRanked(data), [data]);
   const insights = useMemo(() => buildKeyInsights(data, carrierRows), [data, carrierRows]);
   const carriers = useMemo(() => Object.keys(data).sort(), [data]);
   const range = useMemo(() => dateRange(Object.values(data).flatMap((e) => e.records)), [data]);
@@ -91,6 +94,8 @@ export function InsightsDashboard({
         <AccountSuccessPanel rows={accountSuccessRows} />
         <AccountDqPanel rows={accountDqRows} />
       </div>
+
+      <StateHirePanel rows={stateHireRows} />
 
       <div className="flex flex-col lg:flex-row gap-4">
         <DqReasonsPanel reasons={dqReasons} totalDq={totals.totalDq} />

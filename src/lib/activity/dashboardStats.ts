@@ -44,7 +44,11 @@ const US_STATE_CODES = new Set([
 ]);
 
 export function statesFromAccount(account: string): string[] {
-  const tokens = account.toUpperCase().match(/[A-Z]{2}/g) ?? [];
+  // \b...\b (not the old bare /[A-Z]{2}/g) so this only matches standalone
+  // 2-letter tokens — the unbounded version matched mid-word letter pairs
+  // too (e.g. "WA" and "AR" inside "WALMART"), which was producing bogus
+  // state hits on any account name containing that substring.
+  const tokens = account.toUpperCase().match(/\b[A-Z]{2}\b/g) ?? [];
   const found = new Set<string>();
   tokens.forEach((t) => {
     if (US_STATE_CODES.has(t)) found.add(t);
@@ -305,6 +309,43 @@ export function accountSuccessRanked(data: CarrierActivityData, topN = 12): Acco
       return { carrier, account, counts, hireRate: hireRate(counts) };
     })
     .filter((r) => r.counts.total >= MIN_SUBMISSIONS_FOR_SUCCESS && r.counts.hired > 0)
+    .sort((a, b) => b.counts.hired - a.counts.hired || (b.hireRate ?? 0) - (a.hireRate ?? 0))
+    .slice(0, topN);
+}
+
+// --- Most-hired states (best-effort, derived from account names) -------------
+
+export interface StateHireRow {
+  state: string;
+  counts: StatusCounts;
+  hireRate: number | null;
+}
+
+// Answers "which state are we actually hiring in" — same best-effort state
+// extraction as recruiterPerformance/buildKeyInsights (see statesFromAccount):
+// DriverRecord has no real state field, so this scans account names for USPS
+// state codes. A record whose account names multiple states (e.g. "TX/OK/LA
+// Regional") counts toward every state it names, not just one — same
+// fan-out precedent as recruiterPerformance's byState map. Ranked by hire
+// count so it reads as "where the wins are coming from", not just volume.
+export function stateHireRanked(data: CarrierActivityData, topN = 15): StateHireRow[] {
+  const map = new Map<string, StatusCounts>();
+  Object.values(data).forEach((entry) => {
+    entry.records.forEach((r) => {
+      const states = statesFromAccount(r.account);
+      states.forEach((s) => {
+        if (!map.has(s)) map.set(s, { active: 0, dq: 0, hired: 0, total: 0 });
+        const counts = map.get(s)!;
+        counts.total += 1;
+        if (r.status === "Active") counts.active += 1;
+        else if (r.status === "DQ") counts.dq += 1;
+        else if (r.status === "Hired") counts.hired += 1;
+      });
+    });
+  });
+  return Array.from(map.entries())
+    .map(([state, counts]) => ({ state, counts, hireRate: hireRate(counts) }))
+    .filter((r) => r.counts.hired > 0)
     .sort((a, b) => b.counts.hired - a.counts.hired || (b.hireRate ?? 0) - (a.hireRate ?? 0))
     .slice(0, topN);
 }

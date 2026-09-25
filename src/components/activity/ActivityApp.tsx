@@ -15,6 +15,8 @@ export function ActivityApp() {
   const [data, setData] = useActivityData();
   const [selected, setSelected] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   useEffect(() => setMounted(true), []);
 
@@ -44,6 +46,33 @@ export function ActivityApp() {
     });
   };
 
+  const startRename = (carrier: string) => {
+    setRenaming(carrier);
+    setRenameValue(carrier);
+  };
+
+  const cancelRename = () => {
+    setRenaming(null);
+    setRenameValue("");
+  };
+
+  const commitRename = (oldName: string) => {
+    const trimmed = renameValue.trim();
+    setRenaming(null);
+    if (!trimmed || trimmed === oldName) return;
+    if (data[trimmed] && !confirm(`"${trimmed}" already has imported data — replace it with "${oldName}"'s data?`)) {
+      return;
+    }
+    setData((prev) => {
+      const next = { ...prev };
+      const entry = next[oldName];
+      delete next[oldName];
+      next[trimmed] = entry;
+      return next;
+    });
+    setSelected((s) => (s === oldName ? trimmed : s));
+  };
+
   if (!mounted) return null;
 
   const activeEntry = selected ? data[selected] : null;
@@ -67,29 +96,72 @@ export function ActivityApp() {
               const rate = hireRate(counts);
               const active = c === selected;
               return (
-                <button
+                <div
                   key={c}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelected(c)}
-                  className={`text-left rounded-xl border p-3.5 min-w-[190px] transition-colors ${
+                  onKeyDown={(e) => {
+                    if (e.target !== e.currentTarget) return; // let the nested input/rename/remove controls handle their own keys
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelected(c);
+                    }
+                  }}
+                  className={`text-left rounded-xl border p-3.5 min-w-[190px] transition-colors cursor-pointer ${
                     active
                       ? "border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)]"
                       : "border-[var(--cpm-border)] bg-[var(--cpm-panel)] hover:border-[var(--cpm-border-strong)]"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-semibold text-[13.5px] text-[var(--cpm-text)]">{c}</div>
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      title={`Remove ${c}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeCarrier(c);
-                      }}
-                      className="text-[var(--cpm-text-faint)] hover:text-[var(--cpm-red)] text-[11px] leading-none px-1"
-                    >
-                      ✕
+                    {renaming === c ? (
+                      <input
+                        autoFocus
+                        type="text"
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            commitRename(c);
+                          } else if (e.key === "Escape") {
+                            e.preventDefault();
+                            cancelRename();
+                          }
+                        }}
+                        onBlur={() => commitRename(c)}
+                        className="min-w-0 flex-1 px-1.5 py-0.5 rounded border border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)] text-[var(--cpm-text)] text-[13.5px] font-semibold"
+                      />
+                    ) : (
+                      <div className="font-semibold text-[13.5px] text-[var(--cpm-text)]">{c}</div>
+                    )}
+                    <span className="flex items-center gap-1 shrink-0">
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        title={`Rename ${c}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startRename(c);
+                        }}
+                        className="text-[var(--cpm-text-faint)] hover:text-[var(--cpm-accent)] text-[11px] leading-none px-1"
+                      >
+                        ✎
+                      </span>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        title={`Remove ${c}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeCarrier(c);
+                        }}
+                        className="text-[var(--cpm-text-faint)] hover:text-[var(--cpm-red)] text-[11px] leading-none px-1"
+                      >
+                        ✕
+                      </span>
                     </span>
                   </div>
                   <div className="text-[12px] text-[var(--cpm-text-dim)] mt-1">
@@ -101,7 +173,7 @@ export function ActivityApp() {
                   <div className="text-[11px] text-[var(--cpm-text-faint)] mt-1">
                     Updated {new Date(data[c].updatedAt).toLocaleDateString()}
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

@@ -61,7 +61,14 @@ export const STATUS_ALWAYS_ALIASES = ["status", "status of application", "decisi
 // fall back to instead — see parseWorkbook.ts.
 export const STATUS_FALLBACK_ALIASES = ["update"];
 
-export const NOTE_ALIASES = ["notes", "note", "update", "status of application", "decision code"];
+// "status" is deliberately last: `STATUS_ALWAYS_ALIASES` already trusts a
+// bare "Status" column for classification, but its cell text is sometimes
+// the *only* place a reason lives (e.g. "Reject-Requirements-MVR") — without
+// this, those carriers' DQ rows had no `note` at all (see dqReasons.ts,
+// which otherwise buckets every one of them into an uninformative "Not
+// specified"). Lower priority than the others so a richer, separate
+// Notes/Update field always wins when one exists.
+export const NOTE_ALIASES = ["notes", "note", "update", "status of application", "decision code", "status"];
 
 // Priority-ordered: prefer the column most likely to mean "when this
 // application/submission happened" over ones that mean something narrower

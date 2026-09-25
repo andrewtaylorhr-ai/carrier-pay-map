@@ -5,6 +5,12 @@ function pct(n: number | null): string {
   return `${Math.round(n * 100)}%`;
 }
 
+// Card list instead of a wide `<table>` — a table here needs 6 columns
+// including a variable-length reason-chip list, which on a narrow/mobile
+// screen scrolls the carrier name off-screen and leaves only anonymous
+// chips visible (the exact problem reported against the first version of
+// this component). Each carrier's identity now sits directly above its own
+// reasons with no horizontal scrolling required at any width.
 export function CarrierPerformanceTable({
   rows,
   onSelectCarrier,
@@ -18,72 +24,53 @@ export function CarrierPerformanceTable({
         Carrier performance
       </div>
       <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
-        Rejection rate and the most common reason behind it, per carrier — click a reason chip's carrier to jump to its detail below.
+        Rejection rate and the most common reasons behind it, per carrier.
       </div>
       {rows.length === 0 ? (
         <div className="text-[12px] text-[var(--cpm-text-faint)] py-4 text-center">No data.</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-[12.5px] border-collapse">
-            <thead>
-              <tr className="text-left text-[var(--cpm-text-faint)] uppercase text-[10.5px] tracking-wide">
-                <th className="py-1.5 pr-4">Carrier</th>
-                <th className="py-1.5 pr-4">Submissions</th>
-                <th className="py-1.5 pr-4">Hired</th>
-                <th className="py-1.5 pr-4">DQ</th>
-                <th className="py-1.5 pr-4">DQ rate</th>
-                <th className="py-1.5 pr-4">Top rejection reasons</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.carrier} className="border-t border-[var(--cpm-border)] align-top">
-                  <td className="py-2 pr-4 font-medium text-[var(--cpm-text)] whitespace-nowrap">
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: r.color }} />
-                      {onSelectCarrier ? (
-                        <button
-                          type="button"
-                          onClick={() => onSelectCarrier(r.carrier)}
-                          className="hover:text-[var(--cpm-accent)] hover:underline"
-                        >
-                          {r.carrier}
-                        </button>
-                      ) : (
-                        r.carrier
-                      )}
+        <div className="flex flex-col gap-2.5">
+          {rows.map((r) => (
+            <div key={r.carrier} className="rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-3">
+              <div className="flex items-center justify-between flex-wrap gap-x-4 gap-y-1.5">
+                <span className="inline-flex items-center gap-2 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: r.color }} />
+                  {onSelectCarrier ? (
+                    <button
+                      type="button"
+                      onClick={() => onSelectCarrier(r.carrier)}
+                      className="font-semibold text-[13.5px] text-[var(--cpm-text)] hover:text-[var(--cpm-accent)] hover:underline truncate"
+                    >
+                      {r.carrier}
+                    </button>
+                  ) : (
+                    <span className="font-semibold text-[13.5px] text-[var(--cpm-text)] truncate">{r.carrier}</span>
+                  )}
+                </span>
+                <div className="flex items-center gap-3 text-[12px] text-[var(--cpm-text-dim)] shrink-0">
+                  <span>{r.counts.total} submissions</span>
+                  <span>{r.counts.hired} hired</span>
+                  <span className="text-[var(--cpm-red)] font-semibold">
+                    {r.counts.dq} DQ · {pct(r.dqRate)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {r.dqReasons.length === 0 ? (
+                  <span className="text-[11.5px] text-[var(--cpm-text-faint)]">No DQs yet.</span>
+                ) : (
+                  r.dqReasons.map((reason) => (
+                    <span
+                      key={reason.label}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]/40 whitespace-nowrap"
+                    >
+                      {reason.label} <span className="opacity-80">({reason.count})</span>
                     </span>
-                  </td>
-                  <td className="py-2 pr-4 text-[var(--cpm-text-dim)]">{r.counts.total}</td>
-                  <td className="py-2 pr-4 text-[var(--cpm-text-dim)]">{r.counts.hired}</td>
-                  <td className="py-2 pr-4 text-[var(--cpm-text-dim)]">{r.counts.dq}</td>
-                  <td className="py-2 pr-4 text-[var(--cpm-red)] font-medium">{pct(r.dqRate)}</td>
-                  <td className="py-2 pr-4">
-                    {r.dqReasons.length === 0 ? (
-                      <span className="text-[var(--cpm-text-faint)]">No DQs yet</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5 max-w-[420px]">
-                        {r.dqReasons.slice(0, 3).map((reason) => (
-                          <span
-                            key={reason.label}
-                            title={`${reason.label}: ${reason.count}`}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]/40 whitespace-nowrap"
-                          >
-                            {reason.label} <span className="opacity-80">({reason.count})</span>
-                          </span>
-                        ))}
-                        {r.dqReasons.length > 3 && (
-                          <span className="text-[11px] text-[var(--cpm-text-faint)] self-center">
-                            +{r.dqReasons.length - 3} more
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

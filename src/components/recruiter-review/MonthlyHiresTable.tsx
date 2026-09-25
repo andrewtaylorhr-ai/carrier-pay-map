@@ -1,26 +1,22 @@
 "use client";
 
-import type { DailyHireMatrix } from "@/lib/activity/hirePerformance";
+import type { MonthlyHireMatrix } from "@/lib/activity/hirePerformance";
+import { formatMonth } from "./HireTrendChart";
 
-function formatDay(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-// Recruiter x day grid — only columns for days that actually had at least
-// one hire (see dailyHiresByRecruiter), otherwise a 6-month calendar would
-// be almost entirely empty cells. Horizontally scrollable since the number
-// of day-columns isn't bounded the way month-columns are.
-export function DailyHiresTable({ matrix }: { matrix: DailyHireMatrix }) {
+// Recruiter x month grid — the same data behind "Hires over time" (a single
+// summed line), broken out per recruiter into a table. Only months that
+// actually had at least one hire are shown, matching the trend chart's
+// window rather than padding with empty columns.
+export function MonthlyHiresTable({ matrix }: { matrix: MonthlyHireMatrix }) {
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 flex flex-col">
       <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-0.5">
-        Daily hires by recruiter
+        Monthly hires by recruiter
       </div>
       <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-3">
-        Only days with at least one recorded hire are shown. Scroll right for more.
+        Same window as the trend chart above, broken out by recruiter.
       </div>
-      {matrix.rows.length === 0 || matrix.days.length === 0 ? (
+      {matrix.rows.length === 0 || matrix.months.length === 0 ? (
         <div className="text-[12px] text-[var(--cpm-text-faint)] py-8 text-center">No dated records in this window.</div>
       ) : (
         <div className="overflow-x-auto">
@@ -30,12 +26,12 @@ export function DailyHiresTable({ matrix }: { matrix: DailyHireMatrix }) {
                 <th className="sticky left-0 bg-[var(--cpm-panel)] text-left py-1.5 pr-3 font-semibold uppercase tracking-wide text-[11px] text-[var(--cpm-text-faint)] border-b border-[var(--cpm-border)] whitespace-nowrap">
                   Recruiter
                 </th>
-                {matrix.days.map((d) => (
+                {matrix.months.map((m) => (
                   <th
-                    key={d}
+                    key={m}
                     className="py-1.5 px-2 font-semibold text-[11px] text-[var(--cpm-text-faint)] border-b border-[var(--cpm-border)] whitespace-nowrap text-right"
                   >
-                    {formatDay(d)}
+                    {formatMonth(m)}
                   </th>
                 ))}
               </tr>
@@ -48,7 +44,7 @@ export function DailyHiresTable({ matrix }: { matrix: DailyHireMatrix }) {
                   </td>
                   {row.counts.map((c, i) => (
                     <td
-                      key={matrix.days[i]}
+                      key={matrix.months[i]}
                       className={`py-1.5 px-2 text-right whitespace-nowrap ${
                         c > 0 ? "text-[var(--cpm-text)] font-semibold" : "text-[var(--cpm-text-faint)]"
                       }`}

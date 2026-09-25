@@ -224,36 +224,38 @@ export function hireTrendByMonth(records: HirePerformanceRecord[], sinceMonths =
     .sort((a, b) => a.month.localeCompare(b.month));
 }
 
-// --- Daily hires by recruiter (recruiter x day grid) ----------------------
+// --- Monthly hires by recruiter (recruiter x month grid) -------------------
 
-export interface DailyHireMatrix {
-  /** YYYY-MM-DD, ascending. Only days with at least one hire (by anyone) are
-   *  included — a full trailing-6-month calendar would be mostly empty
-   *  columns and wouldn't read as anything but noise. */
-  days: string[];
+export interface MonthlyHireMatrix {
+  /** YYYY-MM, ascending. Only months with at least one hire (by anyone) are
+   *  included — same "don't pad with empty columns" rule as the daily
+   *  version this replaced, just bucketed coarser to match the monthly
+   *  trend chart. */
+  months: string[];
   /** Ranked by total volume, same order as recruiterHireRanked. */
   rows: { recruiter: string; total: number; counts: number[] }[];
 }
 
-// Same window/anchoring as recruiterHireRanked (see inWindow) — undated
-// records can't be placed on a day and are excluded here, same tradeoff as
-// hireTrendByMonth.
-export function dailyHiresByRecruiter(records: HirePerformanceRecord[], sinceMonths = 6): DailyHireMatrix {
+// Same window/anchoring as recruiterHireRanked (see inWindow) and same
+// month-bucketing as hireTrendByMonth — this is that same chart's data,
+// just broken out per recruiter into a table instead of a single summed
+// line. Undated records can't be placed on a month and are excluded here.
+export function monthlyHiresByRecruiter(records: HirePerformanceRecord[], sinceMonths = 6): MonthlyHireMatrix {
   const dated = inWindow(records, sinceMonths).filter((r) => r.hiredDate ?? r.submittedDate);
-  const days = Array.from(new Set(dated.map((r) => (r.hiredDate ?? r.submittedDate) as string))).sort();
-  const dayIndex = new Map(days.map((d, i) => [d, i]));
+  const months = Array.from(new Set(dated.map((r) => (r.hiredDate ?? r.submittedDate)!.slice(0, 7)))).sort();
+  const monthIndex = new Map(months.map((m, i) => [m, i]));
 
   const byRecruiter = new Map<string, number[]>();
   dated.forEach((r) => {
-    const day = (r.hiredDate ?? r.submittedDate) as string;
-    if (!byRecruiter.has(r.recruiter)) byRecruiter.set(r.recruiter, new Array(days.length).fill(0));
+    const month = (r.hiredDate ?? r.submittedDate)!.slice(0, 7);
+    if (!byRecruiter.has(r.recruiter)) byRecruiter.set(r.recruiter, new Array(months.length).fill(0));
     const counts = byRecruiter.get(r.recruiter)!;
-    counts[dayIndex.get(day)!] += 1;
+    counts[monthIndex.get(month)!] += 1;
   });
 
   const rows = Array.from(byRecruiter.entries())
     .map(([recruiter, counts]) => ({ recruiter, total: counts.reduce((a, b) => a + b, 0), counts }))
     .sort((a, b) => b.total - a.total);
 
-  return { days, rows };
+  return { months, rows };
 }

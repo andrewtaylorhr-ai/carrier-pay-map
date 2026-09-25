@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, ChevronDown, ChevronUp, TrendingUp, UserCheck, Users } from "lucide-react";
 import {
   carrierHireRanked,
-  dailyHiresByRecruiter,
+  monthlyHiresByRecruiter,
   hireTrendByMonth,
   parseHirePerformanceWorkbook,
   recruiterHireRanked,
@@ -18,7 +18,7 @@ import { StatCard } from "@/components/activity/dashboard/StatCard";
 import { CHART_OTHERS_COLOR, colorForIndex, type ChartSlice } from "@/lib/activity/dashboardStats";
 import { RecruiterHireChart } from "./RecruiterHireChart";
 import { HireTrendChart } from "./HireTrendChart";
-import { DailyHiresTable } from "./DailyHiresTable";
+import { MonthlyHiresTable } from "./MonthlyHiresTable";
 import { ManagerInsights } from "./ManagerInsights";
 import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
 import { ActionCenter } from "./ActionCenter";
@@ -193,7 +193,7 @@ export function RecruiterReviewApp() {
   const trendRows = useMemo(() => hireTrendByMonth(records, SINCE_MONTHS), [records]);
   const carrierRows = useMemo(() => carrierHireRanked(records, SINCE_MONTHS), [records]);
   const carrierSlices = useMemo(() => carrierSlicesFor(carrierRows), [carrierRows]);
-  const dailyMatrix = useMemo(() => dailyHiresByRecruiter(records, SINCE_MONTHS), [records]);
+  const monthlyMatrix = useMemo(() => monthlyHiresByRecruiter(records, SINCE_MONTHS), [records]);
 
   const dateBounds = useMemo(() => {
     const dates = records
@@ -265,7 +265,7 @@ export function RecruiterReviewApp() {
           </div>
 
           <div className="flex">
-            <DailyHiresTable matrix={dailyMatrix} />
+            <MonthlyHiresTable matrix={monthlyMatrix} />
           </div>
 
           <div id="recruiter-detail" className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">

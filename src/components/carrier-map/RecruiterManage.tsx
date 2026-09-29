@@ -9,9 +9,13 @@ const TEAM_LABEL: Record<RecruiterTeam, string> = {
   philippines: "Philippines",
 };
 
-const TEAM_FLAG: Record<RecruiterTeam, string> = {
-  uzbek: "🇺🇿",
-  philippines: "🇵🇭",
+// Flag emoji render as plain "UZ"/"PH" text on Windows (no colorful flag
+// glyphs in the system emoji font), so use real flag icon images instead —
+// works the same on every OS. flagcdn.com serves free, standard ISO country
+// flag SVGs.
+const TEAM_FLAG_SRC: Record<RecruiterTeam, string> = {
+  uzbek: "https://flagcdn.com/uz.svg",
+  philippines: "https://flagcdn.com/ph.svg",
 };
 
 // Restyled to match the rest of the redesigned dashboard (Tailwind +
@@ -77,15 +81,23 @@ export function RecruiterManage() {
             onClick={() => setTeamFilter(t)}
             title={t === "all" ? "All teams" : TEAM_LABEL[t]}
             aria-label={t === "all" ? "All teams" : TEAM_LABEL[t]}
-            className={`h-7 rounded-lg text-[11.5px] font-semibold transition-colors ${
-              t === "all" ? "px-2.5" : "px-2.5 text-[15px] leading-none"
+            className={`h-7 rounded-lg text-[11.5px] font-semibold transition-colors flex items-center justify-center ${
+              t === "all" ? "px-2.5" : "px-2"
             } ${
               teamFilter === t
                 ? "bg-[var(--cpm-accent)] text-[#241800]"
                 : "bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)]"
             }`}
           >
-            {t === "all" ? "All teams" : TEAM_FLAG[t]}
+            {t === "all" ? (
+              "All teams"
+            ) : (
+              <img
+                src={TEAM_FLAG_SRC[t]}
+                alt={TEAM_LABEL[t]}
+                className="w-5 h-3.5 object-cover rounded-[2px] ring-1 ring-black/20 shrink-0"
+              />
+            )}
           </button>
         ))}
       </div>

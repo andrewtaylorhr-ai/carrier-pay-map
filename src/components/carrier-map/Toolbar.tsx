@@ -58,16 +58,6 @@ export function Toolbar() {
         <div id="modeBar">
           <button
             type="button"
-            className={!strategyMode ? "active" : undefined}
-            onClick={() => {
-              setStrategyMode(false);
-              setSelectedState(null);
-            }}
-          >
-            Pay / coverage view
-          </button>
-          <button
-            type="button"
             className={strategyMode ? "active" : undefined}
             onClick={() => {
               setStrategyMode(true);
@@ -75,6 +65,16 @@ export function Toolbar() {
             }}
           >
             Strategy assignment view
+          </button>
+          <button
+            type="button"
+            className={!strategyMode ? "active" : undefined}
+            onClick={() => {
+              setStrategyMode(false);
+              setSelectedState(null);
+            }}
+          >
+            Pay / coverage view
           </button>
         </div>
       </div>

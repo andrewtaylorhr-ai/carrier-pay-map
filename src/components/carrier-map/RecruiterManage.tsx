@@ -16,6 +16,10 @@ const TEAM_LABEL: Record<RecruiterTeam, string> = {
 // new outsourced-team filter (All / Uzbek / Philippines) and a per-recruiter
 // team picker. The filter only affects this chip list (and the matching
 // chip list in RecruiterPanel) — map, states, and reports are unaffected.
+//
+// Rendered inline inside the Sidebar (below the nav links, Dashboard route
+// only) — not a standalone card, so it has no outer border/background of
+// its own and blends into the sidebar's own background.
 export function RecruiterManage() {
   const {
     strategyMode,
@@ -50,12 +54,12 @@ export function RecruiterManage() {
   const visibleRecruiters = recruiters.filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter);
 
   return (
-    <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 mb-3">
-      <div className="flex items-baseline gap-2.5 flex-wrap mb-3">
+    <div>
+      <div className="mb-3">
         <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--cpm-text-faint)]">
           Recruiters
         </div>
-        <div className="text-[11.5px] text-[var(--cpm-text-faint)]">
+        <div className="text-[11px] text-[var(--cpm-text-faint)] mt-1">
           Add new hires or remove recruiters who&apos;ve left — updates the map + report instantly.
         </div>
       </div>

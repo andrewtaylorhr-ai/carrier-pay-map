@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, FileBarChart, LayoutDashboard, Send, Truck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 
 type NavItem = {
   label: string;
@@ -20,10 +21,11 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const onDashboard = pathname === "/";
 
   return (
-    <aside className="w-[220px] shrink-0 min-h-screen border-r border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] flex flex-col">
-      <div className="flex items-center gap-2 px-4 h-16 border-b border-[var(--cpm-border)]">
+    <aside className="w-[280px] shrink-0 sticky top-0 h-screen border-r border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] flex flex-col overflow-hidden">
+      <div className="flex items-center gap-2 px-4 h-16 border-b border-[var(--cpm-border)] shrink-0">
         <div className="rounded-lg bg-[var(--cpm-accent)] p-1.5 text-[#241800] shrink-0">
           <Truck size={18} strokeWidth={2.25} />
         </div>
@@ -37,7 +39,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex flex-col gap-0.5 px-2.5 py-3">
+      <nav className="flex flex-col gap-0.5 px-2.5 py-3 shrink-0">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           if (item.disabled) {
@@ -69,6 +71,16 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Recruiters management, merged directly into the sidebar strip
+          (rather than a separate boxed panel in the page content) — only
+          shown on the Dashboard route, scrollable independently of the nav
+          above it so a long recruiter list doesn't push the nav off-screen. */}
+      {onDashboard && (
+        <div className="flex-1 overflow-y-auto px-2.5 pb-4 pt-3 border-t border-[var(--cpm-border)]">
+          <RecruiterManage />
+        </div>
+      )}
     </aside>
   );
 }

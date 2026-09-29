@@ -74,30 +74,27 @@ export function RecruiterManage() {
       </div>
 
       <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-        {(["all", "uzbek", "philippines"] as const).map((t) => (
+        {(["uzbek", "philippines"] as const).map((t) => (
           <button
             key={t}
             type="button"
-            onClick={() => setTeamFilter(t)}
-            title={t === "all" ? "All teams" : TEAM_LABEL[t]}
-            aria-label={t === "all" ? "All teams" : TEAM_LABEL[t]}
-            className={`h-7 rounded-lg text-[11.5px] font-semibold transition-colors flex items-center justify-center ${
-              t === "all" ? "px-2.5" : "px-2"
-            } ${
+            // Clicking the already-active flag clears the filter back to
+            // "all" — this is the only way to reset now that the "All
+            // teams" button is gone.
+            onClick={() => setTeamFilter(teamFilter === t ? "all" : t)}
+            title={teamFilter === t ? `${TEAM_LABEL[t]} (click to clear filter)` : TEAM_LABEL[t]}
+            aria-label={TEAM_LABEL[t]}
+            className={`h-7 px-2 rounded-lg transition-colors flex items-center justify-center ${
               teamFilter === t
-                ? "bg-[var(--cpm-accent)] text-[#241800]"
-                : "bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)]"
+                ? "bg-[var(--cpm-accent)]"
+                : "bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)]"
             }`}
           >
-            {t === "all" ? (
-              "All teams"
-            ) : (
-              <img
-                src={TEAM_FLAG_SRC[t]}
-                alt={TEAM_LABEL[t]}
-                className="w-5 h-3.5 object-cover rounded-[2px] ring-1 ring-black/20 shrink-0"
-              />
-            )}
+            <img
+              src={TEAM_FLAG_SRC[t]}
+              alt={TEAM_LABEL[t]}
+              className="w-5 h-3.5 object-cover rounded-[2px] ring-1 ring-black/20 shrink-0"
+            />
           </button>
         ))}
       </div>

@@ -9,6 +9,11 @@ const TEAM_LABEL: Record<RecruiterTeam, string> = {
   philippines: "Philippines",
 };
 
+const TEAM_FLAG: Record<RecruiterTeam, string> = {
+  uzbek: "🇺🇿",
+  philippines: "🇵🇭",
+};
+
 // Restyled to match the rest of the redesigned dashboard (Tailwind +
 // var(--cpm-*) tokens, flat chips, gold accent button) instead of the old
 // bright-green button / candy-pill-chip look. Same underlying data and
@@ -70,13 +75,17 @@ export function RecruiterManage() {
             key={t}
             type="button"
             onClick={() => setTeamFilter(t)}
-            className={`px-2.5 h-7 rounded-lg text-[11.5px] font-semibold transition-colors ${
+            title={t === "all" ? "All teams" : TEAM_LABEL[t]}
+            aria-label={t === "all" ? "All teams" : TEAM_LABEL[t]}
+            className={`h-7 rounded-lg text-[11.5px] font-semibold transition-colors ${
+              t === "all" ? "px-2.5" : "px-2.5 text-[15px] leading-none"
+            } ${
               teamFilter === t
                 ? "bg-[var(--cpm-accent)] text-[#241800]"
                 : "bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)]"
             }`}
           >
-            {t === "all" ? "All teams" : TEAM_LABEL[t]}
+            {t === "all" ? "All teams" : TEAM_FLAG[t]}
           </button>
         ))}
       </div>

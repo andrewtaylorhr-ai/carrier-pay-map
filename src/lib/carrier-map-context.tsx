@@ -71,7 +71,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [currentCarrier, setCurrentCarrier] = useState<CarrierId>("swift");
   const [currentCat, setCurrentCat] = useState<string>(CARRIERS.swift.cats[0]);
   const [selectedState, setSelectedState] = useState<string | null>(null);
-  const [strategyMode, setStrategyMode] = useState(false);
+  const [strategyMode, setStrategyMode] = useState(true);
   const [colorMode, setColorMode] = useState<ColorMode>("carrier");
   const [recruiterFilter, setRecruiterFilter] = useState("");
 

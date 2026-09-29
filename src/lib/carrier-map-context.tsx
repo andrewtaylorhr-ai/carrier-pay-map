@@ -12,6 +12,7 @@ import type {
   RecruiterTeam,
 } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
+import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
 import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
@@ -75,6 +76,8 @@ interface CarrierMapContextValue {
   recruiterTeams: PersistedRecruiterTeams;
   getRecruiterTeam: (name: string) => RecruiterTeam | null;
   setRecruiterTeam: (name: string, team: RecruiterTeam | null) => void;
+  // persisted: last-selected team filter, so it survives a page refresh
+  // instead of always resetting to "all".
   teamFilter: TeamFilter;
   setTeamFilter: (f: TeamFilter) => void;
 }
@@ -91,7 +94,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
 
   const [assignModeRecruiter, setAssignModeRecruiter] = useState<string | null>(null);
 
-  const [teamFilter, setTeamFilter] = useState<TeamFilter>("all");
+  const [teamFilter, setTeamFilter] = useLocalStorageState<TeamFilter>("cpm_teamFilter", "all");
 
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();

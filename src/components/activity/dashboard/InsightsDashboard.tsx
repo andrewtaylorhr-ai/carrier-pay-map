@@ -15,7 +15,7 @@ import {
   stateHireRanked,
 } from "@/lib/activity/dashboardStats";
 import type { CarrierActivityData } from "@/lib/activity/types";
-import { StatCard } from "./StatCard";
+import { StatCard } from "@/components/shared/StatCard";
 import { SubmissionsChart } from "./SubmissionsChart";
 import { CarrierDonut } from "./CarrierDonut";
 import { CarrierPerformanceTable } from "./CarrierPerformanceTable";

@@ -2,11 +2,25 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { CARRIERS } from "@/lib/carriers/data";
-import type { CarrierId, PersistedAssignments, PersistedRecruiterAssignments } from "@/lib/carriers/types";
+import type {
+  CarrierId,
+  PersistedAssignments,
+  PersistedRecruiterAssignments,
+  PersistedRecruiterPlans,
+  RecruiterPlan,
+} from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
+import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
 import { buildRecruiterColorScale } from "@/lib/recruiters";
+
+export const EMPTY_RECRUITER_PLAN: RecruiterPlan = {
+  targetSubmissions: null,
+  targetHires: null,
+  carriers: [],
+  notes: "",
+};
 
 export type ColorMode = "carrier" | "recruiter";
 
@@ -38,6 +52,17 @@ interface CarrierMapContextValue {
   // persisted: recruiter -> states assignments
   recruiterAssignments: PersistedRecruiterAssignments;
   toggleRecruiterOnState: (state: string, recruiter: string) => void;
+
+  // map-click assign mode: while set, clicking a state on the map toggles
+  // this recruiter on/off that state directly, instead of opening the detail
+  // card — lets a whole territory be built up with a run of clicks.
+  assignModeRecruiter: string | null;
+  setAssignModeRecruiter: (r: string | null) => void;
+
+  // persisted: recruiter Strategy Plan (targets / carrier tags / notes)
+  recruiterPlans: PersistedRecruiterPlans;
+  getRecruiterPlan: (name: string) => RecruiterPlan;
+  updateRecruiterPlan: (name: string, patch: Partial<RecruiterPlan>) => void;
 }
 
 const CarrierMapContext = createContext<CarrierMapContextValue | null>(null);
@@ -50,9 +75,12 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [colorMode, setColorMode] = useState<ColorMode>("carrier");
   const [recruiterFilter, setRecruiterFilter] = useState("");
 
+  const [assignModeRecruiter, setAssignModeRecruiter] = useState<string | null>(null);
+
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();
   const [recruiterAssignments, setRecruiterAssignments] = useRecruiterAssignments();
+  const [recruiterPlans, setRecruiterPlans] = useRecruiterPlans();
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -101,9 +129,31 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
         }
         return next;
       });
+      setRecruiterPlans((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
       setRecruiterFilter((prev) => (prev === name ? "" : prev));
+      setAssignModeRecruiter((prev) => (prev === name ? null : prev));
     },
-    [setRecruiters, setRecruiterAssignments]
+    [setRecruiters, setRecruiterAssignments, setRecruiterPlans]
+  );
+
+  const getRecruiterPlan = useCallback(
+    (name: string): RecruiterPlan => recruiterPlans[name] ?? EMPTY_RECRUITER_PLAN,
+    [recruiterPlans]
+  );
+
+  const updateRecruiterPlan = useCallback(
+    (name: string, patch: Partial<RecruiterPlan>) => {
+      setRecruiterPlans((prev) => ({
+        ...prev,
+        [name]: { ...EMPTY_RECRUITER_PLAN, ...prev[name], ...patch },
+      }));
+    },
+    [setRecruiterPlans]
   );
 
   const toggleRecruiterOnState = useCallback(
@@ -143,6 +193,11 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     recruiterColor,
     recruiterAssignments,
     toggleRecruiterOnState,
+    assignModeRecruiter,
+    setAssignModeRecruiter,
+    recruiterPlans,
+    getRecruiterPlan,
+    updateRecruiterPlan,
   };
 
   return <CarrierMapContext.Provider value={value}>{children}</CarrierMapContext.Provider>;

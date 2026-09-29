@@ -7,18 +7,8 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import { AssignedBadge, RecruiterBadge } from "./badges";
 
 export function DetailCard() {
-  const {
-    strategyMode,
-    selectedState,
-    currentCarrier,
-    currentCat,
-    assignments,
-    assignCarrierToState,
-    recruiterAssignments,
-    recruiters,
-    recruiterColor,
-    toggleRecruiterOnState,
-  } = useCarrierMap();
+  const { strategyMode, selectedState, currentCarrier, currentCat, assignments, assignCarrierToState, recruiterAssignments, recruiterColor } =
+    useCarrierMap();
 
   if (!selectedState) return null;
 
@@ -58,21 +48,9 @@ export function DetailCard() {
           </div>
           <div className="assignRow">
             <label>Recruiter(s):</label>
-            <div className="assignChips">
-              {recruiters.map((r) => {
-                const on = selectedRecruiters.includes(r);
-                return (
-                  <span
-                    key={r}
-                    className={`achip${on ? " selected" : ""}`}
-                    style={on ? { background: recruiterColor(r), borderColor: recruiterColor(r) } : undefined}
-                    onClick={() => toggleRecruiterOnState(selectedState, r)}
-                  >
-                    {r}
-                  </span>
-                );
-              })}
-            </div>
+            <span style={{ fontSize: 12, color: "var(--cpm-text-faint)" }}>
+              Select a recruiter in the panel above and use &quot;Assign states on map&quot; to click-assign territory.
+            </span>
           </div>
           <div className="cross">
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4, color: "#666" }}>

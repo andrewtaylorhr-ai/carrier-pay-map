@@ -6,6 +6,7 @@ import { Legend } from "@/components/carrier-map/Legend";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 import { RecruiterPanel } from "@/components/carrier-map/RecruiterPanel";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
+import { RecruiterStrategyPlan } from "@/components/carrier-map/RecruiterStrategyPlan";
 import { Toolbar } from "@/components/carrier-map/Toolbar";
 import { CarrierMapProvider } from "@/lib/carrier-map-context";
 
@@ -23,6 +24,7 @@ export default function Home() {
         <ColorModeBar />
         <RecruiterManage />
         <RecruiterPanel />
+        <RecruiterStrategyPlan />
         <ChoroplethMap />
         <Legend />
         <CatNote />

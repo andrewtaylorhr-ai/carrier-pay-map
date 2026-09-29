@@ -34,13 +34,40 @@ export function ChoroplethMap() {
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, html: "" });
   const [mapReady, setMapReady] = useState(false);
 
-  const { currentCarrier, currentCat, strategyMode, assignments, recruiterAssignments, recruiterColor, setSelectedState } =
-    useCarrierMap();
+  const {
+    currentCarrier,
+    currentCat,
+    strategyMode,
+    assignments,
+    recruiterAssignments,
+    recruiterColor,
+    setSelectedState,
+    assignModeRecruiter,
+    toggleRecruiterOnState,
+  } = useCarrierMap();
   const mapStyle = useMapStyle();
 
   // Always-current snapshot so the D3 event handlers (bound once) never read stale closures.
-  const latest = useRef({ strategyMode, currentCarrier, currentCat, assignments, recruiterAssignments, setSelectedState });
-  latest.current = { strategyMode, currentCarrier, currentCat, assignments, recruiterAssignments, setSelectedState };
+  const latest = useRef({
+    strategyMode,
+    currentCarrier,
+    currentCat,
+    assignments,
+    recruiterAssignments,
+    setSelectedState,
+    assignModeRecruiter,
+    toggleRecruiterOnState,
+  });
+  latest.current = {
+    strategyMode,
+    currentCarrier,
+    currentCat,
+    assignments,
+    recruiterAssignments,
+    setSelectedState,
+    assignModeRecruiter,
+    toggleRecruiterOnState,
+  };
 
   // ---- Mount: build the svg + join paths to the topojson features once ----
   useEffect(() => {
@@ -74,9 +101,17 @@ export function ChoroplethMap() {
           .attr("d", pathGenRef.current)
           .on("mousemove", function (event: MouseEvent, d: StateFeature) {
             const name = d.properties.name;
-            const { strategyMode, currentCarrier, currentCat, assignments, recruiterAssignments } = latest.current;
+            const { strategyMode, currentCarrier, currentCat, assignments, recruiterAssignments, assignModeRecruiter } =
+              latest.current;
             let html = "";
-            if (strategyMode) {
+            if (strategyMode && assignModeRecruiter) {
+              const recs = recruiterAssignments[name] || [];
+              const on = recs.includes(assignModeRecruiter);
+              html =
+                `<div style="font-weight:600;margin-bottom:4px">${name}</div>` +
+                `<div>Recruiter${recs.length > 1 ? "s" : ""}: ${recs.length ? recs.join(", ") : "— unassigned —"}</div>` +
+                `<div style="margin-top:2px;color:#7ab8f5">Click to ${on ? "remove" : "assign"} ${assignModeRecruiter}</div>`;
+            } else if (strategyMode) {
               const assigned = assignments[name];
               const recs = recruiterAssignments[name] || [];
               html =
@@ -102,7 +137,12 @@ export function ChoroplethMap() {
           })
           .on("click", function (_event: MouseEvent, d: StateFeature) {
             const name = d.properties.name;
-            const { strategyMode, currentCarrier, currentCat, setSelectedState } = latest.current;
+            const { strategyMode, currentCarrier, currentCat, setSelectedState, assignModeRecruiter, toggleRecruiterOnState } =
+              latest.current;
+            if (strategyMode && assignModeRecruiter) {
+              toggleRecruiterOnState(name, assignModeRecruiter);
+              return;
+            }
             if (!strategyMode && !getStateRecord(currentCarrier, currentCat, name)) return;
             setSelectedState(name);
           });

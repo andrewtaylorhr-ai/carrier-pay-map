@@ -109,9 +109,34 @@ body {
 #recruiterReport .exportBtn:hover { background:var(--cpm-green); color:#08210f; }
 #recruiterReport .card { margin-bottom:14px; }
 
-.assignChips { display:flex; flex-wrap:wrap; gap:6px; }
-.assignChips .achip { display:inline-flex; align-items:center; padding:3px 10px; border-radius:12px; font-size:12px; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border); cursor:pointer; }
-.assignChips .achip.selected { border-color:var(--cpm-accent); box-shadow:0 0 0 2px var(--cpm-accent) inset; font-weight:600; color:#241800; }
+#strategyPlan { display:flex; flex-direction:column; gap:12px; margin:0 0 16px; padding:16px 18px; background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)); border:1px solid var(--cpm-border); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+#strategyPlan .spHeader { display:flex; align-items:center; gap:8px; }
+#strategyPlan .spHeader .dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+#strategyPlan .spTitle { font-size:14px; font-weight:700; color:var(--cpm-text); }
+#strategyPlan .spGrid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; }
+#strategyPlan .spSection { display:flex; flex-direction:column; gap:6px; min-width:0; }
+#strategyPlan .spSection.spNotes { grid-column:span 4; }
+#strategyPlan .spLabel { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--cpm-text-faint); }
+#strategyPlan .spTargetRow { display:flex; gap:10px; }
+#strategyPlan .spTargetRow label { display:flex; flex-direction:column; gap:3px; font-size:11.5px; color:var(--cpm-text-dim); flex:1; }
+#strategyPlan .spTargetRow input { padding:6px 8px; border-radius:8px; border:1px solid var(--cpm-border-strong); font-size:13px; background:var(--cpm-panel-alt); color:var(--cpm-text); width:100%; }
+#strategyPlan .spTargetRow input:focus { outline:none; border-color:var(--cpm-accent); box-shadow:0 0 0 2px rgba(212,161,55,.2); }
+#strategyPlan .spStates { font-size:12.5px; color:var(--cpm-text-dim); line-height:1.5; max-height:64px; overflow-y:auto; }
+#strategyPlan .spAssignBtn { align-self:flex-start; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:700; border:1px solid var(--cpm-accent); background:transparent; color:var(--cpm-accent-strong); transition:background .12s ease, color .12s ease; }
+#strategyPlan .spAssignBtn:hover { background:rgba(212,161,55,.12); }
+#strategyPlan .spAssignBtn.active { background:var(--cpm-accent); color:#241800; }
+#strategyPlan .spCarrierTags { display:flex; flex-wrap:wrap; gap:6px; }
+#strategyPlan .spCarrierTag { display:inline-flex; align-items:center; padding:3px 10px; border-radius:12px; font-size:12px; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border); cursor:pointer; color:var(--cpm-text-dim); transition:box-shadow .12s ease; }
+#strategyPlan .spCarrierTag.selected { font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,.35); }
+#strategyPlan .spNotes textarea { width:100%; min-height:64px; resize:vertical; padding:8px 10px; border-radius:8px; border:1px solid var(--cpm-border-strong); font-size:12.5px; font-family:inherit; background:var(--cpm-panel-alt); color:var(--cpm-text); }
+#strategyPlan .spNotes textarea:focus { outline:none; border-color:var(--cpm-accent); box-shadow:0 0 0 2px rgba(212,161,55,.2); }
+#strategyPlan .spNotes textarea::placeholder { color:var(--cpm-text-faint); }
+#strategyPlan .spAssignBanner { font-size:12px; color:#e6c078; background:rgba(212,161,55,.1); border:1px solid rgba(212,161,55,.35); border-radius:8px; padding:8px 12px; }
+
+@media (max-width: 900px) {
+  #strategyPlan .spGrid { grid-template-columns:1fr 1fr; }
+  #strategyPlan .spSection.spNotes { grid-column:span 2; }
+}
 
 #map { width:100%; max-width:1352px; margin:0 auto; display:block; }
 #map svg { background:var(--cpm-map-bg); border-radius:8px; }

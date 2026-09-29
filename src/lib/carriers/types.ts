@@ -120,3 +120,16 @@ export type CreCadenceLabel = Record<string, string>;
 export type PersistedAssignments = Record<string, CarrierId>;
 export type PersistedRecruiters = string[];
 export type PersistedRecruiterAssignments = Record<string, string[]>;
+
+// A recruiter's Strategy Plan — new, separate from the state/carrier
+// assignment grids above. Targets are monthly; carriers is a simple tag
+// list (which carriers this recruiter generally works), independent of
+// which carrier is assigned to which state. Keyed by recruiter name, same
+// convention as PersistedRecruiterAssignments.
+export interface RecruiterPlan {
+  targetSubmissions: number | null;
+  targetHires: number | null;
+  carriers: CarrierId[];
+  notes: string;
+}
+export type PersistedRecruiterPlans = Record<string, RecruiterPlan>;

@@ -22,7 +22,7 @@ export function RecruiterPanel() {
 
   return (
     <div id="recruiterPanel">
-      <span className="rhint">Click a recruiter to filter the map + see their full report:</span>
+      <span className="rhint">Click a recruiter to open their Strategy Plan + full report:</span>
       {recruiters.map((r) => (
         <span
           key={r}

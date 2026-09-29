@@ -133,3 +133,9 @@ export interface RecruiterPlan {
   notes: string;
 }
 export type PersistedRecruiterPlans = Record<string, RecruiterPlan>;
+
+// Which outsourced team a recruiter belongs to. "unassigned" is the default
+// for every recruiter until someone picks a team for them — not stored as a
+// key in PersistedRecruiterTeams (absence of a key means unassigned).
+export type RecruiterTeam = "uzbek" | "philippines";
+export type PersistedRecruiterTeams = Record<string, RecruiterTeam>;

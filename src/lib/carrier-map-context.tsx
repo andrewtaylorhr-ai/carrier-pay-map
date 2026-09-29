@@ -7,13 +7,18 @@ import type {
   PersistedAssignments,
   PersistedRecruiterAssignments,
   PersistedRecruiterPlans,
+  PersistedRecruiterTeams,
   RecruiterPlan,
+  RecruiterTeam,
 } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
 import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
+import { useRecruiterTeams } from "@/lib/hooks/useRecruiterTeams";
 import { buildRecruiterColorScale } from "@/lib/recruiters";
+
+export type TeamFilter = "all" | RecruiterTeam;
 
 export const EMPTY_RECRUITER_PLAN: RecruiterPlan = {
   targetSubmissions: null,
@@ -63,6 +68,15 @@ interface CarrierMapContextValue {
   recruiterPlans: PersistedRecruiterPlans;
   getRecruiterPlan: (name: string) => RecruiterPlan;
   updateRecruiterPlan: (name: string, patch: Partial<RecruiterPlan>) => void;
+
+  // persisted: recruiter -> outsourced team (Uzbek / Philippines). Missing
+  // key means unassigned. Only used to filter the two recruiter-name lists
+  // in the Recruiters panel — doesn't touch the map, states, or reports.
+  recruiterTeams: PersistedRecruiterTeams;
+  getRecruiterTeam: (name: string) => RecruiterTeam | null;
+  setRecruiterTeam: (name: string, team: RecruiterTeam | null) => void;
+  teamFilter: TeamFilter;
+  setTeamFilter: (f: TeamFilter) => void;
 }
 
 const CarrierMapContext = createContext<CarrierMapContextValue | null>(null);
@@ -77,10 +91,13 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
 
   const [assignModeRecruiter, setAssignModeRecruiter] = useState<string | null>(null);
 
+  const [teamFilter, setTeamFilter] = useState<TeamFilter>("all");
+
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();
   const [recruiterAssignments, setRecruiterAssignments] = useRecruiterAssignments();
   const [recruiterPlans, setRecruiterPlans] = useRecruiterPlans();
+  const [recruiterTeams, setRecruiterTeams] = useRecruiterTeams();
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -135,10 +152,36 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
         delete next[name];
         return next;
       });
+      setRecruiterTeams((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
       setRecruiterFilter((prev) => (prev === name ? "" : prev));
       setAssignModeRecruiter((prev) => (prev === name ? null : prev));
     },
-    [setRecruiters, setRecruiterAssignments, setRecruiterPlans]
+    [setRecruiters, setRecruiterAssignments, setRecruiterPlans, setRecruiterTeams]
+  );
+
+  const getRecruiterTeam = useCallback(
+    (name: string): RecruiterTeam | null => recruiterTeams[name] ?? null,
+    [recruiterTeams]
+  );
+
+  const setRecruiterTeam = useCallback(
+    (name: string, team: RecruiterTeam | null) => {
+      setRecruiterTeams((prev) => {
+        if (!team) {
+          if (!(name in prev)) return prev;
+          const next = { ...prev };
+          delete next[name];
+          return next;
+        }
+        return { ...prev, [name]: team };
+      });
+    },
+    [setRecruiterTeams]
   );
 
   const getRecruiterPlan = useCallback(
@@ -198,6 +241,11 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     recruiterPlans,
     getRecruiterPlan,
     updateRecruiterPlan,
+    recruiterTeams,
+    getRecruiterTeam,
+    setRecruiterTeam,
+    teamFilter,
+    setTeamFilter,
   };
 
   return <CarrierMapContext.Provider value={value}>{children}</CarrierMapContext.Provider>;

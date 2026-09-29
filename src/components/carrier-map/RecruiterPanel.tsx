@@ -5,8 +5,16 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import { RECRUITER_TARGET } from "@/lib/recruiters";
 
 export function RecruiterPanel() {
-  const { strategyMode, recruiters, recruiterColor, recruiterAssignments, recruiterFilter, setRecruiterFilter } =
-    useCarrierMap();
+  const {
+    strategyMode,
+    recruiters,
+    recruiterColor,
+    recruiterAssignments,
+    recruiterFilter,
+    setRecruiterFilter,
+    teamFilter,
+    getRecruiterTeam,
+  } = useCarrierMap();
   if (!strategyMode) return null;
 
   const counts: Record<string, number> = {};
@@ -20,10 +28,14 @@ export function RecruiterPanel() {
   const unassignedCount =
     ALL_STATES.length - Object.keys(recruiterAssignments).filter((s) => recruiterAssignments[s]?.length).length;
 
+  const visibleRecruiters = recruiters.filter(
+    (r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter
+  );
+
   return (
     <div id="recruiterPanel">
       <span className="rhint">Click a recruiter to open their Strategy Plan + full report:</span>
-      {recruiters.map((r) => (
+      {visibleRecruiters.map((r) => (
         <span
           key={r}
           className={`rchip${counts[r] > RECRUITER_TARGET ? " over" : ""}${recruiterFilter === r ? " selected" : ""}`}

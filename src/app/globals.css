@@ -82,24 +82,6 @@ body {
 #recruiterPanel .rchip .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
 #recruiterPanel .rhint { font-size:11.5px; color:var(--cpm-text-faint); }
 
-#recruiterManage { display:flex; flex-direction:column; gap:10px; margin:0 0 14px; padding:14px 16px; background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)); border:1px solid var(--cpm-border); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
-#recruiterManage .rmHeader { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-#recruiterManage .rmTitle { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--cpm-text-dim); }
-#recruiterManage .rmHint { font-size:11.5px; color:var(--cpm-text-faint); }
-#recruiterManage .rmChips { display:flex; flex-wrap:wrap; gap:7px; }
-#recruiterManage .rmChip { display:inline-flex; align-items:center; gap:6px; padding:5px 6px 5px 10px; border-radius:14px; font-size:12.5px; font-weight:600; color:var(--cpm-text); background:var(--cpm-panel-alt); border:1px solid var(--cpm-border); box-shadow:none; transition:box-shadow .12s ease, border-color .12s ease; }
-#recruiterManage .rmChip:hover { box-shadow:0 2px 6px rgba(0,0,0,.4); border-color:var(--cpm-border-strong); }
-#recruiterManage .rmChip .dot { width:9px; height:9px; border-radius:50%; display:inline-block; flex-shrink:0; }
-#recruiterManage .rmChip .rmRemove { border:none; background:rgba(255,255,255,.08); cursor:pointer; font-size:11px; color:var(--cpm-text-faint); width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; line-height:1; transition:background .12s ease, color .12s ease; }
-#recruiterManage .rmChip .rmRemove:hover { color:#fff; background:var(--cpm-red); }
-#recruiterManage .rmAddRow { display:flex; align-items:center; gap:8px; padding-top:8px; border-top:1px dashed var(--cpm-border); flex-wrap:wrap; }
-#recruiterManage input[type=text] { padding:6px 10px; border-radius:8px; border:1px solid var(--cpm-border-strong); font-size:12.5px; width:170px; background:var(--cpm-panel-alt); color:var(--cpm-text); }
-#recruiterManage input[type=text]::placeholder { color:var(--cpm-text-faint); }
-#recruiterManage input[type=text]:focus { outline:none; border-color:var(--cpm-green); box-shadow:0 0 0 2px rgba(34,197,94,.2); }
-#recruiterManage .rmAddBtn { padding:6px 14px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700; border:1px solid var(--cpm-green); background:var(--cpm-green); color:#08210f; transition:background .12s ease; }
-#recruiterManage .rmAddBtn:hover { background:#16a34a; }
-#recruiterManage .rmErr { color:var(--cpm-red); font-size:11.5px; width:100%; }
-
 .stateLabelBg { fill:rgba(0,0,0,.65); }
 .stateLabelText { font-size:9.5px; font-weight:700; fill:#fff; text-anchor:middle; pointer-events:none; letter-spacing:.2px; }
 

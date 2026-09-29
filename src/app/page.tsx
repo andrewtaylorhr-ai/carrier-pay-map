@@ -27,18 +27,26 @@ export default function Home() {
 
       <DashboardStats />
 
-      <div className="mx-auto w-full max-w-[1400px] px-6 pt-4">
-        <Toolbar />
-        <ColorModeBar />
-        <RecruiterManage />
-        <RecruiterPanel />
-        <div className="flex flex-col lg:flex-row gap-3 items-start">
-          <div className="flex-1 min-w-0">
-            <RecruiterStrategyPlan />
-          </div>
-          <AssignedCarriersPanel />
+      <div className="mx-auto w-full max-w-[1400px] px-6 pt-4 flex flex-col lg:flex-row gap-4 items-start">
+        {/* Dashboard-only left column — Recruiters management + team filter.
+            Lives here (not in the global Sidebar) so it only shows on this
+            page, not on /activity. */}
+        <div className="w-full lg:w-[280px] shrink-0">
+          <RecruiterManage />
         </div>
-        <MonthlyTargetActualTable />
+
+        <div className="flex-1 min-w-0">
+          <Toolbar />
+          <ColorModeBar />
+          <RecruiterPanel />
+          <div className="flex flex-col lg:flex-row gap-3 items-start">
+            <div className="flex-1 min-w-0">
+              <RecruiterStrategyPlan />
+            </div>
+            <AssignedCarriersPanel />
+          </div>
+          <MonthlyTargetActualTable />
+        </div>
       </div>
 
       <StatePerformancePanel />

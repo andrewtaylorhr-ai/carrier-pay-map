@@ -60,7 +60,7 @@ export function RecruiterManage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 mb-3">
+      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
         {(["all", "uzbek", "philippines"] as const).map((t) => (
           <button
             key={t}

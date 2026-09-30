@@ -1,15 +1,16 @@
 "use client";
 
-import { ALL_STATES } from "@/lib/carriers/data";
+import { ALL_STATES, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { RECRUITER_TARGET } from "@/lib/recruiters";
 
 // Restyled from an inline "Name: count" chip row into a vertical one-row-
 // per-recruiter list (Tailwind + var(--cpm-*) tokens, matching the rest of
 // the redesigned dashboard) so each recruiter's monthly targets (from their
-// Strategy Plan, via getRecruiterPlan) and full assigned-states list (same
+// Strategy Plan, via getRecruiterPlan), full assigned-states list (same
 // recruiterAssignments data RecruiterStrategyPlan/RecruiterReport already
-// use) are visible at a glance, not just a states-count. Click behavior is
+// use), and assigned carriers (plan.carriers, same data AssignedCarriersPanel
+// already reads/writes) are visible at a glance. Click behavior is
 // unchanged: clicking a row selects recruiterFilter (opens Strategy Plan +
 // report below), clicking the selected row again clears it.
 export function RecruiterPanel() {
@@ -70,6 +71,10 @@ export function RecruiterPanel() {
               </div>
               <div className="mt-1 text-[11px] text-[var(--cpm-text-faint)]">
                 States assigned ({states.length}): {states.length ? states.join(", ") : "none yet"}
+              </div>
+              <div className="mt-0.5 text-[11px] text-[var(--cpm-text-faint)]">
+                Carriers assigned ({plan.carriers.length}):{" "}
+                {plan.carriers.length ? plan.carriers.map((id) => CARRIERS[id].label).join(", ") : "none yet"}
               </div>
             </div>
           );

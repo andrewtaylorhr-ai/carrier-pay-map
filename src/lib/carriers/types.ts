@@ -140,6 +140,16 @@ export type PersistedRecruiterPlans = Record<string, RecruiterPlan>;
 export type RecruiterTeam = "uzbek" | "philippines";
 export type PersistedRecruiterTeams = Record<string, RecruiterTeam>;
 
+// Whether a recruiter is currently active or a former recruiter who's left/
+// been let go. "active" is the default for every recruiter until someone
+// marks them inactive — not stored as a key in PersistedRecruiterStatus
+// (absence of a key means active), same convention as PersistedRecruiterTeams.
+// Inactive recruiters stay in the roster (their history/assignments/plan
+// stay visible) but are sorted to the end of every recruiter list and shown
+// in red, per explicit user direction for former/fired recruiters.
+export type RecruiterStatus = "active" | "inactive";
+export type PersistedRecruiterStatus = Record<string, RecruiterStatus>;
+
 // A recruiter's actual submissions/hires for one calendar month, entered by
 // hand (no ATS/data-source integration yet). Keyed by recruiter name ->
 // month key ("YYYY-MM", see monthKey()/currentAndNextMonth() in

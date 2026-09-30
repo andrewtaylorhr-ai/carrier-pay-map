@@ -40,6 +40,9 @@ export function RecruiterManage() {
     setRecruiterTeam,
     teamFilter,
     setTeamFilter,
+    getRecruiterStatus,
+    setRecruiterStatus,
+    compareRecruitersByStatus,
   } = useCarrierMap();
   const [name, setName] = useState("");
   const [newTeam, setNewTeam] = useState<RecruiterTeam | "">("");
@@ -60,7 +63,10 @@ export function RecruiterManage() {
     setErr("");
   };
 
-  const visibleRecruiters = recruiters.filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter);
+  const visibleRecruiters = recruiters
+    .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
+    .slice()
+    .sort(compareRecruitersByStatus);
 
   return (
     <div>
@@ -102,16 +108,37 @@ export function RecruiterManage() {
       <div className="flex flex-wrap gap-1.5 mb-3">
         {visibleRecruiters.map((r) => {
           const team = getRecruiterTeam(r) ?? "";
+          const status = getRecruiterStatus(r);
+          const inactive = status === "inactive";
           return (
             <span
               key={r}
-              className="inline-flex items-center gap-2 pl-2.5 pr-1.5 py-1 rounded-lg text-[12.5px] font-medium text-[var(--cpm-text)] bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)] transition-colors"
+              className={`inline-flex items-center gap-2 pl-2.5 pr-1.5 py-1 rounded-lg text-[12.5px] font-medium bg-[var(--cpm-panel-alt)] border transition-colors ${
+                inactive
+                  ? "border-[var(--cpm-red)] text-[#ff9a9d]"
+                  : "border-[var(--cpm-border)] text-[var(--cpm-text)] hover:border-[var(--cpm-border-strong)]"
+              }`}
             >
               <span
                 className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10"
                 style={{ background: recruiterColor(r) }}
               />
               {r}
+              {inactive && (
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-[#ff9a9d]">Former</span>
+              )}
+              <button
+                type="button"
+                title={inactive ? `Mark ${r} active` : `Mark ${r} inactive (left/fired)`}
+                onClick={() => setRecruiterStatus(r, inactive ? "active" : "inactive")}
+                className={`h-5 px-1.5 rounded border text-[10.5px] transition-colors ${
+                  inactive
+                    ? "border-[var(--cpm-red)] text-[#ff9a9d] hover:bg-[var(--cpm-red)] hover:text-white"
+                    : "border-[var(--cpm-border)] text-[var(--cpm-text-faint)] hover:border-[var(--cpm-border-strong)]"
+                }`}
+              >
+                {inactive ? "Reactivate" : "Mark left"}
+              </button>
               <select
                 value={team}
                 onChange={(e) => setRecruiterTeam(r, (e.target.value || null) as RecruiterTeam | null)}

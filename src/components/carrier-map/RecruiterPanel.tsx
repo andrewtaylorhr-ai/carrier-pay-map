@@ -32,6 +32,8 @@ export function RecruiterPanel() {
     teamFilter,
     getRecruiterTeam,
     getRecruiterPlan,
+    getRecruiterStatus,
+    compareRecruitersByStatus,
   } = useCarrierMap();
   const [expanded, setExpanded] = useState(false);
   if (!strategyMode) return null;
@@ -39,7 +41,10 @@ export function RecruiterPanel() {
   const unassignedCount =
     ALL_STATES.length - Object.keys(recruiterAssignments).filter((s) => recruiterAssignments[s]?.length).length;
 
-  const visibleRecruiters = recruiters.filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter);
+  const visibleRecruiters = recruiters
+    .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
+    .slice()
+    .sort(compareRecruitersByStatus);
   const hasMore = visibleRecruiters.length > COLLAPSED_COUNT;
   const shownRecruiters = expanded ? visibleRecruiters : visibleRecruiters.slice(0, COLLAPSED_COUNT);
 
@@ -57,6 +62,7 @@ export function RecruiterPanel() {
             .sort();
           const over = states.length > RECRUITER_TARGET;
           const selected = recruiterFilter === r;
+          const inactive = getRecruiterStatus(r) === "inactive";
 
           return (
             <div
@@ -65,12 +71,21 @@ export function RecruiterPanel() {
               className={`rounded-lg border px-3 py-2 cursor-pointer transition-colors ${
                 selected
                   ? "border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)]"
+                  : inactive
+                  ? "border-[var(--cpm-red)] bg-[var(--cpm-panel-alt)]"
                   : "border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] hover:border-[var(--cpm-border-strong)]"
               }`}
             >
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10" style={{ background: recruiterColor(r) }} />
-                <span className="text-[13px] font-semibold text-[var(--cpm-text)]">{r}</span>
+                <span className={`text-[13px] font-semibold ${inactive ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}>
+                  {r}
+                </span>
+                {inactive && (
+                  <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]">
+                    Former recruiter
+                  </span>
+                )}
                 <span className="text-[11.5px] text-[var(--cpm-text-dim)]">
                   Target: {plan.targetSubmissions ?? "—"} subs / {plan.targetHires ?? "—"} hires
                 </span>

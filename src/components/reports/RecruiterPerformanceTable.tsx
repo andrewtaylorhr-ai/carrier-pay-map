@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import type { RecruiterActual, RecruiterPlan, RecruiterTeam } from "@/lib/carriers/types";
+import type { RecruiterActual, RecruiterPlan, RecruiterStatus, RecruiterTeam } from "@/lib/carriers/types";
 import type { MonthOption } from "@/lib/recruiters";
 
 const TEAM_LABEL: Record<RecruiterTeam, string> = {
@@ -45,6 +45,7 @@ export interface PerformanceRow {
   plan: RecruiterPlan;
   actual: RecruiterActual;
   statesCount: number;
+  status: RecruiterStatus;
 }
 
 export function RecruiterPerformanceTable({
@@ -141,15 +142,25 @@ export function RecruiterPerformanceTable({
           <tbody>
             {rows.map((row) => {
               const status = statusOf(row.plan.targetSubmissions, row.actual.submissions);
+              const inactive = row.status === "inactive";
               return (
                 <tr key={row.name} className="border-t border-[var(--cpm-border)] text-[var(--cpm-text-dim)]">
                   <td className="py-1.5 pr-3">
-                    <span className="inline-flex items-center gap-2 text-[var(--cpm-text)] font-semibold">
+                    <span
+                      className={`inline-flex items-center gap-2 font-semibold ${
+                        inactive ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"
+                      }`}
+                    >
                       <span
                         className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10"
                         style={{ background: recruiterColor(row.name) }}
                       />
                       {row.name}
+                      {inactive && (
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-[#ff9a9d]">
+                          Former
+                        </span>
+                      )}
                     </span>
                   </td>
                   <td className="py-1.5 pr-3">{row.team ? TEAM_LABEL[row.team] : "—"}</td>

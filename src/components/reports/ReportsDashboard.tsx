@@ -45,6 +45,8 @@ export function ReportsDashboard() {
     getRecruiterTeam,
     getRecruiterPlan,
     getRecruiterActual,
+    getRecruiterStatus,
+    compareRecruitersByStatus,
   } = useCarrierMap();
 
   const months = currentAndNextMonth();
@@ -62,7 +64,10 @@ export function ReportsDashboard() {
     );
   }
 
-  const visible = recruiters.filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter);
+  const visible = recruiters
+    .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
+    .slice()
+    .sort(compareRecruitersByStatus);
 
   const rows = visible.map((r) => {
     const plan = getRecruiterPlan(r);
@@ -70,7 +75,7 @@ export function ReportsDashboard() {
     const statesCount = Object.keys(recruiterAssignments).filter((s) =>
       (recruiterAssignments[s] || []).includes(r)
     ).length;
-    return { name: r, team: getRecruiterTeam(r), plan, actual, statesCount };
+    return { name: r, team: getRecruiterTeam(r), plan, actual, statesCount, status: getRecruiterStatus(r) };
   });
 
   const totals = rows.reduce(

@@ -8,9 +8,11 @@ import type {
   PersistedRecruiterActuals,
   PersistedRecruiterAssignments,
   PersistedRecruiterPlans,
+  PersistedRecruiterStatus,
   PersistedRecruiterTeams,
   RecruiterActual,
   RecruiterPlan,
+  RecruiterStatus,
   RecruiterTeam,
 } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
@@ -19,6 +21,7 @@ import { useRecruiterActuals } from "@/lib/hooks/useRecruiterActuals";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
 import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
+import { useRecruiterStatus } from "@/lib/hooks/useRecruiterStatus";
 import { useRecruiterTeams } from "@/lib/hooks/useRecruiterTeams";
 import { buildRecruiterColorScale } from "@/lib/recruiters";
 
@@ -95,6 +98,18 @@ interface CarrierMapContextValue {
   // instead of always resetting to "all".
   teamFilter: TeamFilter;
   setTeamFilter: (f: TeamFilter) => void;
+
+  // persisted: active vs. former/inactive recruiter. Missing key means
+  // active. Former recruiters stay in the roster (history/assignments/plan
+  // stay intact) but every recruiter-list UI sorts them to the end and
+  // renders them in red — see compareRecruitersByStatus.
+  recruiterStatus: PersistedRecruiterStatus;
+  getRecruiterStatus: (name: string) => RecruiterStatus;
+  setRecruiterStatus: (name: string, status: RecruiterStatus) => void;
+  // Stable sort comparator (active before inactive, otherwise preserves
+  // existing order) — pass to Array.prototype.sort in any component that
+  // lists recruiter names, so "inactive sorted last" is consistent everywhere.
+  compareRecruitersByStatus: (a: string, b: string) => number;
 }
 
 const CarrierMapContext = createContext<CarrierMapContextValue | null>(null);
@@ -117,6 +132,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [recruiterPlans, setRecruiterPlans] = useRecruiterPlans();
   const [recruiterTeams, setRecruiterTeams] = useRecruiterTeams();
   const [recruiterActuals, setRecruiterActuals] = useRecruiterActuals();
+  const [recruiterStatus, setRecruiterStatusMap] = useRecruiterStatus();
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -183,10 +199,23 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
         delete next[name];
         return next;
       });
+      setRecruiterStatusMap((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
       setRecruiterFilter((prev) => (prev === name ? "" : prev));
       setAssignModeRecruiter((prev) => (prev === name ? null : prev));
     },
-    [setRecruiters, setRecruiterAssignments, setRecruiterPlans, setRecruiterTeams, setRecruiterActuals]
+    [
+      setRecruiters,
+      setRecruiterAssignments,
+      setRecruiterPlans,
+      setRecruiterTeams,
+      setRecruiterActuals,
+      setRecruiterStatusMap,
+    ]
   );
 
   const getRecruiterTeam = useCallback(
@@ -243,6 +272,36 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     [setRecruiterActuals]
   );
 
+  const getRecruiterStatus = useCallback(
+    (name: string): RecruiterStatus => recruiterStatus[name] ?? "active",
+    [recruiterStatus]
+  );
+
+  const setRecruiterStatus = useCallback(
+    (name: string, status: RecruiterStatus) => {
+      setRecruiterStatusMap((prev) => {
+        if (status === "active") {
+          if (!(name in prev)) return prev;
+          const next = { ...prev };
+          delete next[name];
+          return next;
+        }
+        return { ...prev, [name]: status };
+      });
+    },
+    [setRecruiterStatusMap]
+  );
+
+  const compareRecruitersByStatus = useCallback(
+    (a: string, b: string): number => {
+      const aInactive = getRecruiterStatus(a) === "inactive";
+      const bInactive = getRecruiterStatus(b) === "inactive";
+      if (aInactive === bInactive) return 0;
+      return aInactive ? 1 : -1;
+    },
+    [getRecruiterStatus]
+  );
+
   const toggleRecruiterOnState = useCallback(
     (state: string, recruiter: string) => {
       setRecruiterAssignments((prev) => {
@@ -293,6 +352,10 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     setRecruiterTeam,
     teamFilter,
     setTeamFilter,
+    recruiterStatus,
+    getRecruiterStatus,
+    setRecruiterStatus,
+    compareRecruitersByStatus,
   };
 
   return <CarrierMapContext.Provider value={value}>{children}</CarrierMapContext.Provider>;

@@ -27,12 +27,12 @@ export function ReportsStats({
 
   return (
     <div className="flex flex-wrap gap-3 mb-4">
-      <StatCard icon={Users} label="Total submissions" value={actualSub > 0 ? String(actualSub) : "—"} sub="Actual, this month" />
-      <StatCard icon={Award} label="Total hires" value={actualHires > 0 ? String(actualHires) : "—"} sub="Actual, this month" />
-      <StatCard icon={Target} label="Submission target" value={targetSub > 0 ? String(targetSub) : "—"} sub="Sum of recruiter plans" />
-      <RadialStatCard icon={Percent} label="Hire rate" pct={hireRatePct} sub="Hires ÷ submissions" />
-      <RadialStatCard icon={TrendingUp} label="Submission achievement" pct={subAchievementPct} sub="Actual vs. target" />
-      <RadialStatCard icon={Trophy} label="Hire achievement" pct={hireAchievementPct} sub="Actual vs. target" />
+      <StatCard icon={Users} label="Total submissions" value={actualSub > 0 ? String(actualSub) : "—"} sub="Actual, this month" color="blue" />
+      <StatCard icon={Award} label="Total hires" value={actualHires > 0 ? String(actualHires) : "—"} sub="Actual, this month" color="purple" />
+      <StatCard icon={Target} label="Submission target" value={targetSub > 0 ? String(targetSub) : "—"} sub="Sum of recruiter plans" color="amber" />
+      <RadialStatCard icon={Percent} label="Hire rate" pct={hireRatePct} sub="Hires ÷ submissions" color="green" />
+      <RadialStatCard icon={TrendingUp} label="Submission achievement" pct={subAchievementPct} sub="Actual vs. target" color="blue" />
+      <RadialStatCard icon={Trophy} label="Hire achievement" pct={hireAchievementPct} sub="Actual vs. target" color="purple" />
     </div>
   );
 }

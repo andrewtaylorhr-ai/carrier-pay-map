@@ -6,17 +6,29 @@ import type { LucideIcon } from "lucide-react";
 // rule as StatCard: pct === null renders an empty (unfilled) ring rather
 // than fabricating a fill, exactly like the plain-text "—" fallback used
 // everywhere else in this app when there's no denominator to divide by.
+export type RadialStatColor = "amber" | "blue" | "purple" | "green";
+
+const RING_COLOR: Record<RadialStatColor, string> = {
+  amber: "var(--cpm-accent)",
+  blue: "var(--cpm-blue)",
+  purple: "var(--cpm-purple)",
+  green: "var(--cpm-green)",
+};
+
 export function RadialStatCard({
   icon: Icon,
   label,
   pct,
   sub,
+  color = "amber",
 }: {
   icon: LucideIcon;
   label: string;
   pct: number | null;
   sub?: string;
+  color?: RadialStatColor;
 }) {
+  const ring = RING_COLOR[color];
   const size = 52;
   const stroke = 5;
   const r = (size - stroke) / 2;
@@ -35,7 +47,7 @@ export function RadialStatCard({
               cy={size / 2}
               r={r}
               fill="none"
-              stroke="var(--cpm-accent)"
+              stroke={ring}
               strokeWidth={stroke}
               strokeDasharray={c}
               strokeDashoffset={offset}
@@ -44,7 +56,7 @@ export function RadialStatCard({
           )}
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <Icon size={16} strokeWidth={2} className="text-[var(--cpm-accent)]" />
+          <Icon size={16} strokeWidth={2} style={{ color: ring }} />
         </div>
       </div>
       <div className="min-w-0">

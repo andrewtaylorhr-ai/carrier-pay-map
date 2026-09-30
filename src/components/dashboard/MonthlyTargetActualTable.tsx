@@ -2,27 +2,27 @@
 
 import { useCarrierMap } from "@/lib/carrier-map-context";
 
-function lastSixMonths(): string[] {
-  const out: string[] = [];
+function currentAndNextMonth(): string[] {
   const now = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    out.push(d.toLocaleDateString(undefined, { month: "short", year: "numeric" }));
-  }
-  return out;
+  return [0, 1].map((i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+  });
 }
 
 // Target-vs-actual table for the currently selected recruiter. The app has
 // no monthly actuals data source yet (only a single ongoing monthly target
 // per recruiter, from RecruiterStrategyPlan) — Target columns are real,
 // pulled straight from recruiterPlans; Actual columns are honestly shown as
-// "—" with a note, rather than fabricated.
+// "—" with a note, rather than fabricated. Only the current + next month
+// are shown (rather than the last 6) since there's no historical data to
+// back-fill past rows with, but the upcoming month's target is still known.
 export function MonthlyTargetActualTable() {
   const { strategyMode, recruiterFilter, getRecruiterPlan } = useCarrierMap();
   if (!strategyMode || !recruiterFilter) return null;
 
   const plan = getRecruiterPlan(recruiterFilter);
-  const months = lastSixMonths();
+  const months = currentAndNextMonth();
   const targetSub = plan.targetSubmissions ?? "—";
   const targetHires = plan.targetHires ?? "—";
 

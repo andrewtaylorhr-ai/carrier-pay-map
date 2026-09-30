@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, FileBarChart, LayoutDashboard, Send, Truck, Users } from "lucide-react";
+import { Building2, FileBarChart, LayoutDashboard, Map, Send, Settings, StickyNote, Truck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 
@@ -11,12 +11,22 @@ type NavItem = {
   icon: LucideIcon;
 } & ({ href: string; disabled?: false } | { href?: undefined; disabled: true });
 
+// Full item set matches the reference mockup's sidebar. Only Dashboard,
+// Submissions, and Reports are live routes — State Assignment, Goals &
+// Notes, and Settings don't back any real feature (state assignment lives
+// inline in Dashboard's map, goals/notes live inline in the Strategy Plan
+// panel, and there's no settings/auth model in this solo-user tool), so
+// they render as disabled "coming soon" items, same convention as
+// Recruiters/Carriers below.
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/" },
   { label: "Recruiters", icon: Users, disabled: true },
+  { label: "State Assignment", icon: Map, disabled: true },
   { label: "Carriers", icon: Building2, disabled: true },
   { label: "Submissions", icon: Send, href: "/activity" },
+  { label: "Goals & Notes", icon: StickyNote, disabled: true },
   { label: "Reports", icon: FileBarChart, href: "/reports" },
+  { label: "Settings", icon: Settings, disabled: true },
 ];
 
 export function Sidebar() {

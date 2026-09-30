@@ -64,6 +64,10 @@ export function currentAndNextMonth(): MonthOption[] {
   const now = new Date();
   return [0, 1].map((i) => {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-    return { key: monthKey(d), label: d.toLocaleDateString(undefined, { month: "short", year: "numeric" }) };
+    // Fixed "en-US" locale (not the browser/server default) so the label is
+    // identical during SSR and client hydration — a mismatch here (e.g.
+    // server renders "Sep 2026", a non-English browser locale renders
+    // "сент. 2026 г.") throws a React hydration error on first paint.
+    return { key: monthKey(d), label: d.toLocaleDateString("en-US", { month: "short", year: "numeric" }) };
   });
 }

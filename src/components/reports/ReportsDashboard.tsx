@@ -5,15 +5,21 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import { currentAndNextMonth } from "@/lib/recruiters";
 import { exportTeamReportToExcel, type TeamReportRow } from "@/lib/exportRecruiterReport";
 import type { RecruiterTeam } from "@/lib/carriers/types";
+import { StatePerformancePanel } from "@/components/carrier-map/StatePerformancePanel";
+import { DetailCard } from "@/components/carrier-map/DetailCard";
+import { MonthlyTrendCard } from "@/components/dashboard/MonthlyTrendCard";
+import { ReportsHeader } from "./ReportsHeader";
+import { ReportsStats } from "./ReportsStats";
+import { ManagerInsightsCard } from "./ManagerInsightsCard";
+import { StateAssignmentTable } from "./StateAssignmentTable";
+import { CarrierUsageTable } from "./CarrierUsageTable";
+import { RecruiterPerformanceTable } from "./RecruiterPerformanceTable";
+import { DataCoveragePanel } from "./DataCoveragePanel";
+import { QuickActionsRow } from "./QuickActionsRow";
 
 const TEAM_LABEL: Record<RecruiterTeam, string> = {
   uzbek: "Uzbek",
   philippines: "Philippines",
-};
-
-const TEAM_FLAG_SRC: Record<RecruiterTeam, string> = {
-  uzbek: "https://flagcdn.com/uz.svg",
-  philippines: "https://flagcdn.com/ph.svg",
 };
 
 function hireRateOf(hires: number | null, submissions: number | null): string {
@@ -21,13 +27,13 @@ function hireRateOf(hires: number | null, submissions: number | null): string {
   return `${Math.round((hires / submissions) * 100)}%`;
 }
 
-// Full team report: every recruiter's target vs. actual submissions/hires
-// for a chosen month (current or next — same two months tracked by
-// MonthlyTargetActualTable, same recruiterActuals data), plus their
-// states/carriers footprint, in one exportable table. Actuals are entered
-// by hand (there's no ATS/data source yet), editable right in this table —
-// same underlying updateRecruiterActual() as the single-recruiter dashboard
-// table, so numbers entered in either place show up in both.
+// Orchestrator for the redesigned /reports page: owns the month + team
+// filter shared by the stat cards and the recruiter table, computes every
+// real-data row/total once, and assembles the section layout matching the
+// "Executive Dashboard" mockup the user shared — scoped to this page's
+// content only (Sidebar is untouched), with honest empty/placeholder states
+// everywhere this app has no real data source (see ManagerInsightsCard,
+// MonthlyTrendCard, and the "—" columns in the two usage tables).
 export function ReportsDashboard() {
   const {
     strategyMode,
@@ -39,7 +45,6 @@ export function ReportsDashboard() {
     getRecruiterTeam,
     getRecruiterPlan,
     getRecruiterActual,
-    updateRecruiterActual,
   } = useCarrierMap();
 
   const months = currentAndNextMonth();
@@ -48,9 +53,12 @@ export function ReportsDashboard() {
 
   if (!strategyMode) {
     return (
-      <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 text-[13px] text-[var(--cpm-text-faint)]">
-        Turn on Strategy mode (on the Dashboard) to see recruiter reports.
-      </div>
+      <>
+        <ReportsHeader />
+        <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 text-[13px] text-[var(--cpm-text-faint)]">
+          Turn on Strategy mode (on the Dashboard) to see recruiter reports.
+        </div>
+      </>
     );
   }
 
@@ -75,6 +83,9 @@ export function ReportsDashboard() {
     { targetSub: 0, actualSub: 0, targetHires: 0, actualHires: 0 }
   );
 
+  // Actuals stay read-only here (the new table is a report view). They're
+  // still editable on the Dashboard's MonthlyTargetActualTable / Strategy
+  // Plan — same underlying recruiterActuals context data either way.
   const handleExport = () => {
     const exportRows: TeamReportRow[] = rows.map((row) => ({
       Recruiter: row.name,
@@ -92,149 +103,52 @@ export function ReportsDashboard() {
   };
 
   return (
-    <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <div className="flex items-center gap-1 rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-0.5">
-          {months.map((m, i) => (
-            <button
-              key={m.key}
-              type="button"
-              onClick={() => setMonthIdx(i)}
-              className={`px-3 h-7 rounded-md text-[12px] font-semibold transition-colors ${
-                monthIdx === i
-                  ? "bg-[var(--cpm-accent)] text-[#241800]"
-                  : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+    <>
+      <ReportsHeader />
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            {(["uzbek", "philippines"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setTeamFilter(teamFilter === t ? "all" : t)}
-                title={teamFilter === t ? `${TEAM_LABEL[t]} (click to clear filter)` : TEAM_LABEL[t]}
-                aria-label={TEAM_LABEL[t]}
-                className={`h-7 px-2 rounded-lg transition-colors flex items-center justify-center ${
-                  teamFilter === t
-                    ? "bg-[var(--cpm-accent)]"
-                    : "bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] hover:border-[var(--cpm-border-strong)]"
-                }`}
-              >
-                <img
-                  src={TEAM_FLAG_SRC[t]}
-                  alt={TEAM_LABEL[t]}
-                  className="w-5 h-3.5 object-cover rounded-[2px] ring-1 ring-black/20 shrink-0"
-                />
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={handleExport}
-            className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] transition-colors"
-          >
-            ⬇ Export to Excel
-          </button>
-        </div>
+      <ReportsStats
+        targetSub={totals.targetSub}
+        actualSub={totals.actualSub}
+        targetHires={totals.targetHires}
+        actualHires={totals.actualHires}
+      />
+
+      <div className="flex flex-wrap gap-3 mb-4">
+        <MonthlyTrendCard />
+        <ManagerInsightsCard />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-[12.5px] border-collapse">
-          <thead>
-            <tr className="text-left text-[var(--cpm-text-faint)] text-[10.5px] uppercase tracking-wide">
-              <th className="py-1.5 pr-3 font-semibold">Recruiter</th>
-              <th className="py-1.5 pr-3 font-semibold">Team</th>
-              <th className="py-1.5 pr-3 font-semibold">States</th>
-              <th className="py-1.5 pr-3 font-semibold">Carriers</th>
-              <th className="py-1.5 pr-3 font-semibold">Submissions (Target / Actual)</th>
-              <th className="py-1.5 pr-3 font-semibold">Hires (Target / Actual)</th>
-              <th className="py-1.5 pr-3 font-semibold">Hire rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.name} className="border-t border-[var(--cpm-border)] text-[var(--cpm-text-dim)]">
-                <td className="py-1.5 pr-3">
-                  <span className="inline-flex items-center gap-2 text-[var(--cpm-text)] font-semibold">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10"
-                      style={{ background: recruiterColor(row.name) }}
-                    />
-                    {row.name}
-                  </span>
-                </td>
-                <td className="py-1.5 pr-3">{row.team ? TEAM_LABEL[row.team] : "—"}</td>
-                <td className="py-1.5 pr-3 tabular-nums">{row.statesCount}</td>
-                <td className="py-1.5 pr-3 tabular-nums">{row.plan.carriers.length}</td>
-                <td className="py-1.5 pr-3">
-                  <span className="tabular-nums">{row.plan.targetSubmissions ?? "—"}</span> /{" "}
-                  <input
-                    type="number"
-                    min={0}
-                    value={row.actual.submissions ?? ""}
-                    placeholder="—"
-                    onChange={(e) =>
-                      updateRecruiterActual(row.name, month.key, {
-                        submissions: e.target.value === "" ? null : Number(e.target.value),
-                      })
-                    }
-                    className="w-14 bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] rounded px-1.5 py-0.5 text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)]"
-                  />
-                </td>
-                <td className="py-1.5 pr-3">
-                  <span className="tabular-nums">{row.plan.targetHires ?? "—"}</span> /{" "}
-                  <input
-                    type="number"
-                    min={0}
-                    value={row.actual.hires ?? ""}
-                    placeholder="—"
-                    onChange={(e) =>
-                      updateRecruiterActual(row.name, month.key, {
-                        hires: e.target.value === "" ? null : Number(e.target.value),
-                      })
-                    }
-                    className="w-14 bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] rounded px-1.5 py-0.5 text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)]"
-                  />
-                </td>
-                <td className="py-1.5 pr-3 text-[var(--cpm-text-faint)]">
-                  {hireRateOf(row.actual.hires, row.actual.submissions)}
-                </td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={7} className="py-4 text-[12.5px] text-[var(--cpm-text-faint)] italic">
-                  No recruiters on this team yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-          {rows.length > 0 && (
-            <tfoot>
-              <tr className="border-t border-[var(--cpm-border-strong)] text-[var(--cpm-text)] font-semibold">
-                <td className="py-1.5 pr-3" colSpan={4}>
-                  Team total ({rows.length} recruiter{rows.length > 1 ? "s" : ""})
-                </td>
-                <td className="py-1.5 pr-3 tabular-nums">
-                  {totals.targetSub || "—"} / {totals.actualSub || "—"}
-                </td>
-                <td className="py-1.5 pr-3 tabular-nums">
-                  {totals.targetHires || "—"} / {totals.actualHires || "—"}
-                </td>
-                <td className="py-1.5 pr-3 text-[var(--cpm-text-faint)] font-normal">
-                  {hireRateOf(totals.actualHires, totals.actualSub)}
-                </td>
-              </tr>
-            </tfoot>
-          )}
-        </table>
+      <div className="-mx-6 mb-4">
+        <StatePerformancePanel />
       </div>
-    </div>
+      <div className="mb-4">
+        <DetailCard />
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-3 mb-4">
+        <StateAssignmentTable />
+        <CarrierUsageTable />
+      </div>
+
+      <div className="mb-4">
+        <RecruiterPerformanceTable
+          rows={rows}
+          totals={totals}
+          months={months}
+          monthIdx={monthIdx}
+          setMonthIdx={setMonthIdx}
+          teamFilter={teamFilter}
+          setTeamFilter={setTeamFilter}
+          recruiterColor={recruiterColor}
+          onExport={handleExport}
+        />
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-3 mb-4">
+        <DataCoveragePanel />
+      </div>
+
+      <QuickActionsRow onGenerateReport={handleExport} />
+    </>
   );
 }

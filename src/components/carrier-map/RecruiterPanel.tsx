@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { ALL_STATES, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { RECRUITER_TARGET } from "@/lib/recruiters";
+
+const COLLAPSED_COUNT = 3;
 
 // Restyled from an inline "Name: count" chip row into a vertical one-row-
 // per-recruiter list (Tailwind + var(--cpm-*) tokens, matching the rest of
@@ -13,6 +16,11 @@ import { RECRUITER_TARGET } from "@/lib/recruiters";
 // already reads/writes) are visible at a glance. Click behavior is
 // unchanged: clicking a row selects recruiterFilter (opens Strategy Plan +
 // report below), clicking the selected row again clears it.
+//
+// Once the roster (for the current team filter) grows past COLLAPSED_COUNT,
+// only the first few rows show by default with a "Show all (N)" toggle
+// below the list — keeps the panel from growing to one screen-height per
+// recruiter as the team scales past a handful of people.
 export function RecruiterPanel() {
   const {
     strategyMode,
@@ -25,12 +33,15 @@ export function RecruiterPanel() {
     getRecruiterTeam,
     getRecruiterPlan,
   } = useCarrierMap();
+  const [expanded, setExpanded] = useState(false);
   if (!strategyMode) return null;
 
   const unassignedCount =
     ALL_STATES.length - Object.keys(recruiterAssignments).filter((s) => recruiterAssignments[s]?.length).length;
 
   const visibleRecruiters = recruiters.filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter);
+  const hasMore = visibleRecruiters.length > COLLAPSED_COUNT;
+  const shownRecruiters = expanded ? visibleRecruiters : visibleRecruiters.slice(0, COLLAPSED_COUNT);
 
   return (
     <div id="recruiterPanel" className="mb-3 rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-3">
@@ -39,7 +50,7 @@ export function RecruiterPanel() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        {visibleRecruiters.map((r) => {
+        {shownRecruiters.map((r) => {
           const plan = getRecruiterPlan(r);
           const states = Object.keys(recruiterAssignments)
             .filter((s) => (recruiterAssignments[s] || []).includes(r))
@@ -83,6 +94,16 @@ export function RecruiterPanel() {
           <span className="text-[11.5px] text-[var(--cpm-text-faint)] italic">No recruiters on this team yet.</span>
         )}
       </div>
+
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-1.5 text-[11.5px] font-semibold text-[var(--cpm-accent)] hover:text-[var(--cpm-accent-strong)]"
+        >
+          {expanded ? "▲ Show less" : `▼ Show all (${visibleRecruiters.length})`}
+        </button>
+      )}
 
       <div className="mt-2 flex items-center gap-2 flex-wrap text-[11.5px] text-[var(--cpm-text-faint)]">
         <span>Unassigned: {unassignedCount}</span>

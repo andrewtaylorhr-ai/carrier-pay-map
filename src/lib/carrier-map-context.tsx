@@ -5,14 +5,17 @@ import { CARRIERS } from "@/lib/carriers/data";
 import type {
   CarrierId,
   PersistedAssignments,
+  PersistedRecruiterActuals,
   PersistedRecruiterAssignments,
   PersistedRecruiterPlans,
   PersistedRecruiterTeams,
+  RecruiterActual,
   RecruiterPlan,
   RecruiterTeam,
 } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { useRecruiterActuals } from "@/lib/hooks/useRecruiterActuals";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
 import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
@@ -26,6 +29,11 @@ export const EMPTY_RECRUITER_PLAN: RecruiterPlan = {
   targetHires: null,
   carriers: [],
   notes: "",
+};
+
+export const EMPTY_RECRUITER_ACTUAL: RecruiterActual = {
+  submissions: null,
+  hires: null,
 };
 
 export type ColorMode = "carrier" | "recruiter";
@@ -70,6 +78,13 @@ interface CarrierMapContextValue {
   getRecruiterPlan: (name: string) => RecruiterPlan;
   updateRecruiterPlan: (name: string, patch: Partial<RecruiterPlan>) => void;
 
+  // persisted: recruiter's actual submissions/hires per calendar month,
+  // entered by hand — feeds the "Actual" columns next to each recruiter's
+  // (single, ongoing) target, in MonthlyTargetActualTable and /reports.
+  recruiterActuals: PersistedRecruiterActuals;
+  getRecruiterActual: (name: string, month: string) => RecruiterActual;
+  updateRecruiterActual: (name: string, month: string, patch: Partial<RecruiterActual>) => void;
+
   // persisted: recruiter -> outsourced team (Uzbek / Philippines). Missing
   // key means unassigned. Only used to filter the two recruiter-name lists
   // in the Recruiters panel — doesn't touch the map, states, or reports.
@@ -101,6 +116,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [recruiterAssignments, setRecruiterAssignments] = useRecruiterAssignments();
   const [recruiterPlans, setRecruiterPlans] = useRecruiterPlans();
   const [recruiterTeams, setRecruiterTeams] = useRecruiterTeams();
+  const [recruiterActuals, setRecruiterActuals] = useRecruiterActuals();
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -161,10 +177,16 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
         delete next[name];
         return next;
       });
+      setRecruiterActuals((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
       setRecruiterFilter((prev) => (prev === name ? "" : prev));
       setAssignModeRecruiter((prev) => (prev === name ? null : prev));
     },
-    [setRecruiters, setRecruiterAssignments, setRecruiterPlans, setRecruiterTeams]
+    [setRecruiters, setRecruiterAssignments, setRecruiterPlans, setRecruiterTeams, setRecruiterActuals]
   );
 
   const getRecruiterTeam = useCallback(
@@ -200,6 +222,25 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
       }));
     },
     [setRecruiterPlans]
+  );
+
+  const getRecruiterActual = useCallback(
+    (name: string, month: string): RecruiterActual => recruiterActuals[name]?.[month] ?? EMPTY_RECRUITER_ACTUAL,
+    [recruiterActuals]
+  );
+
+  const updateRecruiterActual = useCallback(
+    (name: string, month: string, patch: Partial<RecruiterActual>) => {
+      setRecruiterActuals((prev) => {
+        const prevForName = prev[name] ?? {};
+        const prevForMonth = prevForName[month] ?? EMPTY_RECRUITER_ACTUAL;
+        return {
+          ...prev,
+          [name]: { ...prevForName, [month]: { ...prevForMonth, ...patch } },
+        };
+      });
+    },
+    [setRecruiterActuals]
   );
 
   const toggleRecruiterOnState = useCallback(
@@ -244,6 +285,9 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     recruiterPlans,
     getRecruiterPlan,
     updateRecruiterPlan,
+    recruiterActuals,
+    getRecruiterActual,
+    updateRecruiterActual,
     recruiterTeams,
     getRecruiterTeam,
     setRecruiterTeam,

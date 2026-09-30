@@ -45,3 +45,25 @@ export function buildRecruiterColorScale(names: string[]): (name: string) => str
 export function recruiterGradId(names: string[]): string {
   return "grad-" + names.slice().sort().map((n) => n.replace(/[^a-z0-9]/gi, "")).join("-");
 }
+
+// Shared month-key convention for recruiterActuals: a stable "YYYY-MM" key
+// (unaffected by locale) paired with a locale-formatted display label
+// ("Sep 2026"). Used by both MonthlyTargetActualTable (single recruiter)
+// and the /reports page (all recruiters) so they always read/write the
+// same storage key for "this month" / "next month".
+export interface MonthOption {
+  key: string;
+  label: string;
+}
+
+export function monthKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function currentAndNextMonth(): MonthOption[] {
+  const now = new Date();
+  return [0, 1].map((i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    return { key: monthKey(d), label: d.toLocaleDateString(undefined, { month: "short", year: "numeric" }) };
+  });
+}

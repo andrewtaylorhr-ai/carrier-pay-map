@@ -139,3 +139,15 @@ export type PersistedRecruiterPlans = Record<string, RecruiterPlan>;
 // key in PersistedRecruiterTeams (absence of a key means unassigned).
 export type RecruiterTeam = "uzbek" | "philippines";
 export type PersistedRecruiterTeams = Record<string, RecruiterTeam>;
+
+// A recruiter's actual submissions/hires for one calendar month, entered by
+// hand (no ATS/data-source integration yet). Keyed by recruiter name ->
+// month key ("YYYY-MM", see monthKey()/currentAndNextMonth() in
+// src/lib/recruiters.ts) -> that month's actuals. Feeds the "Actual"
+// columns in MonthlyTargetActualTable and the /reports page, alongside
+// each recruiter's single ongoing target from their Strategy Plan.
+export interface RecruiterActual {
+  submissions: number | null;
+  hires: number | null;
+}
+export type PersistedRecruiterActuals = Record<string, Record<string, RecruiterActual>>;

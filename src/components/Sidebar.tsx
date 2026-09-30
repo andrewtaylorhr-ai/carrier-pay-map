@@ -16,7 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Recruiters", icon: Users, disabled: true },
   { label: "Carriers", icon: Building2, disabled: true },
   { label: "Submissions", icon: Send, href: "/activity" },
-  { label: "Reports", icon: FileBarChart, disabled: true },
+  { label: "Reports", icon: FileBarChart, href: "/reports" },
 ];
 
 export function Sidebar() {

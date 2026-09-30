@@ -124,3 +124,45 @@ export function exportRecruiterReportToExcel(
   XLSX.utils.book_append_sheet(wb, ws, recruiterFilter.slice(0, 31));
   XLSX.writeFile(wb, `${recruiterFilter.replace(/[^a-z0-9]+/gi, "_")}_assigned_states.xlsx`);
 }
+
+// One row of the whole-team Reports page — target vs. actual for a single
+// recruiter for a single selected month, plus their states/carriers
+// footprint. Exported as-is (the same rows rendered on screen), unlike
+// exportRecruiterReportToExcel above which expands into a per-state/
+// per-account breakdown for one recruiter.
+export interface TeamReportRow {
+  Recruiter: string;
+  Team: string;
+  Month: string;
+  "Target Submissions": number | string;
+  "Actual Submissions": number | string;
+  "Target Hires": number | string;
+  "Actual Hires": number | string;
+  "Hire Rate": string;
+  "States Assigned": number;
+  "Carriers Assigned": number;
+}
+
+export function exportTeamReportToExcel(rows: TeamReportRow[], monthLabel: string): void {
+  if (!rows.length) {
+    alert("No recruiters to export.");
+    return;
+  }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws["!cols"] = [
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 10 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 11 },
+    { wch: 15 },
+    { wch: 17 },
+  ];
+  ws["!autofilter"] = { ref: ws["!ref"] as string };
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Team report");
+  XLSX.writeFile(wb, `Team_Report_${monthLabel.replace(/[^a-z0-9]+/gi, "_")}.xlsx`);
+}

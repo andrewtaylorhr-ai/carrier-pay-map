@@ -75,13 +75,6 @@ body {
 #colorModeBar button { padding:4px 12px; border-radius:14px; cursor:pointer; font-size:12px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text); }
 #colorModeBar button.active { border-color:var(--cpm-accent); background:var(--cpm-accent); color:#241800; font-weight:600; }
 
-#recruiterPanel { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 14px; }
-#recruiterPanel .rchip { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:12px; font-size:12px; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border); cursor:pointer; }
-#recruiterPanel .rchip.over { background:var(--cpm-red-soft); border-color:var(--cpm-red); color:#ff9a9d; }
-#recruiterPanel .rchip.selected { border-color:var(--cpm-accent); box-shadow:0 0 0 2px var(--cpm-accent) inset; font-weight:600; }
-#recruiterPanel .rchip .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
-#recruiterPanel .rhint { font-size:11.5px; color:var(--cpm-text-faint); }
-
 .stateLabelBg { fill:rgba(0,0,0,.65); }
 .stateLabelText { font-size:9.5px; font-weight:700; fill:#fff; text-anchor:middle; pointer-events:none; letter-spacing:.2px; }
 

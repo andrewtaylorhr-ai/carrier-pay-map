@@ -39,12 +39,46 @@ body {
   --cpm-blue-soft: rgba(59, 130, 246, 0.16);
   --cpm-purple: #a855f7;
   --cpm-purple-soft: rgba(168, 85, 247, 0.16);
+  --cpm-accent-ink: #241800;
 
   background-color: var(--cpm-bg);
   background-image:
     radial-gradient(900px 480px at 12% -10%, rgba(212, 161, 55, 0.08), transparent 60%),
     radial-gradient(700px 480px at 105% 0%, rgba(91, 155, 216, 0.06), transparent 55%);
   background-attachment: fixed;
+  color: var(--cpm-text);
+}
+
+/* --- Light "Executive Dashboard" surface, scoped to the /reports page only
+   (wraps that page's content in app-light; the choropleth-map sub-section
+   nests back into .app-dark since its legend/tooltip/path CSS below is
+   hardcoded for a dark backdrop and isn't worth re-theming). Custom
+   properties are inherited, so nesting one theme class inside the other
+   simply overrides the --cpm-* values for that subtree. --- */
+.app-light {
+  --cpm-bg: #f4f6fb;
+  --cpm-map-bg: #eef1f7;
+  --cpm-panel: #ffffff;
+  --cpm-panel-alt: #eef1f6;
+  --cpm-border: #e4e8f0;
+  --cpm-border-strong: #cfd5e2;
+  --cpm-text: #1c2130;
+  --cpm-text-dim: #5b6270;
+  --cpm-text-faint: #98a0ae;
+  --cpm-accent: #2563eb;
+  --cpm-accent-strong: #1d4ed8;
+  --cpm-red: #dc2626;
+  --cpm-red-soft: rgba(220, 38, 38, 0.1);
+  --cpm-green: #16a34a;
+  --cpm-green-soft: rgba(22, 163, 74, 0.1);
+  --cpm-blue: #2563eb;
+  --cpm-blue-soft: rgba(37, 99, 235, 0.1);
+  --cpm-purple: #7c3aed;
+  --cpm-purple-soft: rgba(124, 58, 237, 0.1);
+  --cpm-accent-ink: #ffffff;
+
+  background-color: var(--cpm-bg);
+  background-image: none;
   color: var(--cpm-text);
 }
 

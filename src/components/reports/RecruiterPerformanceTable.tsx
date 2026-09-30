@@ -83,7 +83,7 @@ export function RecruiterPerformanceTable({
               onClick={() => setMonthIdx(i)}
               className={`px-3 h-7 rounded-md text-[12px] font-semibold transition-colors ${
                 monthIdx === i
-                  ? "bg-[var(--cpm-accent)] text-[#241800]"
+                  ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
                   : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
               }`}
             >
@@ -118,7 +118,7 @@ export function RecruiterPerformanceTable({
           <button
             type="button"
             onClick={onExport}
-            className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] transition-colors"
+            className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] transition-colors"
           >
             ⬇ Export to Excel
           </button>

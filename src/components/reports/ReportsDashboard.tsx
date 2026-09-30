@@ -126,11 +126,16 @@ export function ReportsDashboard() {
         <ManagerInsightsCard />
       </div>
 
-      <div className="-mx-6 mb-4">
+      {/* The choropleth map's legend/tooltip/path CSS in globals.css is
+          hardcoded for a dark backdrop (white borders, dark tooltip fill) —
+          nesting back into .app-dark here reverts just this subtree so the
+          map still renders correctly inside the page's new light theme,
+          without touching ChoroplethMap.tsx's D3 internals. */}
+      <div className="app-dark rounded-xl -mx-6 mb-4 pb-4">
         <StatePerformancePanel />
-      </div>
-      <div className="mb-4">
-        <DetailCard />
+        <div className="px-6">
+          <DetailCard />
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-3 mb-4">

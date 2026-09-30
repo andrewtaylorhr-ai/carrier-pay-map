@@ -44,7 +44,7 @@ export function QuickActionsRow({ onGenerateReport }: { onGenerateReport: () => 
         <button
           type="button"
           onClick={onGenerateReport}
-          className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-1.5 px-3.5 h-9 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] transition-colors"
+          className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-1.5 px-3.5 h-9 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] transition-colors"
         >
           <FileDown size={14} />
           Generate report

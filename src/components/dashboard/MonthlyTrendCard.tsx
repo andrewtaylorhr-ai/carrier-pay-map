@@ -46,7 +46,7 @@ export function MonthlyTrendCard() {
             <YAxis tick={{ fill: "var(--cpm-text-dim)", fontSize: 10 }} axisLine={false} tickLine={false} width={28} />
             <Tooltip
               cursor={{ fill: "var(--cpm-panel-alt)" }}
-              contentStyle={{ background: "#20242c", border: "1px solid var(--cpm-border-strong)", borderRadius: 8, fontSize: 12 }}
+              contentStyle={{ background: "var(--cpm-panel-alt)", border: "1px solid var(--cpm-border-strong)", borderRadius: 8, fontSize: 12 }}
               labelStyle={{ color: "var(--cpm-text)", fontWeight: 600 }}
             />
             <Bar dataKey="submissions" fill="var(--cpm-accent)" radius={[3, 3, 0, 0]} maxBarSize={14} />

@@ -161,3 +161,63 @@ export interface RecruiterActual {
   hires: number | null;
 }
 export type PersistedRecruiterActuals = Record<string, Record<string, RecruiterActual>>;
+
+// ---- Monthly Report (per-calendar-month company-wide performance report) ----
+// Separate from RecruiterPlan/RecruiterActual (which track per-recruiter
+// targets/actuals) and separate from CarrierId (which is the 5-carrier
+// territory-assignment enum used by the map). This report's carrier
+// breakdown covers every carrier the company actually submits drivers to
+// (21+ names in the source report), so carrier names here are free text,
+// not CarrierId. Keyed by month ("YYYY-MM", same convention as monthKey()
+// in src/lib/recruiters.ts, but this feature supports arbitrary/historical
+// months, not just current+next).
+export interface CarrierMonthlyStat {
+  carrier: string;
+  submissions: number | null;
+  dqNoResponse: number | null;
+  hired: number | null;
+  notes: string;
+}
+
+export interface WeeklySubmissionStat {
+  label: string; // e.g. "8/3-8/8"
+  submissions: number | null;
+}
+
+// Fields the user enters by hand each month (not derivable from other data
+// already in the app) — everything else (Hire %, Leads→Hire %, Avg per
+// recruiter, Best Carrier, totals) is computed live from these + the
+// carrier rows, never stored redundantly.
+// averageCpl is a manual entry (not totalIndeedSpend / totalLeads) because
+// the source report's own numbers don't reconcile that way — CPL is tracked
+// per Indeed campaign in a separate sheet this app doesn't ingest, so
+// deriving it here from the two company-wide totals would silently produce
+// a wrong number. Better to store what was actually reported.
+export interface MonthlyReport {
+  totalLeads: number | null;
+  totalDqp: number | null;
+  dqFromDqp: number | null;
+  activeRecruiters: number | null;
+  bestState: string;
+  totalIndeedSpend: number | null;
+  indeedAccountsTotal: number | null;
+  indeedAccountsActive: number | null;
+  averageCpl: number | null;
+  weeklySubmissions: WeeklySubmissionStat[];
+  carriers: CarrierMonthlyStat[];
+}
+export type PersistedMonthlyReports = Record<string, MonthlyReport>;
+
+export const EMPTY_MONTHLY_REPORT: MonthlyReport = {
+  totalLeads: null,
+  totalDqp: null,
+  dqFromDqp: null,
+  activeRecruiters: null,
+  bestState: "",
+  totalIndeedSpend: null,
+  indeedAccountsTotal: null,
+  indeedAccountsActive: null,
+  averageCpl: null,
+  weeklySubmissions: [],
+  carriers: [],
+};

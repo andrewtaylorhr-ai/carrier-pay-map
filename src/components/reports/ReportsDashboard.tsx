@@ -10,6 +10,7 @@ import { DetailCard } from "@/components/carrier-map/DetailCard";
 import { MonthlyTrendCard } from "@/components/dashboard/MonthlyTrendCard";
 import { ReportsHeader } from "./ReportsHeader";
 import { ReportsStats } from "./ReportsStats";
+import { MonthlyReportSection } from "./MonthlyReportSection";
 import { ManagerInsightsCard } from "./ManagerInsightsCard";
 import { StateAssignmentTable } from "./StateAssignmentTable";
 import { CarrierUsageTable } from "./CarrierUsageTable";
@@ -117,6 +118,8 @@ export function ReportsDashboard() {
         targetHires={totals.targetHires}
         actualHires={totals.actualHires}
       />
+
+      <MonthlyReportSection />
 
       <div className="flex flex-wrap gap-3 mb-4">
         <MonthlyTrendCard />

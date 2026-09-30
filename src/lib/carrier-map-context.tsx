@@ -4,7 +4,9 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import { CARRIERS } from "@/lib/carriers/data";
 import type {
   CarrierId,
+  MonthlyReport,
   PersistedAssignments,
+  PersistedMonthlyReports,
   PersistedRecruiterActuals,
   PersistedRecruiterAssignments,
   PersistedRecruiterPlans,
@@ -15,8 +17,10 @@ import type {
   RecruiterStatus,
   RecruiterTeam,
 } from "@/lib/carriers/types";
+import { EMPTY_MONTHLY_REPORT } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { useMonthlyReports } from "@/lib/hooks/useMonthlyReports";
 import { useRecruiterActuals } from "@/lib/hooks/useRecruiterActuals";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
@@ -110,6 +114,15 @@ interface CarrierMapContextValue {
   // existing order) — pass to Array.prototype.sort in any component that
   // lists recruiter names, so "inactive sorted last" is consistent everywhere.
   compareRecruitersByStatus: (a: string, b: string) => number;
+
+  // persisted: company-wide Monthly Report (leads/DQP/Indeed spend + weekly
+  // submissions + per-carrier breakdown), keyed by "YYYY-MM". Independent of
+  // recruiterPlans/recruiterActuals (per-recruiter) and of CarrierId (the
+  // 5-carrier map-assignment enum) — this report's carrier rows are
+  // free-text since the real submission pipeline spans 20+ carriers.
+  monthlyReports: PersistedMonthlyReports;
+  getMonthlyReport: (month: string) => MonthlyReport;
+  updateMonthlyReport: (month: string, patch: Partial<MonthlyReport>) => void;
 }
 
 const CarrierMapContext = createContext<CarrierMapContextValue | null>(null);
@@ -133,6 +146,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [recruiterTeams, setRecruiterTeams] = useRecruiterTeams();
   const [recruiterActuals, setRecruiterActuals] = useRecruiterActuals();
   const [recruiterStatus, setRecruiterStatusMap] = useRecruiterStatus();
+  const [monthlyReports, setMonthlyReports] = useMonthlyReports();
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -302,6 +316,21 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     [getRecruiterStatus]
   );
 
+  const getMonthlyReport = useCallback(
+    (month: string): MonthlyReport => monthlyReports[month] ?? EMPTY_MONTHLY_REPORT,
+    [monthlyReports]
+  );
+
+  const updateMonthlyReport = useCallback(
+    (month: string, patch: Partial<MonthlyReport>) => {
+      setMonthlyReports((prev) => ({
+        ...prev,
+        [month]: { ...EMPTY_MONTHLY_REPORT, ...prev[month], ...patch },
+      }));
+    },
+    [setMonthlyReports]
+  );
+
   const toggleRecruiterOnState = useCallback(
     (state: string, recruiter: string) => {
       setRecruiterAssignments((prev) => {
@@ -356,6 +385,9 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     getRecruiterStatus,
     setRecruiterStatus,
     compareRecruitersByStatus,
+    monthlyReports,
+    getMonthlyReport,
+    updateMonthlyReport,
   };
 
   return <CarrierMapContext.Provider value={value}>{children}</CarrierMapContext.Provider>;

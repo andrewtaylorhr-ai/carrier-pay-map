@@ -6,6 +6,7 @@ import { currentAndNextMonth } from "@/lib/recruiters";
 import { exportTeamReportToExcel, type TeamReportRow } from "@/lib/exportRecruiterReport";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { StatePerformancePanel } from "@/components/carrier-map/StatePerformancePanel";
+import { ColorModeBar } from "@/components/carrier-map/ColorModeBar";
 import { DetailCard } from "@/components/carrier-map/DetailCard";
 import { MonthlyTrendCard } from "@/components/dashboard/MonthlyTrendCard";
 import { ReportsHeader } from "./ReportsHeader";
@@ -132,6 +133,9 @@ export function ReportsDashboard() {
           map still renders correctly inside the page's new light theme,
           without touching ChoroplethMap.tsx's D3 internals. */}
       <div className="app-dark rounded-xl -mx-6 mb-4 pb-4">
+        <div className="px-6 pt-4">
+          <ColorModeBar />
+        </div>
         <StatePerformancePanel />
         <div className="px-6">
           <DetailCard />

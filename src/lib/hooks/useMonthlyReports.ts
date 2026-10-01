@@ -17,7 +17,6 @@ const AUGUST_2026: MonthlyReport = {
   totalDqp: 147,
   dqFromDqp: 75,
   activeRecruiters: 32,
-  bestState: "CA, FL, TX",
   totalIndeedSpend: 53580,
   indeedAccountsTotal: 34,
   indeedAccountsActive: 11,
@@ -52,6 +51,10 @@ const AUGUST_2026: MonthlyReport = {
     { carrier: "TA Dedicated", submissions: 2, dqNoResponse: 2, hired: 0, notes: "" },
     { carrier: "Transco Lines, Inc.", submissions: 5, dqNoResponse: 5, hired: 0, notes: "" },
   ],
+  // No per-state or DQ-reason breakdown was provided for August — left
+  // empty rather than fabricated, matching this app's honest-data convention.
+  stateBreakdown: [],
+  dqReasons: [],
 };
 
 const DEFAULT_MONTHLY_REPORTS: PersistedMonthlyReports = {

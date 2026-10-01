@@ -184,6 +184,27 @@ export interface WeeklySubmissionStat {
   submissions: number | null;
 }
 
+// One row of the per-state monthly breakdown. Real data entry (not a
+// computed/guessed value) — this is what the "Hires" map color mode reads
+// to shade each state, so the user can visually spot their best state by
+// color instead of a single computed "Best State" text field (which this
+// replaces entirely, per explicit user direction).
+export interface StateMonthlyStat {
+  state: string; // full state name, matches ALL_STATES / topojson properties.name
+  submissions: number | null;
+  hired: number | null;
+  notes: string;
+}
+
+// One row of the per-month DQ-reason breakdown. "% of Lost Drivers" is
+// always computed live (count / total DQ'd that month), never stored,
+// matching this app's "derive, don't duplicate" convention.
+export interface DqReasonStat {
+  reason: string;
+  count: number | null;
+  notes: string;
+}
+
 // Fields the user enters by hand each month (not derivable from other data
 // already in the app) — everything else (Hire %, Leads→Hire %, Avg per
 // recruiter, Best Carrier, totals) is computed live from these + the
@@ -198,13 +219,14 @@ export interface MonthlyReport {
   totalDqp: number | null;
   dqFromDqp: number | null;
   activeRecruiters: number | null;
-  bestState: string;
   totalIndeedSpend: number | null;
   indeedAccountsTotal: number | null;
   indeedAccountsActive: number | null;
   averageCpl: number | null;
   weeklySubmissions: WeeklySubmissionStat[];
   carriers: CarrierMonthlyStat[];
+  stateBreakdown: StateMonthlyStat[];
+  dqReasons: DqReasonStat[];
 }
 export type PersistedMonthlyReports = Record<string, MonthlyReport>;
 
@@ -213,11 +235,12 @@ export const EMPTY_MONTHLY_REPORT: MonthlyReport = {
   totalDqp: null,
   dqFromDqp: null,
   activeRecruiters: null,
-  bestState: "",
   totalIndeedSpend: null,
   indeedAccountsTotal: null,
   indeedAccountsActive: null,
   averageCpl: null,
   weeklySubmissions: [],
   carriers: [],
+  stateBreakdown: [],
+  dqReasons: [],
 };

@@ -87,7 +87,7 @@ export function Legend() {
       />
       <span>{legend.maxLabel}</span>
       <span style={{ marginLeft: 16 }}>gray = no data for this category</span>
-      <span style={{ marginLeft: 16 }}>darker = higher pay · click a state for details</span>
+      <span style={{ marginLeft: 16 }}>{legend.hint ?? "darker = higher pay · click a state for details"}</span>
     </div>
   );
 }

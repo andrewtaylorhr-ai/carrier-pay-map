@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { max as d3max, min as d3min } from "d3-array";
 import { scaleSequential } from "d3-scale";
-import { interpolateBlues } from "d3-scale-chromatic";
+import { interpolateBlues, interpolateGreens } from "d3-scale-chromatic";
 import { ALL_STATES, CARRIERS, CARRIER_ORDER } from "@/lib/carriers/data";
 import { getStateRecord, isFlatCategory } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
@@ -47,6 +47,8 @@ export function useMapStyle(): MapStyle {
     recruiters,
     recruiterColor,
     recruiterAssignments,
+    getMonthlyReport,
+    reportsActiveMonth,
   } = useCarrierMap();
 
   const gradients = useMemo<GradientSpec[]>(() => {
@@ -87,6 +89,40 @@ export function useMapStyle(): MapStyle {
           ? { kind: "recruiter-filtered", name: recruiterFilter, color: recruiterColor(recruiterFilter) }
           : { kind: "recruiter-all", items: recruiters.map((r) => ({ name: r, color: recruiterColor(r) })) };
         return { legend, getStyle, gradients, getRecruiterLabel: makeRecruiterLabelFn(recruiterAssignments, recruiterFilter) };
+      }
+      if (colorMode === "hires") {
+        const report = getMonthlyReport(reportsActiveMonth);
+        const hiresByState = new Map<string, number>();
+        report.stateBreakdown.forEach((row) => {
+          if (row.state && row.hired != null) {
+            hiresByState.set(row.state, (hiresByState.get(row.state) ?? 0) + row.hired);
+          }
+        });
+        const vals = Array.from(hiresByState.values()).filter((v) => v > 0);
+        const min = vals.length ? (d3min(vals) ?? 0) : 0;
+        const max = vals.length ? (d3max(vals) ?? 1) : 1;
+        const color = scaleSequential(interpolateGreens).domain([min === max ? 0 : min, max || 1]);
+        const getStyle = (stateName: string): StateStyle => {
+          const hired = hiresByState.get(stateName);
+          const fill = hired ? color(hired) : NO_VALUE_FILL;
+          return {
+            fill,
+            stroke: DEFAULT_STROKE,
+            strokeWidth: 0.75,
+            opacity: 1,
+            cursor: "pointer",
+          };
+        };
+        const legend: LegendSpec = {
+          kind: "gradient",
+          minLabel: vals.length ? "fewest hires" : "n/a",
+          maxLabel: vals.length ? "most hires" : "",
+          minColor: vals.length ? color(min) : NO_VALUE_FILL,
+          maxColor: vals.length ? color(max) : NO_VALUE_FILL,
+          hasData: vals.length > 0,
+          hint: "darker green = more hires this month · click a state for details",
+        };
+        return { legend, getStyle, gradients: [], getRecruiterLabel: () => "" };
       }
       // colorMode === 'carrier'
       const getStyle = (stateName: string): StateStyle => {
@@ -168,6 +204,8 @@ export function useMapStyle(): MapStyle {
     currentCarrier,
     currentCat,
     gradients,
+    getMonthlyReport,
+    reportsActiveMonth,
   ]);
 }
 

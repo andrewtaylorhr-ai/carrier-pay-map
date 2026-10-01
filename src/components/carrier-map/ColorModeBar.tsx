@@ -19,6 +19,9 @@ export function ColorModeBar() {
       >
         Recruiter
       </button>
+      <button type="button" className={colorMode === "hires" ? "active" : undefined} onClick={() => setColorMode("hires")}>
+        Hires
+      </button>
     </div>
   );
 }

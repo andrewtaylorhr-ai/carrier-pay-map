@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Award,
   Banknote,
   ClipboardList,
   Hourglass,
-  MapPin,
   Megaphone,
   Percent,
   Plus,
@@ -19,6 +18,8 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import { StatCard } from "@/components/shared/StatCard";
 import type { CarrierMonthlyStat, MonthlyReport, WeeklySubmissionStat } from "@/lib/carriers/types";
 import { CarrierBreakdownTable } from "./CarrierBreakdownTable";
+import { StateBreakdownTable } from "./StateBreakdownTable";
+import { DqReasonsTable } from "./DqReasonsTable";
 
 function formatMonthLabel(key: string): string {
   const [y, m] = key.split("-").map(Number);
@@ -49,19 +50,30 @@ const inputCls =
 // "YYYY-MM"), unlike the forward-looking currentAndNextMonth() used by the
 // Strategy Plan / recruiter actuals tables.
 export function MonthlyReportSection() {
-  const { monthlyReports, getMonthlyReport, updateMonthlyReport } = useCarrierMap();
+  const { monthlyReports, getMonthlyReport, updateMonthlyReport, reportsActiveMonth, setReportsActiveMonth } =
+    useCarrierMap();
 
   const monthKeys = useMemo(() => Object.keys(monthlyReports).sort().reverse(), [monthlyReports]);
-  const [selectedMonth, setSelectedMonth] = useState<string>(monthKeys[0] ?? "");
   const [newMonthInput, setNewMonthInput] = useState("");
 
-  const activeMonth = selectedMonth && monthlyReports[selectedMonth] ? selectedMonth : monthKeys[0] ?? "";
+  const activeMonth =
+    reportsActiveMonth && monthlyReports[reportsActiveMonth] ? reportsActiveMonth : monthKeys[0] ?? "";
   const report = activeMonth ? getMonthlyReport(activeMonth) : null;
+
+  // Sync the context-level "active month" to this fallback as soon as we
+  // know it, so the map's Hires color mode (which reads reportsActiveMonth
+  // directly, outside this component) shows the same month's data the user
+  // sees here by default, not an empty report before any pill is clicked.
+  useEffect(() => {
+    if (activeMonth && activeMonth !== reportsActiveMonth) {
+      setReportsActiveMonth(activeMonth);
+    }
+  }, [activeMonth, reportsActiveMonth, setReportsActiveMonth]);
 
   const handleAddMonth = () => {
     if (!newMonthInput || monthlyReports[newMonthInput]) return;
     updateMonthlyReport(newMonthInput, {});
-    setSelectedMonth(newMonthInput);
+    setReportsActiveMonth(newMonthInput);
     setNewMonthInput("");
   };
 
@@ -115,7 +127,7 @@ export function MonthlyReportSection() {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setSelectedMonth(key)}
+                  onClick={() => setReportsActiveMonth(key)}
                   className={`px-3 h-7 rounded-md text-[12px] font-semibold transition-colors ${
                     activeMonth === key
                       ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
@@ -168,7 +180,6 @@ export function MonthlyReportSection() {
             <StatCard icon={Users} label="Avg submissions / recruiter" value={avgSubPerRecruiter != null ? avgSubPerRecruiter.toFixed(1) : "—"} color="amber" />
             <StatCard icon={Award} label="Avg hires / recruiter" value={avgHiresPerRecruiter != null ? avgHiresPerRecruiter.toFixed(1) : "—"} color="amber" />
             <StatCard icon={Trophy} label="Best carrier" value={bestCarrier ? bestCarrier.carrier || "—" : "—"} sub={bestCarrier ? `${bestCarrier.hired ?? 0} hires` : undefined} color="green" />
-            <StatCard icon={MapPin} label="Best state(s)" value={report.bestState || "—"} color="purple" />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-4">
@@ -214,16 +225,6 @@ export function MonthlyReportSection() {
                 placeholder="—"
                 onChange={(e) => patch({ activeRecruiters: e.target.value === "" ? null : Number(e.target.value) })}
                 className={`tabular-nums ${inputCls}`}
-              />
-            </label>
-            <label className="text-[11px] text-[var(--cpm-text-faint)] flex flex-col gap-1">
-              Best state(s)
-              <input
-                type="text"
-                value={report.bestState}
-                placeholder="—"
-                onChange={(e) => patch({ bestState: e.target.value })}
-                className={inputCls}
               />
             </label>
             <label className="text-[11px] text-[var(--cpm-text-faint)] flex flex-col gap-1">
@@ -331,7 +332,11 @@ export function MonthlyReportSection() {
             )}
           </div>
 
-          <CarrierBreakdownTable month={activeMonth} />
+          <div className="flex flex-col gap-4">
+            <CarrierBreakdownTable month={activeMonth} />
+            <StateBreakdownTable month={activeMonth} />
+            <DqReasonsTable month={activeMonth} />
+          </div>
         </>
       )}
     </div>

@@ -12,5 +12,9 @@ export type LegendSpec =
       minColor: string;
       maxColor: string;
       hasData: boolean;
+      // overrides the default pay-view caption text below the gradient bar
+      // (e.g. for the "Hires" map color mode); falls back to the pay-view
+      // text when omitted.
+      hint?: string;
     }
   | { kind: "empty" };

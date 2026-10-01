@@ -43,7 +43,7 @@ export const EMPTY_RECRUITER_ACTUAL: RecruiterActual = {
   hires: null,
 };
 
-export type ColorMode = "carrier" | "recruiter";
+export type ColorMode = "carrier" | "recruiter" | "hires";
 
 interface CarrierMapContextValue {
   // toolbar / view state
@@ -123,6 +123,13 @@ interface CarrierMapContextValue {
   monthlyReports: PersistedMonthlyReports;
   getMonthlyReport: (month: string) => MonthlyReport;
   updateMonthlyReport: (month: string, patch: Partial<MonthlyReport>) => void;
+
+  // which Monthly Report month is currently active on the /reports page —
+  // lifted to context (not local component state) so the map's "Hires"
+  // color mode can read the same month's stateBreakdown the user is
+  // currently viewing/editing.
+  reportsActiveMonth: string;
+  setReportsActiveMonth: (month: string) => void;
 }
 
 const CarrierMapContext = createContext<CarrierMapContextValue | null>(null);
@@ -147,6 +154,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [recruiterActuals, setRecruiterActuals] = useRecruiterActuals();
   const [recruiterStatus, setRecruiterStatusMap] = useRecruiterStatus();
   const [monthlyReports, setMonthlyReports] = useMonthlyReports();
+  const [reportsActiveMonth, setReportsActiveMonth] = useState<string>("");
 
   const setCarrier = useCallback((id: CarrierId) => {
     setCurrentCarrier(id);
@@ -388,6 +396,8 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     monthlyReports,
     getMonthlyReport,
     updateMonthlyReport,
+    reportsActiveMonth,
+    setReportsActiveMonth,
   };
 
   return <CarrierMapContext.Provider value={value}>{children}</CarrierMapContext.Provider>;

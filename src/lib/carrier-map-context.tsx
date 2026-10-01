@@ -325,7 +325,12 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   );
 
   const getMonthlyReport = useCallback(
-    (month: string): MonthlyReport => monthlyReports[month] ?? EMPTY_MONTHLY_REPORT,
+    // Merge (not just fall back) against EMPTY_MONTHLY_REPORT: reports saved
+    // to localStorage before a schema field was added (e.g. stateBreakdown/
+    // dqReasons) would otherwise come back with that field `undefined`,
+    // crashing any table that calls .reduce()/.map() on it. updateMonthlyReport
+    // already merges on write; this makes every read self-healing too.
+    (month: string): MonthlyReport => ({ ...EMPTY_MONTHLY_REPORT, ...monthlyReports[month] }),
     [monthlyReports]
   );
 

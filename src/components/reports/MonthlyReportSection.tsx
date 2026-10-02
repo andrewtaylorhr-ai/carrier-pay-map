@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Award,
   Banknote,
@@ -15,17 +15,12 @@ import {
   Users,
 } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
+import { formatMonthLabel } from "@/lib/recruiters";
 import { StatCard } from "@/components/shared/StatCard";
 import type { CarrierMonthlyStat, MonthlyReport, WeeklySubmissionStat } from "@/lib/carriers/types";
 import { CarrierBreakdownTable } from "./CarrierBreakdownTable";
 import { StateBreakdownTable } from "./StateBreakdownTable";
 import { DqReasonsTable } from "./DqReasonsTable";
-
-function formatMonthLabel(key: string): string {
-  const [y, m] = key.split("-").map(Number);
-  if (!y || !m) return key;
-  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
 
 function bestCarrierOf(carriers: CarrierMonthlyStat[]): CarrierMonthlyStat | null {
   if (!carriers.length) return null;
@@ -54,7 +49,6 @@ export function MonthlyReportSection() {
     useCarrierMap();
 
   const monthKeys = useMemo(() => Object.keys(monthlyReports).sort().reverse(), [monthlyReports]);
-  const [newMonthInput, setNewMonthInput] = useState("");
 
   const activeMonth =
     reportsActiveMonth && monthlyReports[reportsActiveMonth] ? reportsActiveMonth : monthKeys[0] ?? "";
@@ -69,13 +63,6 @@ export function MonthlyReportSection() {
       setReportsActiveMonth(activeMonth);
     }
   }, [activeMonth, reportsActiveMonth, setReportsActiveMonth]);
-
-  const handleAddMonth = () => {
-    if (!newMonthInput || monthlyReports[newMonthInput]) return;
-    updateMonthlyReport(newMonthInput, {});
-    setReportsActiveMonth(newMonthInput);
-    setNewMonthInput("");
-  };
 
   const patch = (p: Partial<MonthlyReport>) => {
     if (!activeMonth) return;
@@ -120,47 +107,17 @@ export function MonthlyReportSection() {
         <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--cpm-text-faint)]">
           Monthly report
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {monthKeys.length > 0 && (
-            <div className="flex items-center gap-1 rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] p-0.5">
-              {monthKeys.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setReportsActiveMonth(key)}
-                  className={`px-3 h-7 rounded-md text-[12px] font-semibold transition-colors ${
-                    activeMonth === key
-                      ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
-                      : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
-                  }`}
-                >
-                  {formatMonthLabel(key)}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="flex items-center gap-1">
-            <input
-              type="month"
-              value={newMonthInput}
-              onChange={(e) => setNewMonthInput(e.target.value)}
-              className={`h-7 ${inputCls}`}
-            />
-            <button
-              type="button"
-              onClick={handleAddMonth}
-              disabled={!newMonthInput || !!monthlyReports[newMonthInput]}
-              className="flex items-center gap-1 px-2.5 h-7 rounded-md text-[11.5px] font-semibold bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)] hover:border-[var(--cpm-border-strong)] transition-colors disabled:opacity-40 disabled:cursor-default"
-            >
-              <Plus size={13} /> Add month
-            </button>
-          </div>
-        </div>
+        {/* Month switching + "Add month" now live in the sidebar
+            (ReportsMonthNav) — the old pill row here only had room for 2-3
+            months before overflowing. This just names which month is showing. */}
+        {activeMonth && (
+          <div className="text-[13px] font-semibold text-[var(--cpm-text)]">{formatMonthLabel(activeMonth)}</div>
+        )}
       </div>
 
       {!report ? (
         <div className="text-[12.5px] text-[var(--cpm-text-faint)] italic py-4">
-          No monthly report yet — add a month above to start entering data.
+          No monthly report yet — add a month from the sidebar to start entering data.
         </div>
       ) : (
         <>

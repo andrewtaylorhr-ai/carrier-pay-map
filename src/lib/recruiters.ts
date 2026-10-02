@@ -60,6 +60,15 @@ export function monthKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+// Shared "YYYY-MM" -> "Aug 2026" label formatter. Used by the Monthly Report
+// card and the sidebar's month nav (ReportsMonthNav) so they always render
+// identical labels for the same stored key.
+export function formatMonthLabel(key: string): string {
+  const [y, m] = key.split("-").map(Number);
+  if (!y || !m) return key;
+  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
 export function currentAndNextMonth(): MonthOption[] {
   const now = new Date();
   return [0, 1].map((i) => {

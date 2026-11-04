@@ -1,21 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, X } from "lucide-react";
 import { ChoroplethMap } from "@/components/carrier-map/ChoroplethMap";
-import { RecruiterAccountsPanel } from "@/components/carrier-map/RecruiterAccountsPanel";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
-import { carrierAccounts } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { exportRecruiterReportToExcel, recruiterStates } from "@/lib/exportRecruiterReport";
+import { CarrierAccountsStep } from "./CarrierAccountsStep";
 
-const STEPS = ["Recruiter", "States", "Carriers", "Accounts", "Download"] as const;
-type Step = 0 | 1 | 2 | 3 | 4;
+const STEPS = ["Recruiter", "States", "Carriers & accounts", "Download"] as const;
+type Step = 0 | 1 | 2 | 3;
 
 // The manager's guided flow for building one recruiter's plan, one decision
-// per screen: who → which states → which carriers in those states → which
-// accounts → download. All data is the same context state the rest of the
+// per screen: who → which states → which carriers and accounts in each
+// state → download. All data is the same context state the rest of the
 // app uses (recruiterAssignments / assignments / recruiterAccounts), so the
 // Team Overview page and the reports stay in sync.
 export function StrategyWizard() {
@@ -49,7 +48,7 @@ export function StrategyWizard() {
         <div>
           <h1 className="text-[22px] font-bold text-[var(--cpm-text)]">Strategy Builder</h1>
           <p className="text-[13px] text-[var(--cpm-text-dim)] mt-0.5">
-            Build a recruiter&apos;s plan in five steps, then download it to send to them.
+            Build a recruiter&apos;s plan in four steps, then download it to send to them.
           </p>
         </div>
         {recruiterFilter && step > 0 && (
@@ -77,9 +76,8 @@ export function StrategyWizard() {
           />
         )}
         {step === 1 && <StatesStep />}
-        {step === 2 && <CarriersStep />}
-        {step === 3 && <AccountsStep />}
-        {step === 4 && (
+        {step === 2 && <CarrierAccountsStep />}
+        {step === 3 && (
           <DownloadStep
             onNext={() => {
               setRecruiterFilter("");
@@ -94,7 +92,7 @@ export function StrategyWizard() {
           <button type="button" className="wizBtn ghost" onClick={() => go((step - 1) as Step)}>
             <ArrowLeft size={15} /> Back
           </button>
-          {step < 4 && (
+          {step < 3 && (
             <button type="button" className="wizBtn primary" onClick={() => go((step + 1) as Step)}>
               Next: {STEPS[step + 1]} <ArrowRight size={15} />
             </button>
@@ -141,19 +139,17 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
     recruiterAccounts,
     getRecruiterStatus,
     getRecruiterTeam,
-    compareRecruitersByStatus,
     addRecruiter,
   } = useCarrierMap();
   const [query, setQuery] = useState("");
-  const [showFormer, setShowFormer] = useState(false);
   const [newName, setNewName] = useState("");
   const [err, setErr] = useState("");
 
-  const list = recruiters
-    .filter((r) => (showFormer || getRecruiterStatus(r) !== "inactive") && r.toLowerCase().includes(query.trim().toLowerCase()))
-    .slice()
-    .sort(compareRecruitersByStatus);
-  const formerCount = recruiters.filter((r) => getRecruiterStatus(r) === "inactive").length;
+  // Active recruiters only — former recruiters stay in Team Overview / Reports
+  // history but can't be planned for.
+  const list = recruiters.filter(
+    (r) => getRecruiterStatus(r) !== "inactive" && r.toLowerCase().includes(query.trim().toLowerCase())
+  );
 
   const add = () => {
     const problem = addRecruiter(newName);
@@ -172,17 +168,6 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
           <Search size={14} />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search recruiters…" />
         </div>
-        {formerCount > 0 && (
-          <label className="flex items-center gap-1.5 text-[12.5px] text-[var(--cpm-text-dim)] cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showFormer}
-              onChange={(e) => setShowFormer(e.target.checked)}
-              className="accent-[var(--cpm-accent)]"
-            />
-            Show former recruiters ({formerCount})
-          </label>
-        )}
       </div>
 
       <div className="grid gap-2.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
@@ -190,7 +175,6 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
           const states = recruiterStates(r, recruiterAssignments).length;
           const accounts = (recruiterAccounts[r] || []).length;
           const team = getRecruiterTeam(r);
-          const former = getRecruiterStatus(r) === "inactive";
           return (
             <button key={r} type="button" className="recruiterCard" onClick={() => onPick(r)}>
               <span className="flex items-center gap-2 min-w-0">
@@ -198,9 +182,9 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
                   {r.slice(0, 1).toUpperCase()}
                 </span>
                 <span className="min-w-0 text-left">
-                  <span className={`block font-semibold truncate ${former ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}>{r}</span>
+                  <span className="block font-semibold truncate text-[var(--cpm-text)]">{r}</span>
                   <span className="block text-[11.5px] text-[var(--cpm-text-faint)]">
-                    {former ? "Former recruiter" : team === "uzbek" ? "Uzbek team" : team === "philippines" ? "Philippines team" : "No team"}
+                    {team === "uzbek" ? "Uzbek team" : team === "philippines" ? "Philippines team" : "No team"}
                   </span>
                 </span>
               </span>
@@ -311,110 +295,7 @@ function StatesStep() {
   );
 }
 
-/* ---------- 3. Carriers ---------- */
-function CarriersStep() {
-  const { recruiterFilter, recruiterAssignments, assignments, toggleCarrierOnState } = useCarrierMap();
-  const states = recruiterStates(recruiterFilter, recruiterAssignments);
-
-  const counts = useMemo(() => {
-    const out: Record<string, Record<string, number>> = {};
-    states.forEach((s) => {
-      out[s] = {};
-      CARRIER_ORDER.forEach((id) => (out[s][id] = carrierAccounts(id, undefined, s).length));
-    });
-    return out;
-  }, [states]);
-
-  if (!states.length) return <EmptyStep text="Add at least one state first (go back to States)." />;
-
-  const allOn = (id: (typeof CARRIER_ORDER)[number]) => states.every((s) => (assignments[s] || []).includes(id));
-  const setAll = (id: (typeof CARRIER_ORDER)[number], on: boolean) =>
-    states.forEach((s) => {
-      if ((assignments[s] || []).includes(id) !== on) toggleCarrierOnState(s, id);
-    });
-
-  return (
-    <>
-      <StepTitle
-        title={`Which carriers should ${recruiterFilter} work in each state?`}
-        hint="Click a carrier to turn it on or off. The number is how many open accounts that carrier has in the state. Carriers are set per state, so recruiters who share a state see the same carriers."
-      />
-      <div className="overflow-x-auto">
-        <table className="wizTable">
-          <thead>
-            <tr>
-              <th>State</th>
-              {CARRIER_ORDER.map((id) => (
-                <th key={id} className="text-center">
-                  <span style={{ color: CARRIERS[id].color }}>{CARRIERS[id].label}</span>
-                </th>
-              ))}
-            </tr>
-            <tr className="allRow">
-              <td>All {states.length} states</td>
-              {CARRIER_ORDER.map((id) => {
-                const on = allOn(id);
-                return (
-                  <td key={id} className="text-center">
-                    <button type="button" className="linkBtn" onClick={() => setAll(id, !on)}>
-                      {on ? "Clear all" : "Select all"}
-                    </button>
-                  </td>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {states.map((s) => (
-              <tr key={s}>
-                <td className="font-semibold text-[var(--cpm-text)] whitespace-nowrap">{s}</td>
-                {CARRIER_ORDER.map((id) => {
-                  const on = (assignments[s] || []).includes(id);
-                  const n = counts[s]?.[id] ?? 0;
-                  const c = CARRIERS[id];
-                  return (
-                    <td key={id} className="text-center">
-                      <button
-                        type="button"
-                        className={`cellToggle${on ? " on" : ""}${n ? "" : " empty"}`}
-                        style={on ? { background: c.color, borderColor: c.color } : undefined}
-                        onClick={() => toggleCarrierOnState(s, id)}
-                        title={`${c.label} in ${s}: ${n} open account${n === 1 ? "" : "s"}`}
-                      >
-                        {on && <Check size={13} strokeWidth={3} />}
-                        <span>{n}</span>
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  );
-}
-
-/* ---------- 4. Accounts ---------- */
-function AccountsStep() {
-  const { recruiterFilter, recruiterAssignments } = useCarrierMap();
-  if (!recruiterStates(recruiterFilter, recruiterAssignments).length)
-    return <EmptyStep text="Add at least one state first (go back to States)." />;
-  return (
-    <>
-      <StepTitle
-        title={`Which accounts should ${recruiterFilter} work?`}
-        hint="These are the open accounts in their states for the carriers you picked. Tick the ones to send. Open a carrier to see its accounts."
-      />
-      <div className="wizEmbed">
-        <RecruiterAccountsPanel />
-      </div>
-    </>
-  );
-}
-
-/* ---------- 5. Download ---------- */
+/* ---------- 4. Download ---------- */
 function DownloadStep({ onNext }: { onNext: () => void }) {
   const { recruiterFilter, recruiterAssignments, recruiterAccounts, assignments } = useCarrierMap();
   const states = recruiterStates(recruiterFilter, recruiterAssignments);
@@ -434,7 +315,7 @@ function DownloadStep({ onNext }: { onNext: () => void }) {
         <SummaryTile
           label="Accounts"
           value={accounts}
-          sub={accounts ? "ticked in step 4" : "none ticked — file will list all accounts in these states"}
+          sub={accounts ? "ticked in step 3" : "none ticked — the file will list every open account in these states"}
         />
       </div>
       <div className="flex items-center gap-3 flex-wrap mb-2">

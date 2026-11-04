@@ -54,6 +54,7 @@ export function useMapStyle(): MapStyle {
     recruiterAssignments,
     getMonthlyReport,
     reportsActiveMonth,
+    selectedState,
   } = useCarrierMap();
 
   const gradients = useMemo<GradientSpec[]>(() => {
@@ -90,10 +91,12 @@ export function useMapStyle(): MapStyle {
             else fill = recruiterColor(arr[0]);
           }
           const opacity = recruiterFilter ? (arr.includes(recruiterFilter) ? 1 : 0.4) : 1;
+          // Strategy Builder: gold outline on the state being edited.
+          const focused = !!recruiterFilter && stateName === selectedState && arr.includes(recruiterFilter);
           return {
             fill,
-            stroke: shared ? "#1a1a1a" : DEFAULT_STROKE,
-            strokeWidth: shared ? 1.6 : 0.75,
+            stroke: focused ? "#f5c451" : shared ? "#1a1a1a" : DEFAULT_STROKE,
+            strokeWidth: focused ? 3 : shared ? 1.6 : 0.75,
             opacity,
             cursor: "pointer",
           };
@@ -222,6 +225,7 @@ export function useMapStyle(): MapStyle {
     carrierGradients,
     getMonthlyReport,
     reportsActiveMonth,
+    selectedState,
   ]);
 }
 

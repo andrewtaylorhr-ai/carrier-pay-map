@@ -4,7 +4,7 @@ import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { BASE_PATH } from "@/lib/basePath";
 
-export function Toolbar() {
+export function Toolbar({ showViewToggle = true }: { showViewToggle?: boolean } = {}) {
   const { currentCarrier, setCarrier, currentCat, setCat, strategyMode, setStrategyMode, setSelectedState } = useCarrierMap();
 
   return (
@@ -59,31 +59,33 @@ export function Toolbar() {
         </div>
       </div>
 
-      <div className="toolbar-group">
-        <div className="toolbar-label">View</div>
-        <div id="modeBar">
-          <button
-            type="button"
-            className={strategyMode ? "active" : undefined}
-            onClick={() => {
-              setStrategyMode(true);
-              setSelectedState(null);
-            }}
-          >
-            Strategy assignment view
-          </button>
-          <button
-            type="button"
-            className={!strategyMode ? "active" : undefined}
-            onClick={() => {
-              setStrategyMode(false);
-              setSelectedState(null);
-            }}
-          >
-            Pay / coverage view
-          </button>
+      {showViewToggle && (
+        <div className="toolbar-group">
+          <div className="toolbar-label">View</div>
+          <div id="modeBar">
+            <button
+              type="button"
+              className={strategyMode ? "active" : undefined}
+              onClick={() => {
+                setStrategyMode(true);
+                setSelectedState(null);
+              }}
+            >
+              Strategy assignment view
+            </button>
+            <button
+              type="button"
+              className={!strategyMode ? "active" : undefined}
+              onClick={() => {
+                setStrategyMode(false);
+                setSelectedState(null);
+              }}
+            >
+              Pay / coverage view
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

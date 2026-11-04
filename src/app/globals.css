@@ -208,4 +208,45 @@ table.cpm td, table.cpm th { border:1px solid var(--cpm-border-strong); padding:
 
 #tip { display:none; position:fixed; pointer-events:none; background:#262b36; border:1px solid var(--cpm-border-strong); border-radius:8px; padding:8px 10px; font-size:12px; color:var(--cpm-text); z-index:10; box-shadow:0 4px 16px rgba(0,0,0,.5); max-width:280px; }
 
-path { stroke:rgba(255,255,255,.18); stroke-width:0.75; cursor:pointer; }
+#map path { stroke:rgba(255,255,255,.18); stroke-width:0.75; cursor:pointer; }
+
+/* ---- Strategy Builder wizard ---- */
+.wizSteps { display:flex; gap:6px; list-style:none; margin:0 0 14px; padding:0; flex-wrap:wrap; }
+.wizSteps li { flex:1; min-width:120px; }
+.wizSteps li button { width:100%; display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; border:1px solid var(--cpm-border); background:var(--cpm-panel); color:var(--cpm-text-faint); font-size:13px; font-weight:600; cursor:pointer; text-align:left; }
+.wizSteps li button:disabled { cursor:default; }
+.wizSteps li .num { width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:1.5px solid var(--cpm-border-strong); flex-shrink:0; }
+.wizSteps li.current button { border-color:var(--cpm-accent); color:var(--cpm-text); background:rgba(212,161,55,.08); }
+.wizSteps li.current .num { background:var(--cpm-accent); border-color:var(--cpm-accent); color:var(--cpm-accent-ink); }
+.wizSteps li.done button { color:var(--cpm-text-dim); }
+.wizSteps li.done .num { background:var(--cpm-green-soft); border-color:var(--cpm-green); color:#4ade80; }
+.wizCard { border:1px solid var(--cpm-border); background:var(--cpm-panel); border-radius:14px; padding:22px 24px; min-height:320px; }
+.wizBtn { display:inline-flex; align-items:center; gap:7px; height:38px; padding:0 16px; border-radius:9px; font-size:13.5px; font-weight:600; cursor:pointer; border:1px solid transparent; }
+.wizBtn.primary { background:var(--cpm-accent); color:var(--cpm-accent-ink); }
+.wizBtn.primary:hover { background:var(--cpm-accent-strong); }
+.wizBtn.ghost { border-color:var(--cpm-border-strong); color:var(--cpm-text); background:var(--cpm-panel-alt); }
+.wizBtn.ghost:hover:not(:disabled) { border-color:var(--cpm-accent); }
+.wizBtn:disabled { opacity:.45; cursor:default; }
+.wizInput { display:flex; align-items:center; gap:7px; height:36px; padding:0 11px; border-radius:9px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text-faint); }
+.wizInput input { background:transparent; outline:none; border:none; font-size:13px; color:var(--cpm-text); width:100%; }
+.wizSelect { height:36px; padding:0 10px; border-radius:9px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text); font-size:13px; }
+.recruiterCard { display:flex; flex-direction:column; align-items:stretch; padding:12px 14px; border-radius:11px; border:1px solid var(--cpm-border); background:var(--cpm-panel-alt); cursor:pointer; font-size:13.5px; transition:border-color .12s, transform .12s; }
+.recruiterCard:hover { border-color:var(--cpm-accent); transform:translateY(-1px); }
+.recruiterCard .avatar { width:32px; height:32px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; color:#fff; font-size:14px; flex-shrink:0; }
+.stateChip { display:inline-flex; align-items:center; gap:5px; padding:4px 6px 4px 10px; border-radius:999px; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border-strong); font-size:12.5px; font-weight:600; color:var(--cpm-text); }
+.stateChip button { display:inline-flex; padding:2px; border-radius:50%; color:var(--cpm-text-faint); }
+.stateChip button:hover { color:var(--cpm-red); background:var(--cpm-red-soft); }
+.wizMap #map { max-width:none; }
+table.wizTable { border-collapse:separate; border-spacing:0; width:100%; font-size:13px; }
+table.wizTable th { font-size:12px; font-weight:700; padding:8px 6px; text-align:left; border-bottom:1px solid var(--cpm-border); white-space:nowrap; }
+table.wizTable td { padding:7px 6px; border-bottom:1px solid var(--cpm-border); }
+table.wizTable tr.allRow td { font-size:11.5px; color:var(--cpm-text-faint); background:rgba(255,255,255,.02); }
+.linkBtn { font-size:11.5px; font-weight:600; color:var(--cpm-accent); cursor:pointer; }
+.linkBtn:hover { text-decoration:underline; }
+.cellToggle { display:inline-flex; align-items:center; justify-content:center; gap:4px; min-width:52px; height:30px; padding:0 8px; border-radius:8px; border:1.5px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text-dim); font-size:12.5px; font-weight:700; cursor:pointer; }
+.cellToggle:hover { border-color:var(--cpm-text-dim); }
+.cellToggle.on { color:#fff; }
+.cellToggle.empty:not(.on) { opacity:.35; }
+.wizEmbed #accountChecklist { border:none; background:transparent; padding:0; margin:0; }
+.wizReport #recruiterReport { margin-top:18px; }
+.wizReport #recruiterReport h2 .exportBtn:first-of-type { display:none; }

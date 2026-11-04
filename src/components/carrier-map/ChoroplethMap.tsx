@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { geoPath, type GeoPath } from "d3-geo";
+import { geoAlbersUsa, geoPath, type GeoPath } from "d3-geo";
 import { select, type Selection } from "d3-selection";
 import { feature } from "topojson-client";
 import type { Feature, Geometry } from "geojson";
 import type { Topology } from "topojson-specification";
-import { CARRIERS } from "@/lib/carriers/data";
+import { CARRIERS, MAJOR_CITIES } from "@/lib/carriers/data";
 import { getStateRecord } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useMapStyle } from "@/lib/hooks/useMapStyle";
@@ -17,13 +17,45 @@ import { Tooltip, type TooltipState } from "./Tooltip";
 type StateFeature = Feature<Geometry, { name: string }>;
 type PathSelection = Selection<SVGPathElement, StateFeature, SVGGElement, unknown>;
 
+// A city marker: one per city that has accounts (see CarrierAccountsStep).
+export interface MapPin {
+  key: string;
+  lon: number;
+  lat: number;
+  label: string;
+  count: number;
+  highlight?: boolean; // has a ticked account
+  active?: boolean; // currently filtering the account list
+}
+
+interface ChoroplethMapProps {
+  // zoom the map to this state (Strategy Builder)
+  zoomTo?: string | null;
+  // draw major reference city labels
+  showCities?: boolean;
+  pins?: MapPin[];
+  onPinClick?: (key: string) => void;
+  // hide the recruiter-name labels stamped on states
+  hideStateLabels?: boolean;
+}
+
+// Same projection the states-albers-10m topojson was pre-projected with.
+const PROJECT = geoAlbersUsa().scale(1300).translate([487.5, 305]);
+const VIEW_W = 975;
+const VIEW_H = 610;
+
 // D3 owns the map: paths are joined to topojson features exactly once on
 // mount, then every subsequent render only pushes attribute updates through
 // a D3 selection — React never re-renders the <path> list itself. This
 // avoids React reconciliation cost on every hover/recolor and matches the
 // original app's imperative update loop (updateMap()).
-export function ChoroplethMap() {
+export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinClick, hideStateLabels = false }: ChoroplethMapProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
+  const cityGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
+  const pinGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
+  const onPinClickRef = useRef(onPinClick);
+  onPinClickRef.current = onPinClick;
   const gRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
   const labelGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
   const defsRef = useRef<Selection<SVGDefsElement, unknown, null, undefined> | null>(null);
@@ -75,12 +107,15 @@ export function ChoroplethMap() {
     const container = select(containerRef.current);
     const svg = container
       .append("svg")
-      .attr("viewBox", "0 0 975 610")
-      .attr("width", "100%")
-      .attr("height", "auto");
+      .attr("viewBox", `0 0 ${VIEW_W} ${VIEW_H}`)
+      .attr("width", "100%");
     const defs = svg.append("defs");
-    const g = svg.append("g");
-    const labelG = svg.append("g").attr("class", "stateLabelsGroup");
+    const zoomG = svg.append("g").attr("class", "zoomLayer");
+    const g = zoomG.append("g");
+    const labelG = zoomG.append("g").attr("class", "stateLabelsGroup");
+    cityGRef.current = zoomG.append("g").attr("class", "cityLayer");
+    pinGRef.current = zoomG.append("g").attr("class", "pinLayer");
+    zoomGRef.current = zoomG;
     defsRef.current = defs;
     gRef.current = g;
     labelGRef.current = labelG;
@@ -159,6 +194,9 @@ export function ChoroplethMap() {
     return () => {
       cancelled = true;
       svg.remove();
+      zoomGRef.current = null;
+      cityGRef.current = null;
+      pinGRef.current = null;
       gRef.current = null;
       labelGRef.current = null;
       defsRef.current = null;
@@ -201,7 +239,8 @@ export function ChoroplethMap() {
 
     labelG.selectAll("text").remove();
     labelG.selectAll("g.stateLabelG").remove();
-    const showLabels = mapStyle.legend.kind === "recruiter-filtered" || mapStyle.legend.kind === "recruiter-all";
+    const showLabels =
+      !hideStateLabels && (mapStyle.legend.kind === "recruiter-filtered" || mapStyle.legend.kind === "recruiter-all");
     if (showLabels) {
       renderStateLabels(
         labelG,
@@ -212,7 +251,111 @@ export function ChoroplethMap() {
         mapStyle.getRecruiterLabel
       );
     }
-  }, [mapStyle, mapReady, recruiterAssignments, recruiterColor]);
+  }, [mapStyle, mapReady, recruiterAssignments, recruiterColor, hideStateLabels]);
+
+  // ---- Zoom to a state + city labels + account pins ----
+  // Everything inside zoomG scales together; marker sizes and label fonts are
+  // divided by the zoom factor so they stay the same size on screen.
+  const pinsKey = JSON.stringify(pins ?? []);
+  useEffect(() => {
+    const zoomG = zoomGRef.current;
+    const cityG = cityGRef.current;
+    const pinG = pinGRef.current;
+    const features = featuresRef.current;
+    if (!zoomG || !cityG || !pinG || !features || !mapReady) return;
+
+    let k = 1;
+    let tx = 0;
+    let ty = 0;
+    const target = zoomTo ? features.find((f) => f.properties.name === zoomTo) : null;
+    if (target) {
+      const [[x0, y0], [x1, y1]] = pathGenRef.current.bounds(target);
+      k = Math.min(8, 0.82 / Math.max((x1 - x0) / VIEW_W, (y1 - y0) / VIEW_H));
+      tx = VIEW_W / 2 - k * ((x0 + x1) / 2);
+      ty = VIEW_H / 2 - k * ((y0 + y1) / 2);
+    }
+    zoomG.attr("transform", `translate(${tx},${ty}) scale(${k})`);
+    select(containerRef.current).classed("zoomed", k > 1);
+
+    // Labels claim boxes (map units) as they're placed; a later label that
+    // would overlap one is skipped. Busiest pins go first, then reference cities.
+    const boxes: [number, number, number, number][] = [];
+    const fits = (x: number, y: number, w: number, h: number) => {
+      const free = !boxes.some(([bx, by, bw, bh]) => x < bx + bw && bx < x + w && y < by + bh && by < y + h);
+      if (free) boxes.push([x, y, w, h]);
+      return free;
+    };
+    const PIN_FONT = 15 / k;
+    const CITY_FONT = 12.5 / k;
+    const sortedPins = (pins ?? []).slice().sort((a, b) => Number(!!b.active) - Number(!!a.active) || b.count - a.count);
+    const placed = sortedPins
+      .map((pin) => ({ pin, p: PROJECT([pin.lon, pin.lat]) }))
+      .filter((x): x is { pin: MapPin; p: [number, number] } => !!x.p)
+      .map(({ pin, p }) => {
+        const r = (7 + Math.min(7, Math.sqrt(pin.count) * 1.8)) / k;
+        boxes.push([p[0] - r, p[1] - r, 2 * r, 2 * r]);
+        return { pin, p, r };
+      });
+    const pinNames = new Set((pins ?? []).map((p) => p.label.toLowerCase()));
+
+    // reference cities: all of them when zoomed in, the biggest 30 otherwise
+    cityG.selectAll("*").remove();
+    const cityLabels: { name: string; p: [number, number] }[] = [];
+    if (showCities) {
+      const list = k > 1 ? MAJOR_CITIES : MAJOR_CITIES.slice(0, 30);
+      list.forEach(([name, , lon, lat]) => {
+        const p = PROJECT([lon, lat]);
+        if (!p || pinNames.has(name.toLowerCase())) return;
+        cityG.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 2.6 / k).attr("class", "refCityDot");
+        cityLabels.push({ name, p });
+      });
+    }
+
+    pinG.selectAll("*").remove();
+    placed.forEach(({ pin, p, r }) => {
+      const g = pinG
+        .append("g")
+        .attr("class", `pin${pin.highlight ? " hl" : ""}${pin.active ? " active" : ""}`)
+        .style("cursor", "pointer")
+        .on("click", (event: MouseEvent) => {
+          event.stopPropagation();
+          onPinClickRef.current?.(pin.key);
+        });
+      g.append("title").text(`${pin.label}: ${pin.count} account${pin.count === 1 ? "" : "s"} — click to show them`);
+      g.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", r).attr("stroke-width", 1.6 / k);
+      g.append("text")
+        .attr("x", p[0])
+        .attr("y", p[1] + 4 / k)
+        .attr("font-size", 11 / k)
+        .attr("text-anchor", "middle")
+        .attr("class", "pinCount")
+        .text(pin.count);
+      const lx = p[0] + r + 3 / k;
+      const w = pin.label.length * PIN_FONT * 0.56;
+      if (pin.active || fits(lx, p[1] - PIN_FONT * 0.7, w, PIN_FONT * 1.1)) {
+        g.append("text")
+          .attr("x", lx)
+          .attr("y", p[1] + PIN_FONT * 0.35)
+          .attr("font-size", PIN_FONT)
+          .attr("stroke-width", 3.5 / k)
+          .attr("class", "pinLabel")
+          .text(pin.label);
+      }
+    });
+    cityLabels.forEach(({ name, p }) => {
+      const lx = p[0] + 5 / k;
+      if (!fits(lx, p[1] - CITY_FONT * 0.7, name.length * CITY_FONT * 0.55, CITY_FONT * 1.1)) return;
+      cityG
+        .append("text")
+        .attr("x", lx)
+        .attr("y", p[1] + CITY_FONT * 0.35)
+        .attr("font-size", CITY_FONT)
+        .attr("stroke-width", 3 / k)
+        .attr("class", "refCityLabel")
+        .text(name);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoomTo, showCities, pinsKey, mapReady]);
 
   return (
     <>

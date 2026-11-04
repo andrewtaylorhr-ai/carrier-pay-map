@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, ChevronRight, Search } from "lucide-react";
-import { ChoroplethMap } from "@/components/carrier-map/ChoroplethMap";
+import { Check, ChevronDown, ChevronRight, MapPin, Search, X } from "lucide-react";
+import { ChoroplethMap, type MapPin as Pin } from "@/components/carrier-map/ChoroplethMap";
 import { carrierAccounts, formatPay } from "@/lib/carriers/accounts";
-import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
-import type { CarrierId } from "@/lib/carriers/types";
+import { CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
+import type { Account, CarrierId } from "@/lib/carriers/types";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { recruiterStates } from "@/lib/exportRecruiterReport";
 
@@ -28,6 +28,8 @@ export function CarrierAccountsStep() {
   } = useCarrierMap();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [cityFilter, setCityFilter] = useState<string | null>(null); // "City|ST"
+  const [wholeUs, setWholeUs] = useState(false);
 
   const states = recruiterStates(recruiterFilter, recruiterAssignments);
   const focus = selectedState && states.includes(selectedState) ? selectedState : states[0] ?? null;
@@ -36,8 +38,31 @@ export function CarrierAccountsStep() {
   // Keep the map's highlighted state in step with the state being edited.
   useEffect(() => {
     if (focus && focus !== selectedState) setSelectedState(focus);
+    setCityFilter(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focus]);
+
+  // One pin per city in the focused state that has open accounts.
+  const code = focus ? STATE_CODE[focus] : "";
+  const citiesHere = (a: Account) => a.cities.filter((c) => c.st === code);
+  const pins = useMemo<Pin[]>(() => {
+    if (!focus) return [];
+    const byCity = new Map<string, Pin>();
+    CARRIER_ORDER.forEach((id) =>
+      carrierAccounts(id, undefined, focus).forEach((a) =>
+        a.cities
+          .filter((c) => c.st === STATE_CODE[focus])
+          .forEach((c) => {
+            const key = `${c.name}|${c.st}`;
+            const pin = byCity.get(key) ?? { key, lon: c.lon, lat: c.lat, label: c.name, count: 0 };
+            pin.count++;
+            if (ticked.has(a.id)) pin.highlight = true;
+            byCity.set(key, pin);
+          })
+      )
+    );
+    return [...byCity.values()].map((p) => ({ ...p, active: p.key === cityFilter }));
+  }, [focus, ticked, cityFilter]);
 
   if (!states.length || !focus) {
     return <div className="py-10 text-center text-[14px] text-[var(--cpm-text-dim)]">Add at least one state first (go back to States).</div>;
@@ -48,14 +73,19 @@ export function CarrierAccountsStep() {
     CARRIER_ORDER.reduce((n, id) => n + carrierAccounts(id, undefined, s).filter((a) => ticked.has(a.id)).length, 0);
 
   const q = query.trim().toLowerCase();
+  const inCity = (a: Account) => !cityFilter || a.cities.some((c) => `${c.name}|${c.st}` === cityFilter);
   const groups = CARRIER_ORDER.map((id) => {
     const all = carrierAccounts(id, undefined, focus);
-    const shown = q ? all.filter((a) => [a.name, a.cat, a.hometime].some((f) => f.toLowerCase().includes(q))) : all;
+    const shown = all
+      .filter(inCity)
+      .filter(
+        (a) => !q || [a.name, a.cat, a.hometime, ...a.cities.map((c) => c.name)].some((f) => f.toLowerCase().includes(q))
+      );
     return { id, all, shown };
-  }).filter((g) => g.all.length);
+  }).filter((g) => g.all.length && (!cityFilter || g.shown.length));
   const noAccounts = CARRIER_ORDER.filter((id) => !carrierAccounts(id, undefined, focus).length);
 
-  const isOpen = (id: CarrierId) => open[`${focus}|${id}`] ?? (!!q || carriersOn(focus).includes(id));
+  const isOpen = (id: CarrierId) => open[`${focus}|${id}`] ?? (!!q || !!cityFilter || carriersOn(focus).includes(id));
   const toggleOpen = (id: CarrierId) => setOpen((p) => ({ ...p, [`${focus}|${id}`]: !isOpen(id) }));
 
   const toggleCarrier = (id: CarrierId) => {
@@ -83,7 +113,8 @@ export function CarrierAccountsStep() {
       <div className="mb-4">
         <h2 className="text-[17px] font-semibold text-[var(--cpm-text)]">Which carriers and accounts should {recruiterFilter} work?</h2>
         <p className="text-[13px] text-[var(--cpm-text-dim)] mt-0.5">
-          Pick a state on the map or below. Then open a carrier to see its accounts in that state and tick the ones to send.
+          Pick a state below or on the map. Pins show the cities with open accounts — click one to see just those
+          accounts. Then tick the accounts to send.
         </p>
       </div>
 
@@ -102,12 +133,28 @@ export function CarrierAccountsStep() {
         })}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-5 mt-4">
-        <div className="lg:w-[42%] shrink-0">
-          <div className="lg:sticky lg:top-4 wizMap">
-            <ChoroplethMap />
-            <div className="text-[11.5px] text-[var(--cpm-text-faint)] mt-1.5">
-              Click one of {recruiterFilter}&apos;s states to work on it. Gold outline = state you&apos;re editing.
+      <div className="flex flex-col xl:flex-row gap-5 mt-4">
+        <div className="xl:w-[56%] shrink-0">
+          <div className="xl:sticky xl:top-4 wizMap bigMap">
+            <ChoroplethMap
+              zoomTo={wholeUs ? null : focus}
+              showCities
+              hideStateLabels
+              pins={pins}
+              onPinClick={(key) => setCityFilter((cur) => (cur === key ? null : key))}
+            />
+            <div className="flex items-center justify-between gap-3 flex-wrap text-[11.5px] text-[var(--cpm-text-faint)] mt-2">
+              <span className="flex items-center gap-3 flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <span className="legendPin" /> city with open accounts (number = accounts)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="legendPin hl" /> has a ticked account
+                </span>
+              </span>
+              <button type="button" className="linkBtn" onClick={() => setWholeUs((w) => !w)}>
+                {wholeUs ? `Zoom to ${focus}` : "Show whole US"}
+              </button>
             </div>
           </div>
         </div>
@@ -121,7 +168,17 @@ export function CarrierAccountsStep() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          {cityFilter && (
+            <div className="cityFilterBar">
+              <MapPin size={14} />
+              Showing accounts in <b>{cityFilter.replace("|", ", ")}</b>
+              <button type="button" onClick={() => setCityFilter(null)}>
+                <X size={13} /> Show all of {focus}
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 accountsScroll">
             {groups.map(({ id, all, shown }) => {
               const c = CARRIERS[id];
               const on = carriersOn(focus).includes(id);
@@ -170,6 +227,11 @@ export function CarrierAccountsStep() {
                                 {a.approval === "Yes" && <span className="apprBadge">needs approval</span>}
                                 {a.sob && <span className="sobTag">{a.sob}</span>}
                               </span>
+                              {citiesHere(a).length > 0 && (
+                                <span className="flex items-center gap-1 text-[11.5px] text-[var(--cpm-accent)] mt-0.5">
+                                  <MapPin size={11} /> {citiesHere(a).map((c) => c.name).join(", ")}
+                                </span>
+                              )}
                               <span className="block text-[12px] text-[var(--cpm-text-dim)] mt-0.5">
                                 <b className="text-[var(--cpm-text)] font-semibold">{formatPay(a)}</b>
                                 {a.hometime ? ` · ${a.hometime}` : ""}

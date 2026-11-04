@@ -12,6 +12,10 @@
   "notes": ", Home weekly for 34-hour Resets",
   "name": "Michaels - 100 miles from Hazelton PA",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -75.6696,
+   40.5625
+  ],
   "states": [
    "Delaware",
    "Maryland",
@@ -32,6 +36,10 @@
   "notes": "delivering to Dollar Tree stores in IL, WI, IN, MI, IA, and KY · . Training will include safe unloading practices.",
   "name": "DT Joliet, IL",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -87.3982,
+   42.2323
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -54,6 +62,10 @@
   "notes": "VA, NC, DC, PA, NH, OH, WV all within 700 miles of the Front Royal, VA DC · 100% touch freight driver unload (box by box via rollers)",
   "name": "FD Front Royal VA",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -78.4201,
+   38.1978
+  ],
   "states": [
    "Delaware",
    "Maryland",
@@ -77,6 +89,10 @@
   "notes": "AL, GA, IN, IL, KY, NC, OH, SC, TN, VA, WV · 100% touch freight, live unload at FD stores with rollers. 3 – 7 stops per load. 3 loads per week",
   "name": "FD Morehead KY",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -83.4377,
+   36.8112
+  ],
   "states": [
    "Georgia",
    "Indiana",
@@ -102,6 +118,10 @@
   "notes": "Deliveries to CT, MA, NH, VT, NY, RI, ME within 1066 miles of Windsor, CT. · 100% touch freight, live unload at Dollar Tree stores, box by box with rollers, with occasional Family Dollar store deliveries.",
   "name": "DT Windsor CT",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -73.0159,
+   41.4532
+  ],
   "states": [
    "Connecticut",
    "Massachusetts",
@@ -126,6 +146,10 @@
   "notes": "Coverage area of FL, GA, SC, and AL · at stores, which can be challenging but financially rewarding.",
   "name": "DT Savannah, GA",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -82.9815,
+   32.4102
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -146,6 +170,10 @@
   "notes": "100% driver unload (box-by-box via rollers). Average 2 loads/week. 3–5 stops per route",
   "name": "FD Maquoketa",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -91.7093,
+   40.329
+  ],
   "states": [
    "Arkansas",
    "Illinois",
@@ -172,6 +200,10 @@
   "notes": "Deliver to IN, MI, IL, OH, WI. · 100% touch freight driver unload (box by box via rollers), Average 3 loads per week",
   "name": "FD Ashley IN",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -84.0661,
+   41.4149
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -195,6 +227,10 @@
   "notes": "of VA, WV, some sections in TN · 100% touch freight. Driver unload using a powered pallet jack (training provided).",
   "name": "Kroger Roanoke VA",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -80.4104,
+   37.1858
+  ],
   "states": [
    "Ohio",
    "Tennessee",
@@ -215,6 +251,10 @@
   "notes": "FL, GA, AL, MS, LA · 100% touch freight, live unload at FD stores with rollers.",
   "name": "FD Marianna FL",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -85.923,
+   30.7833
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -235,6 +275,10 @@
   "notes": "VA, NC, MD, DE & WV · 100% No-Touch - Dry & refrigerated grocery freight",
   "name": "Walmart Gordonsville VA Regional",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -77.665,
+   38.9313
+  ],
   "states": [
    "Maryland",
    "Virginia",
@@ -254,6 +298,10 @@
   "notes": "NJ, NH, NY, PA, ME, MA & VT · 100% No-Touch - Preloaded | Store live unload | DC drop & hook",
   "name": "Tractor Supply Frankfort NY",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -75.8683,
+   42.7681
+  ],
   "states": [
    "Maryland",
    "Massachusetts",
@@ -275,6 +323,10 @@
   "notes": "Delivery states are NY, NJ, PA, CT, MA, RI, NH, VT, ME · No touch freight. Preloads. Potential for multiple loads per day.",
   "name": "Tractor Supply Colonie NY",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -73.5089,
+   41.8682
+  ],
   "states": [
    "Connecticut",
    "Massachusetts",
@@ -297,6 +349,10 @@
   "notes": "is live load/unload",
   "name": "MDI - 80 miles Hickory, NC",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -81.21,
+   35.8365
+  ],
   "states": [
    "North Carolina",
    "South Carolina",
@@ -317,6 +373,10 @@
   "notes": "with weekly home time (34-hour reset)",
   "name": "Michael's Berlin, NJ",
   "cat": "Dedicated Home Weekly",
+  "pin": [
+   -74.969,
+   39.9434
+  ],
   "states": [
    "Delaware",
    "New Jersey",
@@ -336,6 +396,10 @@
   "notes": "Texas, Arkansas, and Memphis, Tennessee. · Refrigerated, 100% no-touch freight, live unloaded at Target stores. Stops: 1–5 stops per day; $15 per stop (after the first). Average 6 loads weekly",
   "name": "TEAM ACCT: Target Denton",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -97.159,
+   33.6547
+  ],
   "states": [
    "Arkansas",
    "Louisiana",
@@ -358,6 +422,10 @@
   "notes": "delivering to Dollar Tree stores in IL, WI, IN, MI, IA, and KY · . Training will include safe unloading practices.",
   "name": "DT Joliet, IL (home 3-4x/wk)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -87.7447,
+   41.7359
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -377,6 +445,10 @@
   "notes": "Deliver to IN, MI, IL, OH, WI. · 100% touch freight driver unload (box by box via rollers), Average 3 loads per week",
   "name": "FD Ashley IN (home 3-4x/wk)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -84.9975,
+   41.2839
+  ],
   "states": [
    "Indiana",
    "Michigan",
@@ -396,6 +468,10 @@
   "notes": "Delivering to Meijer locations in OH, KY, and IN (within 250 miles of the DC) · Dry & refrigerated. No touch Freight. Mix of live unload and drop & hook.",
   "name": "Meijer",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -84.184,
+   40.0927
+  ],
   "states": [
    "Indiana",
    "Ohio"
@@ -414,6 +490,10 @@
   "notes": "Dedicated deliveries to Virginia (VA) and West Virginia (WV). Backhaul WV loads returning to Indy",
   "name": "Kroger Roanoke VA",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -79.977,
+   37.2864
+  ],
   "states": [
    "Virginia"
   ]
@@ -431,6 +511,10 @@
   "notes": "NC, SC, TN & VA within 300 miles of DC · No-Touch — Refrigerated",
   "name": "Walmart Henderson NC",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -78.3479,
+   36.2347
+  ],
   "states": [
    "North Carolina",
    "Virginia"
@@ -449,6 +533,10 @@
   "notes": "VA, NC, PA & WV · No-Touch — Dry & refrigerated; live unload",
   "name": "Walmart Gordonsville VA - LOCAL",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -78.0935,
+   37.9935
+  ],
   "states": [
    "Virginia"
   ]
@@ -466,6 +554,10 @@
   "notes": "All loads originate and end in Terre Haute, IN. Delivery states: Midwest, TX, FL, GA, TN, CO. · Dry van freight, primarily paper products, occasional backhauls. Ability to handle 2–3 stops per load, avg 30-minute unload ",
   "name": "Staple Terre Haute IN",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -88.9351,
+   39.1667
+  ],
   "states": [
    "Arkansas",
    "Illinois",
@@ -494,6 +586,10 @@
   "notes": "Drivers on this account will deliver to Target stores and distribution centers in NC, VA, TN, GA, AL, MD · 100% no-touch freight, mostly drop & hook. Backhauls will be dry freight and at 75% preloaded/25% live loads",
   "name": "TEAM ACCT: Target Newton",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -81.2767,
+   35.5855
+  ],
   "states": [
    "North Carolina",
    "South Carolina",
@@ -514,6 +610,10 @@
   "notes": "including paper products and occasional ink loads.",
   "name": "Quad Graphics (Sussex)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -89.0825,
+   43.6137
+  ],
   "states": [
    "Illinois",
    "Wisconsin"
@@ -532,6 +632,10 @@
   "notes": "including paper products and occasional ink loads.",
   "name": "Quad Graphics (Martinsburg)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -78.1675,
+   39.6718
+  ],
   "states": [
    "Delaware",
    "Maryland",
@@ -553,6 +657,10 @@
   "notes": "using USX trailers",
   "name": "TEAM FedEx Captive Fleet",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -117.5922,
+   34.242
+  ],
   "states": [
    "Arizona",
    "California",
@@ -573,6 +681,10 @@
   "notes": "Deliveries to CT, MA, NH, VT, NY, RI, ME within 1066 miles of Windsor, CT. · 100% touch freight, live unload at Dollar Tree stores, box by box with rollers, with occasional Family Dollar store deliveries.",
   "name": "DT Windsor CT (home daily)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -72.6704,
+   41.9635
+  ],
   "states": [
    "Connecticut",
    "Massachusetts"
@@ -591,6 +703,10 @@
   "notes": "IN, OH & KY; primarily Ohio · Dry & Reefer — 70% drop & hook; 30% driver unload",
   "name": "Kroger Monroe (home daily)",
   "cat": "Dedicated Daily/Frequently/Team",
+  "pin": [
+   -84.4263,
+   39.4449
+  ],
   "states": [
    "Indiana",
    "Kentucky",
@@ -610,6 +726,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "CHICAGO BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -93.0461,
+   39.8968
+  ],
   "states": [
    "Arkansas",
    "Colorado",
@@ -641,6 +761,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "SHIPPENSBURG BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -76.0725,
+   39.8871
+  ],
   "states": [
    "Connecticut",
    "Delaware",
@@ -672,6 +796,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "DALLAS BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -98.9072,
+   31.7923
+  ],
   "states": [
    "Arkansas",
    "Kansas",
@@ -694,6 +822,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "DUNCAN BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -81.7054,
+   34.8765
+  ],
   "states": [
    "Georgia",
    "North Carolina",
@@ -714,6 +846,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "OTR COMPANY DRIVERS ONLY",
   "cat": "OTR Solo Company",
+  "pin": [
+   -119.6416,
+   36.5863
+  ],
   "states": [
    "Arizona",
    "California",
@@ -734,6 +870,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "MEMPHIS BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -91.0982,
+   34.6027
+  ],
   "states": [
    "Alabama",
    "Arkansas",
@@ -758,6 +898,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "ELLENWOOD BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -83.2189,
+   32.8218
+  ],
   "states": [
    "Alabama",
    "Georgia",
@@ -777,6 +921,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "JACKSONVILLE BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -83.6356,
+   30.4527
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -797,6 +945,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "PHOENIX BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -113.3986,
+   34.3436
+  ],
   "states": [
    "Arizona",
    "California",
@@ -816,6 +968,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "DALLAS BASED 28/5",
   "cat": "OTR Solo Company",
+  "pin": [
+   -102.1062,
+   34.6991
+  ],
   "states": [
    "Colorado",
    "Oklahoma",
@@ -835,6 +991,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "CHICAGO BASED 28/5",
   "cat": "OTR Solo Company",
+  "pin": [
+   -99.9248,
+   44.041
+  ],
   "states": [
    "Minnesota",
    "Nebraska",
@@ -856,6 +1016,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "TUNNEL HILL BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -84.8583,
+   33.7554
+  ],
   "states": [
    "Alabama",
    "Georgia",
@@ -877,6 +1041,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "SPRINGFIELD BASED",
   "cat": "OTR Solo Company",
+  "pin": [
+   -83.3108,
+   39.7778
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -903,6 +1071,10 @@
   "notes": "All 48 states with most freight east of I-35. Dispatch is designed to maximize your earnings, safety, and available freight. · 100% no-touch",
   "name": "PHOENIX BASED 28/5",
   "cat": "OTR Solo Company",
+  "pin": [
+   -113.3138,
+   40.5355
+  ],
   "states": [
    "Arizona",
    "Colorado",
@@ -929,6 +1101,10 @@
   "notes": "All 48 States · 100% No-Touch Freight; 80% Drop & Hook",
   "name": "OTR Teams Drive Across All 48 States",
   "cat": "OTR Team Company",
+  "pin": [
+   -88.2036,
+   39.9891
+  ],
   "states": [
    "Alabama",
    "Arizona",
@@ -989,6 +1165,10 @@
   "notes": "Covering all 48 states, with most freight running east of I-35—but we go where the freight takes us. · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload. No Forced NYC Dispatch: You won’t be required ",
   "name": "Springfield True Up",
   "cat": "True Up Fleets",
+  "pin": [
+   -83.3716,
+   39.832
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -1016,6 +1196,10 @@
   "notes": "Covering all 48 states, with most freight running east of I-35—but we go where the freight takes us. · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload. No Forced NYC Dispatch: You won’t be required ",
   "name": "Dallas True Up",
   "cat": "True Up Fleets",
+  "pin": [
+   -99.0294,
+   31.6772
+  ],
   "states": [
    "Arkansas",
    "Louisiana",
@@ -1036,6 +1220,10 @@
   "notes": "Covering all 48 states, with most freight running east of I-35—but we go where the freight takes us. · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload. No Forced NYC Dispatch: You won’t be required ",
   "name": "Tunnel Hill True Up",
   "cat": "True Up Fleets",
+  "pin": [
+   -85.517,
+   33.6711
+  ],
   "states": [
    "Alabama",
    "Georgia",
@@ -1057,6 +1245,10 @@
   "notes": "Covering all 48 states, with most freight running east of I-35—but we go where the freight takes us. · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload. No Forced NYC Dispatch: You won’t be required ",
   "name": "Jacksonville True Up",
   "cat": "True Up Fleets",
+  "pin": [
+   -84.184,
+   30.4632
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -1077,6 +1269,10 @@
   "notes": "Run along the I-35 corridor through Texas, Oklahoma, and Kansas, with a mix of lanes that keep you moving and earning. · No touch freight. 50–60% drop & hook; 40–50% live unload. Regional freight.",
   "name": "I-35 Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -96.9626,
+   33.7075
+  ],
   "states": [
    "Kansas",
    "Oklahoma",
@@ -1096,6 +1292,10 @@
   "notes": "Run a variety of lanes along I-40 and throughout the southern states, giving you strong miles across the South and Southwest. Southern-focused running area—you stay in warmer-weather corridors and avoid the heavy Northea",
   "name": "I-40 Tour Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -96.8648,
+   33.512
+  ],
   "states": [
    "Oklahoma",
    "Texas"
@@ -1114,6 +1314,10 @@
   "notes": "Running up and down the East Coast · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload.",
   "name": "Atlantic Coast Relay-Duncan Based",
   "cat": "Specialized Fleets",
+  "pin": [
+   -81.4458,
+   34.9329
+  ],
   "states": [
    "Georgia",
    "North Carolina",
@@ -1134,6 +1338,10 @@
   "notes": "Running up and down the East Coast · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload.",
   "name": "Atlantic Coast Relay-Jacksonville Based",
   "cat": "Specialized Fleets",
+  "pin": [
+   -81.3895,
+   30.3319
+  ],
   "states": [
    "Florida",
    "Georgia",
@@ -1153,6 +1361,10 @@
   "notes": "Run a consistent loop between the Carolinas and Ohio/Pennsylvania. This fleet is built for steady, predictable miles and structured home time. · 100% no-touch freight, with 50–60% drop & hook and 40–50% live unload.",
   "name": "SC OH-PENN Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -80.5707,
+   32.773
+  ],
   "states": [
    "Georgia",
    "North Carolina",
@@ -1172,6 +1384,10 @@
   "notes": "Running up and down the East Coast · 100% no-touch freight, with 50-60% drop & hook and 40-50% live unload.",
   "name": "Atlantic Coast Relay-Shippensburg Based",
   "cat": "Specialized Fleets",
+  "pin": [
+   -76.0256,
+   39.0591
+  ],
   "states": [
    "Delaware",
    "Maryland",
@@ -1195,6 +1411,10 @@
   "notes": "Loop Lane freight from OH to Mid-Atlantic (NJ) 2 loops per week · .",
   "name": "OH to Mid Atlantic (NJ) Tour Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -82.9295,
+   41.1386
+  ],
   "states": [
    "Michigan",
    "Ohio",
@@ -1214,6 +1434,10 @@
   "notes": "Loop Lane freight from OH to Chicago. 3 loops per week with potential for 4th loop and additional pay based on HOS. · .",
   "name": "OH to CHI Tour Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -85.1813,
+   40.6517
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -1233,6 +1457,10 @@
   "notes": "Loop Lane freight from GA to OH/IN · No touch freight. 50–60% drop & hook; 40–50% live unload. Regional freight.",
   "name": "Regional I-75 Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -83.5403,
+   34.2219
+  ],
   "states": [
    "Georgia",
    "Kentucky",
@@ -1255,6 +1483,10 @@
   "notes": "with larger retail items like dog kennels and lawn mowers to Tractor Supply stores. This fleet is ideal for drivers who value consistent freight, steady miles, strong communication, and productive store deliveries while ",
   "name": "Tractor Supply Calhoun OTR Tour Fleet",
   "cat": "Specialized Fleets",
+  "pin": [
+   -84.3448,
+   34.7892
+  ],
   "states": [
    "Alabama",
    "Georgia",
@@ -1276,6 +1508,10 @@
   "notes": "o 80% of operation in Northeast States (VA up to ME) · Dry van — Preloaded trailers and live unloads",
   "name": "Northeast 5 & 34 Fleet",
   "cat": "OTR Regional",
+  "pin": [
+   -75.7866,
+   41.0578
+  ],
   "states": [
    "Connecticut",
    "Delaware",
@@ -1303,6 +1539,10 @@
   "notes": "80% of operation in Southeastern States (TN, AL, GA, FL, NC, SC, VA) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Southeast Fleet - 5 & 34 Fleet",
   "cat": "OTR Regional",
+  "pin": [
+   -83.5928,
+   32.9071
+  ],
   "states": [
    "Alabama",
    "Georgia",
@@ -1322,6 +1562,10 @@
   "notes": "o 80% of operation in Western States (WA, OR, CA, ID, NV, AZ, NM, CO, WY, MT, ND, SD) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "West Coast Fleet",
   "cat": "OTR Regional",
+  "pin": [
+   -116.1956,
+   34.715
+  ],
   "states": [
    "Arizona",
    "California",
@@ -1341,6 +1585,10 @@
   "notes": "80% of operation in Southeastern States (TN, AL, GA, FL, NC, SC, VA) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Southeast Fleet - 5 & 34 Fleet Tunnel Hill Based",
   "cat": "OTR Regional",
+  "pin": [
+   -85.3045,
+   33.9708
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -1364,6 +1612,10 @@
   "notes": "100% no-touch freight.",
   "name": "Southeast Fleet - Duncan Based",
   "cat": "OTR Regional",
+  "pin": [
+   -81.0155,
+   35.3599
+  ],
   "states": [
    "Georgia",
    "North Carolina",
@@ -1385,6 +1637,10 @@
   "notes": "100% no-touch freight.",
   "name": "Southeast Fleet - Jacksonville Based",
   "cat": "OTR Regional",
+  "pin": [
+   -83.4607,
+   30.7479
+  ],
   "states": [
    "Alabama",
    "Florida",
@@ -1404,6 +1660,10 @@
   "notes": "80% of operation in Midwestern States (KY, OH, MN, IN, MO, IL, KS, IA, WI, MI) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Midwest Fleet - 5 & 34 Fleet Springfield Based",
   "cat": "OTR Regional",
+  "pin": [
+   -85.1884,
+   40.4369
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -1427,6 +1687,10 @@
   "notes": "80% of operation in Midwestern States (KY, OH, MN, IN, MO, IL, KS, IA, WI, MI) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Midwest Fleet - 5 & 34 Fleet Chicago Based",
   "cat": "OTR Regional",
+  "pin": [
+   -90.6953,
+   40.8067
+  ],
   "states": [
    "Illinois",
    "Indiana",
@@ -1450,6 +1714,10 @@
   "notes": "o 80% of operation in Southwestern States (West TN, MS, LA, AR, OK, TX) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Memphis Regional Fleet",
   "cat": "OTR Regional",
+  "pin": [
+   -91.8581,
+   34.9686
+  ],
   "states": [
    "Arkansas",
    "Kentucky",
@@ -1474,6 +1742,10 @@
   "notes": "o 80% of operation in Southwestern States (West TN, MS, LA, AR, OK, TX) · 100% No-Touch dry van — 50–60% drop & hook; 40–50% live unload",
   "name": "Southwest Fleet - Dallas Based",
   "cat": "OTR Regional",
+  "pin": [
+   -96.8751,
+   32.8341
+  ],
   "states": [
    "Arkansas",
    "Kansas",

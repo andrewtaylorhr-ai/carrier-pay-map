@@ -3,12 +3,13 @@
 // per state. Swift / J.B. Hunt / Hub Group / USX are generated from the
 // carriers' own files (scripts/build-accounts.mjs); PAM / TransAm / CR
 // England are adapted here from their original data shapes.
+import accountCitiesJson from "./generated/account-cities.json";
 import accountsHubJson from "./generated/accounts-hub.json";
 import accountsJbhJson from "./generated/accounts-jbh.json";
 import accountsSwiftJson from "./generated/accounts-swift.json";
 import accountsUsxJson from "./generated/accounts-usx.json";
 import { CARRIER_ORDER, CRE_ACCOUNTS, CRE_CADENCE_LABEL, PAM_DOMICILES, PAM_TIER_CPM, TRANSAM_HIRE_STATES } from "./data";
-import type { Account, CarrierId } from "./types";
+import type { Account, AccountCity, CarrierId } from "./types";
 
 const slug = (s: string) =>
   s
@@ -16,7 +17,7 @@ const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-const PAM_ACCOUNTS: Account[] = PAM_DOMICILES.map((d) => {
+const PAM_ACCOUNTS: Omit<Account, "cities">[] = PAM_DOMICILES.map((d) => {
   const yr3 = PAM_TIER_CPM[d.tier]?.yr3;
   return {
     id: `pam:${slug(d.city)}-${slug(d.state)}:otr`,
@@ -35,7 +36,7 @@ const PAM_ACCOUNTS: Account[] = PAM_DOMICILES.map((d) => {
   };
 });
 
-const TRANSAM_ACCOUNTS: Account[] = [
+const TRANSAM_ACCOUNTS: Omit<Account, "cities">[] = [
   {
     id: "transam:hiring-area:hiring-area",
     carrier: "transam",
@@ -53,7 +54,7 @@ const TRANSAM_ACCOUNTS: Account[] = [
   },
 ];
 
-const CRE_ACCOUNTS_ADAPTED: Account[] = CRE_ACCOUNTS.map((a, i) => ({
+const CRE_ACCOUNTS_ADAPTED: Omit<Account, "cities">[] = CRE_ACCOUNTS.map((a, i) => ({
   id: `cre:${slug(a.name)}-${i}`,
   carrier: "cre",
   name: `${a.name}${a.type ? " · " + a.type : ""}${a.bonusLane ? " · Bonus Lane" : ""}`,
@@ -73,14 +74,22 @@ const CRE_ACCOUNTS_ADAPTED: Account[] = CRE_ACCOUNTS.map((a, i) => ({
   notes: a.notes && a.notes !== "none" ? a.notes : "",
 }));
 
+// account id -> [city, ST, lon, lat][] (scripts/build-cities.mjs)
+const CITY_ROWS = accountCitiesJson as unknown as Record<string, [string, string, number, number][]>;
+const withCities = (list: Omit<Account, "cities">[]): Account[] =>
+  list.map((a) => ({
+    ...a,
+    cities: (CITY_ROWS[a.id] || []).map(([name, st, lon, lat]): AccountCity => ({ name, st, lon, lat })),
+  }));
+
 const BY_CARRIER: Record<CarrierId, Account[]> = {
-  swift: accountsSwiftJson as Account[],
-  usx: accountsUsxJson as Account[],
-  jbh: accountsJbhJson as Account[],
-  hub: accountsHubJson as Account[],
-  pam: PAM_ACCOUNTS,
-  transam: TRANSAM_ACCOUNTS,
-  cre: CRE_ACCOUNTS_ADAPTED,
+  swift: withCities(accountsSwiftJson as Omit<Account, "cities">[]),
+  usx: withCities(accountsUsxJson as Omit<Account, "cities">[]),
+  jbh: withCities(accountsJbhJson as Omit<Account, "cities">[]),
+  hub: withCities(accountsHubJson as Omit<Account, "cities">[]),
+  pam: withCities(PAM_ACCOUNTS),
+  transam: withCities(TRANSAM_ACCOUNTS),
+  cre: withCities(CRE_ACCOUNTS_ADAPTED),
 };
 
 export const ALL_ACCOUNTS: Account[] = CARRIER_ORDER.flatMap((id) => BY_CARRIER[id]);

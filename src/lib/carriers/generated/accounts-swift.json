@@ -16,7 +16,8 @@
    "Idaho",
    "Oregon",
    "Washington"
-  ]
+  ],
+  "hiringCities": "All. See Lewiston recruiting area map.."
  },
  {
   "id": "swift:111-utah-nw-division-west-valley-city:regional",
@@ -34,7 +35,8 @@
   "states": [
    "Idaho",
    "Utah"
-  ]
+  ],
+  "hiringCities": "All. Idaho area is southern ID. See SLC recruiting area"
  },
  {
   "id": "swift:480-southwest-tri-state-jurupa-valley:regional",
@@ -51,7 +53,8 @@
   "cat": "Regional",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Jurupa Valley's hiring area"
  },
  {
   "id": "swift:515-gary-in:otr",
@@ -69,7 +72,8 @@
   "states": [
    "Illinois",
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Gary, IN"
  },
  {
   "id": "swift:515-ocala-fl:regional",
@@ -86,7 +90,8 @@
   "cat": "Regional",
   "states": [
    "Florida"
-  ]
+  ],
+  "hiringCities": "Ocala"
  },
  {
   "id": "swift:56w-11-regional-western-states-west-valley-city-ut:otr",
@@ -108,7 +113,8 @@
    "Oregon",
    "Utah",
    "Washington"
-  ]
+  ],
+  "hiringCities": "Portland , Sumner , Los Angeles, Bay area ,Las Vegas , Utah"
  },
  {
   "id": "swift:57g-reefer-decatur-conley-ga:otr",
@@ -137,7 +143,8 @@
    "South Carolina",
    "Tennessee",
    "Virginia"
-  ]
+  ],
+  "hiringCities": "Atlanta GA , Greer SC , Memphis TN , Gary IN , Jonestown PA , Richmond VA , Columbus OH , Chicago IL , Ocala FL"
  },
  {
   "id": "swift:57x-reefer-decatur-ga:otr",
@@ -163,7 +170,8 @@
    "South Carolina",
    "Tennessee",
    "Virginia"
-  ]
+  ],
+  "hiringCities": "Do not hire in ALS market. We do not have freight going into or out of Mobile, AL. Do not hire drivers in the FLS market. We do not have freight going into FLS or out of that market. Do not hire in southern MS or LA markets. We do not have freight into or out of that market."
  },
  {
   "id": "swift:602-las-vegas-nv-triangle:otr",
@@ -182,7 +190,8 @@
    "Arizona",
    "Nevada",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Las Vegas, NV, St George, UT, Kingman, AZ"
  },
  {
   "id": "swift:602-tsc-western-region:regional",
@@ -199,7 +208,8 @@
   "cat": "Regional",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix"
  },
  {
   "id": "swift:610-ohio-mid-east-regional:regional",
@@ -219,7 +229,8 @@
    "Kentucky",
    "Ohio",
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Columbus, Cleveland, Cincinnati, Canton, Walton, Pittsburg"
  },
  {
   "id": "swift:625-automotive:otr",
@@ -236,7 +247,8 @@
   "cat": "OTR",
   "states": [
    "Michigan"
-  ]
+  ],
+  "hiringCities": "New Boston, Brownstown, Marysville, Toledo, Flint, Battle Creek"
  },
  {
   "id": "swift:626-midwest-detroit-mi:regional",
@@ -253,7 +265,8 @@
   "cat": "Regional",
   "states": [
    "Michigan"
-  ]
+  ],
+  "hiringCities": "MIE/MIW"
  },
  {
   "id": "swift:626-midwest-gary-in:regional",
@@ -271,7 +284,8 @@
   "states": [
    "Illinois",
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Chicago, Indianapolis"
  },
  {
   "id": "swift:626-midwest-columbus-oh:regional",
@@ -290,7 +304,8 @@
    "Indiana",
    "Kentucky",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "Columbus, Cincinnati, Cleveland, Dayton, Louisville, Lexington, Toledo, Indianapolis"
  },
  {
   "id": "swift:907-western-region-comfort-zone-jurupa-valley-ca:otr",
@@ -307,7 +322,8 @@
   "cat": "OTR",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Any California city"
  },
  {
   "id": "swift:907-western-region-comfort-zone-lewiston-id:otr",
@@ -324,7 +340,8 @@
   "cat": "OTR",
   "states": [
    "Idaho"
-  ]
+  ],
+  "hiringCities": "Lewiston, Boise, Pasco, Spokane, Missoula, Bozeman, Billings, Helena, Kalispell"
  },
  {
   "id": "swift:907-western-region-comfort-zone-oklahoma-city:otr",
@@ -343,7 +360,8 @@
    "Kansas",
    "Oklahoma",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Oklahoma cities, south KS cities, North TX Cities"
  },
  {
   "id": "swift:907-western-region-comfort-zone-troutdale-or:otr",
@@ -361,7 +379,8 @@
   "states": [
    "Oregon",
    "Washington"
-  ]
+  ],
+  "hiringCities": "Troutdale, Bend , Salem Medford"
  },
  {
   "id": "swift:907-western-regional-comfort-zone-el-paso-tx:otr",
@@ -380,7 +399,8 @@
    "New Mexico",
    "Oklahoma",
    "Texas"
-  ]
+  ],
+  "hiringCities": "El Paso"
  },
  {
   "id": "swift:907-western-regional-comfort-zone-las-vegas-nv:otr",
@@ -397,7 +417,8 @@
   "cat": "OTR",
   "states": [
    "Nevada"
-  ]
+  ],
+  "hiringCities": "NORTH LAS VEGAS, LAS VEGAS"
  },
  {
   "id": "swift:907-western-region-comfort-zone-otay-ca:otr",
@@ -414,7 +435,8 @@
   "cat": "OTR",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "SAN DIEGO area"
  },
  {
   "id": "swift:907-western-regional-comfort-zone-phoenix-az:otr",
@@ -431,7 +453,8 @@
   "cat": "OTR",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix, Tucson"
  },
  {
   "id": "swift:907-western-regional-comfort-zone-sparks-nv:otr",
@@ -448,7 +471,8 @@
   "cat": "OTR",
   "states": [
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Sparks"
  },
  {
   "id": "swift:908-11-western-regional-jurupa-valley-ca:otr",
@@ -465,7 +489,8 @@
   "cat": "OTR",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Any California city"
  },
  {
   "id": "swift:908-cz-11-western-regional-las-vegas:otr",
@@ -482,7 +507,8 @@
   "cat": "OTR",
   "states": [
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Las Vegas"
  },
  {
   "id": "swift:908-11-western-regional-phoenix-az:otr",
@@ -499,7 +525,8 @@
   "cat": "OTR",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Any PHX city"
  },
  {
   "id": "swift:910-comfort-zone-oklahoma-city:otr",
@@ -517,7 +544,8 @@
   "states": [
    "Oklahoma",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Oklahoma City Hiring Area"
  },
  {
   "id": "swift:910-comfort-zone-el-paso-tx:otr",
@@ -535,7 +563,8 @@
   "states": [
    "New Mexico",
    "Texas"
-  ]
+  ],
+  "hiringCities": "El, Paso Hiring Area"
  },
  {
   "id": "swift:910-comfort-zone-gary-in:otr",
@@ -552,7 +581,8 @@
   "cat": "OTR",
   "states": [
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Gary Hiring Area"
  },
  {
   "id": "swift:910-comfort-zone-mobile-al:otr",
@@ -572,7 +602,8 @@
    "Florida",
    "Louisiana",
    "Mississippi"
-  ]
+  ],
+  "hiringCities": "Mobile Hiring Area"
  },
  {
   "id": "swift:910-comfort-zone-richmond-va:otr",
@@ -591,7 +622,8 @@
    "North Carolina",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Richmond Hiring Area"
  },
  {
   "id": "swift:armada-southeast:dedicated",
@@ -610,7 +642,8 @@
    "Georgia",
    "North Carolina",
    "South Carolina"
-  ]
+  ],
+  "hiringCities": "Pooler GA, Salisbury NC, Concord NC, Charlotte NC, Atlanta GA, Greer SC"
  },
  {
   "id": "swift:autohaul-rpm:dedicated",
@@ -631,7 +664,8 @@
    "Michigan",
    "Missouri",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Gary IN, Chicago IL, St. Louis MO, Dallas TX, Laredo TX"
  },
  {
   "id": "swift:auto-haul-solo:dedicated",
@@ -650,7 +684,8 @@
    "Illinois",
    "Indiana",
    "Michigan"
-  ]
+  ],
+  "hiringCities": "Detroit, Gary, Chicago"
  },
  {
   "id": "swift:beall-s-linehaul-ocala-fl:otr",
@@ -667,7 +702,8 @@
   "cat": "OTR",
   "states": [
    "Florida"
-  ]
+  ],
+  "hiringCities": "Bradenton"
  },
  {
   "id": "swift:bimbo-local-phoenix-az:local",
@@ -684,7 +720,8 @@
   "cat": "Local",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix"
  },
  {
   "id": "swift:bimbo-yard-phoenix-az:local",
@@ -701,7 +738,8 @@
   "cat": "Local",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix,"
  },
  {
   "id": "swift:cabela-s-tooele-ut:dedicated",
@@ -719,7 +757,8 @@
   "states": [
    "Colorado",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Salt Lake City, UT Denver, CO"
  },
  {
   "id": "swift:cabela-s-bass-pro-prairie-du-chien-wi:dedicated",
@@ -741,7 +780,8 @@
    "Minnesota",
    "Nebraska",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": "Prairie du Chien, WI, Gary, IN, Council Bluffs,IA, Kearney,NE, Altoona,IA, Hermantown MN, Grandville MI, Noblesville IN, Grand Island NE, Omaha NE, Chicago IL, Milwaukee WI, Minneapolis MN"
  },
  {
   "id": "swift:cabela-s-bass-pro-triadelphia-wv:dedicated",
@@ -763,7 +803,8 @@
    "Ohio",
    "Pennsylvania",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Triadelphia, WV, Columbus, OH, Toledo OH, Cleveland OH, Jonestown, PA, Pittsburgh PA, Baltimore MD, Syracuse NY/Buffalo NY, and area's close to there"
  },
  {
   "id": "swift:church-dwight-york-pa:dedicated",
@@ -781,7 +822,8 @@
   "states": [
    "New Jersey",
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "York PA, lakewood nj"
  },
  {
   "id": "swift:coors-miller-denver-co-div-636:otr",
@@ -802,7 +844,8 @@
    "Ohio",
    "Virginia",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": "Denver, CO/Milwaukee, WI/Elkton, VA/Trenton, OH/ CAS"
  },
  {
   "id": "swift:costco-pnw-sumner-wa-heavy-haul:regional",
@@ -820,7 +863,8 @@
   "states": [
    "Idaho",
    "Washington"
-  ]
+  ],
+  "hiringCities": "All major WA cities and (Idaho cities near courdelene and Clarkston, west idaho, Vancouver, Wa)."
  },
  {
   "id": "swift:costco-dry-480-las-vegas:regional",
@@ -837,7 +881,8 @@
   "cat": "Regional",
   "states": [
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Las Vegas, NV"
  },
  {
   "id": "swift:costco-dry-480-phoenix:regional",
@@ -854,7 +899,8 @@
   "cat": "Regional",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix"
  },
  {
   "id": "swift:dicks-sporting-goods-plainfield-in:dedicated",
@@ -871,7 +917,8 @@
   "cat": "Dedicated",
   "states": [
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Indianapolis IN"
  },
  {
   "id": "swift:dicks-sporting-goods-teams-east-point-ga:dedicated",
@@ -888,7 +935,8 @@
   "cat": "Dedicated",
   "states": [
    "Georgia"
-  ]
+  ],
+  "hiringCities": "East point, GA"
  },
  {
   "id": "swift:dicks-sporting-goods-solo-east-point-ga:dedicated",
@@ -905,7 +953,8 @@
   "cat": "Dedicated",
   "states": [
    "Georgia"
-  ]
+  ],
+  "hiringCities": "East point, GA"
  },
  {
   "id": "swift:dollar-tree-berwick-pa:dedicated",
@@ -923,7 +972,8 @@
   "states": [
    "Maryland",
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Berwick PA, Harrisburg PA, Bethlehem PA"
  },
  {
   "id": "swift:dollar-tree-chesapeake-va:dedicated",
@@ -940,7 +990,8 @@
   "cat": "Dedicated",
   "states": [
    "Virginia"
-  ]
+  ],
+  "hiringCities": "Chesapeake, Richmond"
  },
  {
   "id": "swift:dollar-tree-olive-branch-ms:dedicated",
@@ -958,7 +1009,8 @@
   "states": [
    "Mississippi",
    "Tennessee"
-  ]
+  ],
+  "hiringCities": "Please be aware that we do not currently have any Arkansas-based routes available., Our recruiting efforts should focus on drivers who live within 100 miles of Olive Branch, MS, and within 50 miles of Memphis, TN. Due to limited delivery volume and route availability in West Tennessee, our hiring efforts in Tennessee should be concentrated primarily on Shelby County. The Dollar Tree account based in West Memphis services most of the remaining West Tennessee and Arkansas markets within the region., We have stronger hiring opportunities in North Mississippi and Central Mississippi, where we can offer more consistent freight, reliable miles, and routine home time., We currently have openings and are actively seeking qualified CDL drivers, with a preference for experienced candidates. Please prioritize candidates who are looking for stable miles, dependable home time, and long-term career opportunities., To ensure the best alignment with our operational needs, please focus recruiting efforts on the markets outlined above., Thank you for your support."
  },
  {
   "id": "swift:dollar-tree-phoenix-az:dedicated",
@@ -978,7 +1030,8 @@
    "California",
    "Nevada",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Phoenix, Salt Lake City, San Diego, Las Vegas"
  },
  {
   "id": "swift:eastern-regional-fleet-columbus:otr",
@@ -1016,7 +1069,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Columbus, OH, Louisville, KY , Cleveland, OH , Huntington, WV"
  },
  {
   "id": "swift:eastern-regional-fleet-detroit:otr",
@@ -1054,7 +1108,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Detroit, MI"
  },
  {
   "id": "swift:eastern-regional-fleet-gary:regional",
@@ -1073,7 +1128,8 @@
    "Illinois",
    "Indiana",
    "Michigan"
-  ]
+  ],
+  "hiringCities": "Gary, IN"
  },
  {
   "id": "swift:eastern-regional-fleet-greer:otr",
@@ -1111,7 +1167,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Greer, SC"
  },
  {
   "id": "swift:eastern-regional-fleet-harrisburg:otr",
@@ -1149,7 +1206,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Harrisburg, PA"
  },
  {
   "id": "swift:eastern-regional-fleet-mobile:otr",
@@ -1187,7 +1245,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Mobile, AL"
  },
  {
   "id": "swift:eastern-regional-fleet-ocala:otr",
@@ -1225,7 +1284,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Ocala, FL"
  },
  {
   "id": "swift:eastern-regional-fleet-richmond:otr",
@@ -1263,7 +1323,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Richmond, VA"
  },
  {
   "id": "swift:eastern-regional-fleet-statesboro:otr",
@@ -1301,7 +1362,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "See Map"
  },
  {
   "id": "swift:eastern-regional-fleet-syracuse:regional",
@@ -1340,7 +1402,8 @@
    "Vermont",
    "Virginia",
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Syracuse, NY. NO-HIRES from New York City Area."
  },
  {
   "id": "swift:eastern-regional-fleet-atlanta:regional",
@@ -1357,7 +1420,8 @@
   "cat": "Regional",
   "states": [
    "Georgia"
-  ]
+  ],
+  "hiringCities": "Atlanta, GA"
  },
  {
   "id": "swift:expeditors-star-fleet-otr-dry-teams:otr",
@@ -1421,7 +1485,8 @@
    "West Virginia",
    "Wisconsin",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": ""
  },
  {
   "id": "swift:ferguson-dedicated-stockton:dedicated",
@@ -1438,7 +1503,8 @@
   "cat": "Dedicated",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Stockton CA"
  },
  {
   "id": "swift:finch-paper-glens-falls-ny:dedicated",
@@ -1455,7 +1521,8 @@
   "cat": "Dedicated",
   "states": [
    "New York"
-  ]
+  ],
+  "hiringCities": "Glens Falls"
  },
  {
   "id": "swift:flatbed-cmc-steal-dedicated-phoenix-az:dedicated",
@@ -1474,7 +1541,8 @@
    "Arizona",
    "California",
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Phoenix, Las Vegas, Kingman, Los Angeles"
  },
  {
   "id": "swift:flatbed-chrysler-stack-team:dedicated",
@@ -1493,7 +1561,8 @@
    "Indiana",
    "Kansas",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Laredo, TX, Gary, IN Houston, TX Lancaster, TX Kansas City, KS"
  },
  {
   "id": "swift:flatbed-eastern-regional-greer-sc:otr",
@@ -1518,7 +1587,8 @@
    "Ohio",
    "South Carolina",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Laredo, Lancaster, Houston, Atlanta Greer, Gary"
  },
  {
   "id": "swift:flatbed-western-regional-phoenix:otr",
@@ -1539,7 +1609,8 @@
    "Oregon",
    "Texas",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Phoenix, Salt Lake City, Las Vegas, Portland, Jurupa Valley, Laredo, San Antonio, Socal"
  },
  {
   "id": "swift:flatbed-090:dedicated",
@@ -1559,7 +1630,8 @@
    "Indiana",
    "Kentucky",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "Cincinnatti OH, Indianapolis, IN Chicago, IL, Lexington, KY"
  },
  {
   "id": "swift:georgia-pacific-huntsville:dedicated",
@@ -1577,7 +1649,8 @@
   "states": [
    "Alabama",
    "Mississippi"
-  ]
+  ],
+  "hiringCities": "Huntsville, AL (Birmingham, AL; Cullman, AL; Decatur, AL) Meridian, MS"
  },
  {
   "id": "swift:georgia-pacific-regional:dedicated",
@@ -1599,7 +1672,8 @@
    "Louisiana",
    "South Carolina",
    "Tennessee"
-  ]
+  ],
+  "hiringCities": "AL - Pennington (also Meridian, MS); Birmingham, AL; Montgomery, AR - Crossett, FL - Jacksonville (Ocala), GA - Atlanta, MS - Hattiesburg (Monticello), TN - Nashville, TX - Dallas; Houston, Trainees only from Pennington, Birmingham or Montgomery, AL"
  },
  {
   "id": "swift:great-lakes-regional-columbus-oh:regional",
@@ -1626,7 +1700,8 @@
    "Nebraska",
    "Ohio",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": "Cleveland, Cincinnati, Columbus, Indianapolis, Louiisville, Lexington, Toledo"
  },
  {
   "id": "swift:great-lakes-regional-detroit-mi:regional",
@@ -1643,7 +1718,8 @@
   "cat": "Regional",
   "states": [
    "Michigan"
-  ]
+  ],
+  "hiringCities": "New Boston, Romulus, Battle Creek, Toledo, Detroit, Brownstown Taylor, Westland"
  },
  {
   "id": "swift:great-lakes-regional-edwardsville-ks:regional",
@@ -1670,7 +1746,8 @@
    "Nebraska",
    "Ohio",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": "Kansas City, Topeka, Lincoln , Omaha, St Joseph, Sioux Falls, Green Bay, Minneapolis, surrounding"
  },
  {
   "id": "swift:great-lakes-regional-gary-in:regional",
@@ -1687,7 +1764,8 @@
   "cat": "Regional",
   "states": [
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Gary, IN"
  },
  {
   "id": "swift:hershey-ogden-ut:dedicated",
@@ -1704,7 +1782,8 @@
   "cat": "Dedicated",
   "states": [
    "Utah"
-  ]
+  ],
+  "hiringCities": "Salt Lake City, UT"
  },
  {
   "id": "swift:hobby-lobby-teams-okc-ok:dedicated",
@@ -1765,7 +1844,8 @@
    "Washington",
    "West Virginia",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": ""
  },
  {
   "id": "swift:central-regional:otr",
@@ -1782,7 +1862,8 @@
   "cat": "OTR",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Houston, San Antonio, Waco"
  },
  {
   "id": "swift:houston-teams:otr",
@@ -1799,7 +1880,8 @@
   "cat": "OTR",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Houston"
  },
  {
   "id": "swift:i35-gary-in:otr",
@@ -1817,7 +1899,8 @@
   "states": [
    "Illinois",
    "Indiana"
-  ]
+  ],
+  "hiringCities": "Gary, IN"
  },
  {
   "id": "swift:intermodal-avenel-nj:local",
@@ -1834,7 +1917,8 @@
   "cat": "Local",
   "states": [
    "New Jersey"
-  ]
+  ],
+  "hiringCities": "New Jersey"
  },
  {
   "id": "swift:intermodal-philadelphia-pa:local",
@@ -1851,7 +1935,8 @@
   "cat": "Local",
   "states": [
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Philadelphia"
  },
  {
   "id": "swift:regional-intermodal-baltimore-md:dedicated",
@@ -1868,7 +1953,8 @@
   "cat": "Dedicated",
   "states": [
    "Maryland"
-  ]
+  ],
+  "hiringCities": "Baltimore"
  },
  {
   "id": "swift:intermodal-chicago-il-local:local",
@@ -1885,7 +1971,8 @@
   "cat": "Local",
   "states": [
    "Illinois"
-  ]
+  ],
+  "hiringCities": "Chicago"
  },
  {
   "id": "swift:intermodal-chicago-il-regional:local",
@@ -1905,7 +1992,8 @@
    "Indiana",
    "Iowa",
    "Wisconsin"
-  ]
+  ],
+  "hiringCities": "Chicago, cedar rapids, cedar falls"
  },
  {
   "id": "swift:regional-intermodal-cincinnati-oh:dedicated",
@@ -1923,7 +2011,8 @@
   "states": [
    "Kentucky",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "Cincinatti, OH, Burlington KY"
  },
  {
   "id": "swift:intermodal-edwardsville-ks:local",
@@ -1941,7 +2030,8 @@
   "states": [
    "Kansas",
    "Missouri"
-  ]
+  ],
+  "hiringCities": "Edwardsville"
  },
  {
   "id": "swift:intermodal-fontana-ca:local",
@@ -1958,7 +2048,8 @@
   "cat": "Local",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "San Bernardino, Fontana, Ontario, Inland Empire area"
  },
  {
   "id": "swift:intermodal-harrisburg-pa:local",
@@ -1975,7 +2066,8 @@
   "cat": "Local",
   "states": [
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Harrisburg, Allentown, Bethlehem, Lehigh valley , Berks county"
  },
  {
   "id": "swift:regional-intermodal-harrisburg-pa:dedicated",
@@ -1992,7 +2084,8 @@
   "cat": "Dedicated",
   "states": [
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Jonestown"
  },
  {
   "id": "swift:intermodal-hutchins-tx-local:local",
@@ -2009,7 +2102,8 @@
   "cat": "Local",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Hutchins, Lancaster"
  },
  {
   "id": "swift:intermodal-hutchins-tx-regional:dedicated",
@@ -2026,7 +2120,8 @@
   "cat": "Dedicated",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Wilmer"
  },
  {
   "id": "swift:intermodal-lebanon-tn:local",
@@ -2043,7 +2138,8 @@
   "cat": "Local",
   "states": [
    "Tennessee"
-  ]
+  ],
+  "hiringCities": "Lebanon TN"
  },
  {
   "id": "swift:intermodal-cincinnati:local",
@@ -2060,7 +2156,8 @@
   "cat": "Local",
   "states": [
    "West Virginia"
-  ]
+  ],
+  "hiringCities": "Cincinnati"
  },
  {
   "id": "swift:intermodal-memphis-tn-regional:dedicated",
@@ -2077,7 +2174,8 @@
   "cat": "Dedicated",
   "states": [
    "Tennessee"
-  ]
+  ],
+  "hiringCities": "Memphis"
  },
  {
   "id": "swift:intermodal-montebello-bell-gardens-ca:local",
@@ -2094,7 +2192,8 @@
   "cat": "Local",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Bell Gardens, Los Angeles"
  },
  {
   "id": "swift:intermodal-ocala-fl-regional:dedicated",
@@ -2111,7 +2210,8 @@
   "cat": "Dedicated",
   "states": [
    "Florida"
-  ]
+  ],
+  "hiringCities": "Ocala FL"
  },
  {
   "id": "swift:intermodal-paris-tx:local",
@@ -2128,7 +2228,8 @@
   "cat": "Local",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Paris"
  },
  {
   "id": "swift:intermodal-salt-lake-city-ut:local",
@@ -2145,7 +2246,8 @@
   "cat": "Local",
   "states": [
    "Utah"
-  ]
+  ],
+  "hiringCities": "salt lake city"
  },
  {
   "id": "swift:intermodal-st-louis-mo:local",
@@ -2163,7 +2265,8 @@
   "states": [
    "Illinois",
    "Missouri"
-  ]
+  ],
+  "hiringCities": "St. Louis"
  },
  {
   "id": "swift:intermodal-toledo-oh:local",
@@ -2181,7 +2284,8 @@
   "states": [
    "Michigan",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "New Boston, Toledo"
  },
  {
   "id": "swift:intermodal-troutdale-or:local",
@@ -2198,7 +2302,8 @@
   "cat": "Local",
   "states": [
    "Oregon"
-  ]
+  ],
+  "hiringCities": "portland, troutdale"
  },
  {
   "id": "swift:intermodal-columbus:local",
@@ -2215,7 +2320,8 @@
   "cat": "Local",
   "states": [
    "Ohio"
-  ]
+  ],
+  "hiringCities": "COLUMBUS"
  },
  {
   "id": "swift:jcpenney-reno:dedicated",
@@ -2232,7 +2338,8 @@
   "cat": "Dedicated",
   "states": [
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Reno, Sparks, Stockton, Redding, Medford, Klamath Falls, Eugene, Salem, Portland, Sumner, Yakima, Kennewick, Spokane, Boise"
  },
  {
   "id": "swift:kenvue:dedicated",
@@ -2249,7 +2356,8 @@
   "cat": "Dedicated",
   "states": [
    "Pennsylvania"
-  ]
+  ],
+  "hiringCities": "Jonestown PA"
  },
  {
   "id": "swift:kohl-s-blue-spring-mo-hostler:local",
@@ -2266,7 +2374,8 @@
   "cat": "Local",
   "states": [
    "Missouri"
-  ]
+  ],
+  "hiringCities": "Blue Springs"
  },
  {
   "id": "swift:kraft-eastern-regional-dry:dedicated",
@@ -2284,7 +2393,8 @@
   "states": [
    "Illinois",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "Columbus OH, Gary IN, Champaign IL, Fremont OH"
  },
  {
   "id": "swift:kraft-de32-ca-pnw-ut-regional:dedicated",
@@ -2305,7 +2415,8 @@
    "Oregon",
    "Utah",
    "Washington"
-  ]
+  ],
+  "hiringCities": "Lathrop, Sumner, Grandview, Salt Lake City, Portland"
  },
  {
   "id": "swift:kraft-eastern-regional-reefer:dedicated",
@@ -2324,7 +2435,8 @@
    "Illinois",
    "Indiana",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "Chicago, Columbus"
  },
  {
   "id": "swift:lancaster-tx-reefer:otr",
@@ -2351,7 +2463,8 @@
    "Tennessee",
    "Texas",
    "Virginia"
-  ]
+  ],
+  "hiringCities": "75134,30033,46401,600007,43004,37501,17038"
  },
  {
   "id": "swift:lowes-lebanon-or:regional",
@@ -2369,7 +2482,8 @@
   "states": [
    "Oregon",
    "Washington"
-  ]
+  ],
+  "hiringCities": "Portland, Albany, Medford, Grant pass, Vancouver WA Salem, all of Oregon , Longview WA, Kelso WA"
  },
  {
   "id": "swift:northeast-regional-harrisburg-pa:regional",
@@ -2386,7 +2500,8 @@
   "cat": "Regional",
   "states": [
    "New York"
-  ]
+  ],
+  "hiringCities": "Any location in Northeast except - NYC Area, Erie PA Area, and Atlantic City NJ Area Pittsburgh Area"
  },
  {
   "id": "swift:northeast-regional-syracuse-ny:regional",
@@ -2403,7 +2518,8 @@
   "cat": "Regional",
   "states": [
    "New York"
-  ]
+  ],
+  "hiringCities": "SYRACUSe NY, Albany NY, Boston MA, Avenel NJ. Hartford CT."
  },
  {
   "id": "swift:otr-lewiston-id:otr",
@@ -2424,7 +2540,8 @@
    "Oregon",
    "Washington",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": "Lewiston, Spokane, Pasco, Boise, Missoula, Bozeman, Billings, Helena, Kalispell"
  },
  {
   "id": "swift:phoenix-teams:otr",
@@ -2441,7 +2558,8 @@
   "cat": "OTR",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Phoenix"
  },
  {
   "id": "swift:regional-surge-fleet-phoenix-az:dedicated",
@@ -2460,7 +2578,8 @@
    "Arizona",
    "California",
    "Nevada"
-  ]
+  ],
+  "hiringCities": "Phoenix, Ontario, Las Vegas"
  },
  {
   "id": "swift:sam-s-south-texas-houston:regional",
@@ -2477,7 +2596,8 @@
   "cat": "Regional",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Houston, San Antonio, Laredo, McAllen, Brownsville, Harlingen"
  },
  {
   "id": "swift:sam-s-south-texas-laredo:regional",
@@ -2494,7 +2614,8 @@
   "cat": "Regional",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Houston, San Antonio, Laredo, McAllen, Brownsville, Harlingen"
  },
  {
   "id": "swift:site-one-palmetto-ga:local",
@@ -2511,7 +2632,8 @@
   "cat": "Local",
   "states": [
    "Georgia"
-  ]
+  ],
+  "hiringCities": "Palmetto"
  },
  {
   "id": "swift:slc-linehaul:otr",
@@ -2530,7 +2652,8 @@
    "Idaho",
    "Utah",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": "WEST VALLEY CITY"
  },
  {
   "id": "swift:slc-linehaul-regional:otr",
@@ -2548,7 +2671,8 @@
   "states": [
    "Idaho",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Salt Lake City 250 Mile radius. Idaho Falls id, 100 mile radius Elko NV 100 mile radius. Rock Springs Wy. 100 mile radius. Saint George utah 100 miles."
  },
  {
   "id": "swift:slc-express-lane:otr",
@@ -2565,7 +2689,8 @@
   "cat": "OTR",
   "states": [
    "Utah"
-  ]
+  ],
+  "hiringCities": "WEST VALLEY CITY"
  },
  {
   "id": "swift:smithfield-regional-teams-only:dedicated",
@@ -2592,7 +2717,8 @@
    "South Dakota",
    "Utah",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": "ANY CITY IN THOSE STATES"
  },
  {
   "id": "swift:smithfield-solo-drivers:dedicated",
@@ -2613,7 +2739,8 @@
    "South Dakota",
    "Utah",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": "Salt Lake City UT, Denver CO, Cheyenne WY, Sioux Falls SD, Crete NE"
  },
  {
   "id": "swift:target-amsterdam-ny:dedicated",
@@ -2632,7 +2759,8 @@
    "Connecticut",
    "New Jersey",
    "New York"
-  ]
+  ],
+  "hiringCities": "NYC Boroughs, NY, NJ, CT"
  },
  {
   "id": "swift:target-denton-tx-solo:dedicated",
@@ -2650,7 +2778,8 @@
   "states": [
    "Oklahoma",
    "Texas"
-  ]
+  ],
+  "hiringCities": "Denton, Dallas, Fort Worth, Austin, San Antonio, Houston, Oklahoma City (50 mile radius and south I35 to TX border)"
  },
  {
   "id": "swift:target-marlboro-md-dedicated-salvage:local",
@@ -2667,7 +2796,8 @@
   "cat": "Local",
   "states": [
    "Maryland"
-  ]
+  ],
+  "hiringCities": "Washington DC, Upper Marlboro MD area's"
  },
  {
   "id": "swift:target-yard-pueblo-co-day-shift:local",
@@ -2684,7 +2814,8 @@
   "cat": "Local",
   "states": [
    "Colorado"
-  ]
+  ],
+  "hiringCities": "Pueblo"
  },
  {
   "id": "swift:target-regional-pueblo-co:dedicated",
@@ -2704,7 +2835,8 @@
    "Idaho",
    "Montana",
    "Wyoming"
-  ]
+  ],
+  "hiringCities": "Pueblo"
  },
  {
   "id": "swift:target-rialto-ca-teams-only:dedicated",
@@ -2722,7 +2854,8 @@
   "states": [
    "Arizona",
    "California"
-  ]
+  ],
+  "hiringCities": "Rialto, Phoenix Area, Tuscan Area, Flagstaff Area, Bullhead City Area"
  },
  {
   "id": "swift:target-sacramento-regional-solo-3712:dedicated",
@@ -2739,7 +2872,8 @@
   "cat": "Dedicated",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Sacramento and surrounding areas"
  },
  {
   "id": "swift:target-sacramento-ca-local-yard:local",
@@ -2756,7 +2890,8 @@
   "cat": "Local",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Sacramento CA and surrounding area"
  },
  {
   "id": "swift:target-sacramento-ca-regional-teams:dedicated",
@@ -2773,7 +2908,8 @@
   "cat": "Dedicated",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Sacramento"
  },
  {
   "id": "swift:target-sacramento-ca-teams:dedicated",
@@ -2790,7 +2926,8 @@
   "cat": "Dedicated",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "For team drivers we can hire from: Sacramento CA and surrounding areas."
  },
  {
   "id": "swift:target-wilton-ny:local",
@@ -2812,7 +2949,8 @@
    "New Jersey",
    "New York",
    "Vermont"
-  ]
+  ],
+  "hiringCities": "Gansevoort"
  },
  {
   "id": "swift:target-woodland-ca:local",
@@ -2829,7 +2967,8 @@
   "cat": "Local",
   "states": [
    "California"
-  ]
+  ],
+  "hiringCities": "Sacramento, Woodland, Roseville, Rancho Cordova, West Sacramento, Reno Nevada 1 driver that lives in Reno - ****"
  },
  {
   "id": "swift:tractor-supply-waco-tx:regional",
@@ -2846,7 +2985,8 @@
   "cat": "Regional",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Dallas, Fort Worth, Waco"
  },
  {
   "id": "swift:tractor-supply-waco-tx:otr",
@@ -2863,7 +3003,8 @@
   "cat": "OTR",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "Houston, Waco, Temple, San Antonio,"
  },
  {
   "id": "swift:tucson-based-otr-drivers:otr",
@@ -2880,7 +3021,8 @@
   "cat": "OTR",
   "states": [
    "Arizona"
-  ]
+  ],
+  "hiringCities": "Tucson, Nogales, Sierra Vista, Marana, All of Southern AZ"
  },
  {
   "id": "swift:v95-richmond-va:otr",
@@ -2904,7 +3046,8 @@
    "New York",
    "Pennsylvania",
    "Virginia"
-  ]
+  ],
+  "hiringCities": "Most Major Cities within Hiring states that are eastern. Staying away from NYC or the burroes."
  },
  {
   "id": "swift:v95-syracuse-ny:regional",
@@ -2923,7 +3066,8 @@
    "Connecticut",
    "New Jersey",
    "New York"
-  ]
+  ],
+  "hiringCities": "Most major cities in the hiring states besides NYC."
  },
  {
   "id": "swift:walmart-arcadia-fl:local",
@@ -2940,7 +3084,8 @@
   "cat": "Local",
   "states": [
    "Florida"
-  ]
+  ],
+  "hiringCities": "Arcadia,Port Charlotte,Cape Coral,Punta Gorda,Englewood,North Port"
  },
  {
   "id": "swift:walmart-cocoa-beach-fl:local",
@@ -2957,7 +3102,8 @@
   "cat": "Local",
   "states": [
    "Florida"
-  ]
+  ],
+  "hiringCities": "Cocoa"
  },
  {
   "id": "swift:walmart-corinne-ut-regional:dedicated",
@@ -2975,7 +3121,8 @@
   "states": [
    "Idaho",
    "Utah"
-  ]
+  ],
+  "hiringCities": "Salt Lake City UT, St George UT, Logan UT, Ogden UT, Idaho Falls ID, Twin Falls ID, Boise ID, Rexburg ID, Provo UT,"
  },
  {
   "id": "swift:walmart-grand-junction-co-regional:dedicated",
@@ -2992,7 +3139,8 @@
   "cat": "Dedicated",
   "states": [
    "Utah"
-  ]
+  ],
+  "hiringCities": "Grand Junction CO, Delta CO, Montrose CO, Corinne UT"
  },
  {
   "id": "swift:walmart-harrisonville-mo:dedicated",
@@ -3013,7 +3161,8 @@
    "Kansas",
    "Missouri",
    "Nebraska"
-  ]
+  ],
+  "hiringCities": "Springfield, MO. St. Joe, MO. Topeka, KS Emporia, KS. Des Moines, IA Fort Smith, AR Little Rock, AR Omaha, NE Lincoln, NE -, please ask so we can approve the applicant."
  },
  {
   "id": "swift:walmart-harrisonville-mo-local-position-only:local",
@@ -3031,7 +3180,8 @@
   "states": [
    "Kansas",
    "Missouri"
-  ]
+  ],
+  "hiringCities": "Kansas City Metropolitan Area"
  },
  {
   "id": "swift:walmart-hybrid-position-harrisonville-mo-dedicated-otr:dedicated",
@@ -3056,7 +3206,8 @@
    "Nebraska",
    "Oklahoma",
    "Tennessee"
-  ]
+  ],
+  "hiringCities": "Nashville, TN. Indianapolis, IN. Louisville, KY. Springfield, IL. Cedar Rapids, IA. North Platte, NE. Garden City, KS. Oklahoma City, OK. El Dorado, AR."
  },
  {
   "id": "swift:walmart-johnstown-ny-regional:local",
@@ -3078,7 +3229,8 @@
    "New Jersey",
    "New York",
    "Ohio"
-  ]
+  ],
+  "hiringCities": "NY, MA, CT, VT, NJ,MD,OH, PA"
  },
  {
   "id": "swift:walmart-los-lunas-nm:dedicated",
@@ -3095,7 +3247,8 @@
   "cat": "Dedicated",
   "states": [
    "New Mexico"
-  ]
+  ],
+  "hiringCities": "Los Lunas, Albuquerque, Rio Rancho, Bernalillo, Santa Fe. Within 60 miles of LLNM"
  },
  {
   "id": "swift:walmart-moberly-mo:dedicated",
@@ -3115,7 +3268,8 @@
    "Iowa",
    "Kansas",
    "Missouri"
-  ]
+  ],
+  "hiringCities": "Moberly, MO, Columbia, MO. Boonville, MO. Macon, MO. Rolla, MO, Sullivan, MO. Farmington, MO, Washington, MO, Lebanon, MO, Warrensburg, MO, Quincy, IL. Mt. Pleasant, IA, Burlington, IA, Des Moines, IA, St. Joseph, MO, Ottumwa, IA, St. Louis, MO, Blue Springs, MO, Jacksonville, IL, Macomb, IL"
  },
  {
   "id": "swift:walmart-moberly-mo-daily:local",
@@ -3135,7 +3289,8 @@
    "Iowa",
    "Kansas",
    "Missouri"
-  ]
+  ],
+  "hiringCities": "Columbia, MO. Moberly, MO. Boonville, MO. Macon, MO. Rolla, MO, Sullivan, MO. Quincy, IL. Burlington, IA, Des Moines, IA, St. Joseph, MO"
  },
  {
   "id": "swift:walmart-opelika-al:local",
@@ -3153,7 +3308,8 @@
   "states": [
    "Alabama",
    "Georgia"
-  ]
+  ],
+  "hiringCities": "Opelika"
  },
  {
   "id": "swift:walmart-temple-tx:dedicated",
@@ -3170,7 +3326,8 @@
   "cat": "Dedicated",
   "states": [
    "Texas"
-  ]
+  ],
+  "hiringCities": "In delivery area"
  },
  {
   "id": "swift:walmart-johnstown-ny-slip-seat:local",
@@ -3187,7 +3344,8 @@
   "cat": "Local",
   "states": [
    "New York"
-  ]
+  ],
+  "hiringCities": "Johnstown, NY and Albany, NY"
  },
  {
   "id": "swift:wvc-denver-reefer:otr",
@@ -3204,6 +3362,7 @@
   "cat": "OTR",
   "states": [
    "Colorado"
-  ]
+  ],
+  "hiringCities": "denver"
  }
 ]

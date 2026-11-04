@@ -43,7 +43,7 @@ export function StrategyWizard() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1500px] px-6 py-6">
       <div className="flex items-end justify-between gap-4 flex-wrap mb-5">
         <div>
           <h1 className="text-[22px] font-bold text-[var(--cpm-text)]">Strategy Builder</h1>
@@ -238,8 +238,8 @@ function StatesStep() {
         hint="Click states on the map to add or remove them, or pick from the list. States shared with other recruiters are fine."
       />
       <div className="flex flex-col lg:flex-row gap-5">
-        <div className="flex-1 min-w-0 wizMap">
-          <ChoroplethMap />
+        <div className="flex-1 min-w-0 wizMap bigMap">
+          <ChoroplethMap showCities hideStateLabels />
           <div className="flex items-center gap-4 text-[11.5px] text-[var(--cpm-text-faint)] mt-2">
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm" style={{ background: recruiterColor(recruiterFilter) }} /> {recruiterFilter}

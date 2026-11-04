@@ -55,6 +55,14 @@ export interface Account {
   experience: string;
   sob: string; // sign-on / other bonus offer
   notes: string;
+  cities: AccountCity[]; // where it hires from, for map pins (may be empty)
+}
+
+export interface AccountCity {
+  name: string;
+  st: string; // 2-letter state code
+  lon: number;
+  lat: number;
 }
 
 // ---- USX ----

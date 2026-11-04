@@ -15,6 +15,10 @@
   "states": [
    "Alabama",
    "Georgia"
+  ],
+  "pin": [
+   -84.6344,
+   33.8126
   ]
  },
  {
@@ -35,6 +39,10 @@
    "Georgia",
    "North Carolina",
    "Tennessee"
+  ],
+  "pin": [
+   -85.1091,
+   34.9159
   ]
  },
  {
@@ -55,6 +63,10 @@
    "New Jersey",
    "New York",
    "Pennsylvania"
+  ],
+  "pin": [
+   -74.2261,
+   40.5412
   ]
  },
  {
@@ -73,6 +85,10 @@
   "states": [
    "Maryland",
    "Pennsylvania"
+  ],
+  "pin": [
+   -76.8867,
+   40.2732
   ]
  },
  {
@@ -91,6 +107,10 @@
   "states": [
    "Illinois",
    "Wisconsin"
+  ],
+  "pin": [
+   -87.9097,
+   43.041
   ]
  },
  {
@@ -108,6 +128,10 @@
   "cat": "Local",
   "states": [
    "Indiana"
+  ],
+  "pin": [
+   -86.158,
+   39.7691
   ]
  },
  {
@@ -125,6 +149,10 @@
   "cat": "Local",
   "states": [
    "Ohio"
+  ],
+  "pin": [
+   -83.0032,
+   39.9625
   ]
  },
  {
@@ -143,6 +171,10 @@
   "states": [
    "Indiana",
    "Michigan"
+  ],
+  "pin": [
+   -85.5916,
+   42.201
   ]
  },
  {
@@ -161,6 +193,10 @@
   "states": [
    "Ohio",
    "Pennsylvania"
+  ],
+  "pin": [
+   -81.1966,
+   41.5041
   ]
  },
  {
@@ -179,6 +215,10 @@
   "states": [
    "Kansas",
    "Missouri"
+  ],
+  "pin": [
+   -94.4191,
+   39.2461
   ]
  },
  {
@@ -197,6 +237,10 @@
   "states": [
    "Utah",
    "Wyoming"
+  ],
+  "pin": [
+   -111.8881,
+   40.7606
   ]
  },
  {
@@ -215,6 +259,10 @@
   "states": [
    "Kentucky",
    "Tennessee"
+  ],
+  "pin": [
+   -86.8041,
+   36.1983
   ]
  },
  {
@@ -233,6 +281,10 @@
   "states": [
    "Oregon",
    "Washington"
+  ],
+  "pin": [
+   -122.6784,
+   45.5152
   ]
  },
  {
@@ -250,6 +302,10 @@
   "cat": "Local",
   "states": [
    "Washington"
+  ],
+  "pin": [
+   -122.8233,
+   47.0359
   ]
  },
  {
@@ -267,6 +323,10 @@
   "cat": "Local",
   "states": [
    "Ohio"
+  ],
+  "pin": [
+   -81.5049,
+   41.4857
   ]
  },
  {
@@ -286,6 +346,10 @@
    "Maryland",
    "Pennsylvania",
    "West Virginia"
+  ],
+  "pin": [
+   -77.5203,
+   40.0506
   ]
  },
  {
@@ -303,6 +367,10 @@
   "cat": "Regional",
   "states": [
    "Texas"
+  ],
+  "pin": [
+   -97.3994,
+   32.813
   ]
  },
  {
@@ -320,6 +388,10 @@
   "cat": "Local",
   "states": [
    "California"
+  ],
+  "pin": [
+   -117.5529,
+   34.1342
   ]
  },
  {
@@ -337,6 +409,10 @@
   "cat": "Local",
   "states": [
    "California"
+  ],
+  "pin": [
+   -121.9886,
+   37.5485
   ]
  },
  {
@@ -354,6 +430,10 @@
   "cat": "Local",
   "states": [
    "Oregon"
+  ],
+  "pin": [
+   -123.0407,
+   44.9362
   ]
  }
 ]

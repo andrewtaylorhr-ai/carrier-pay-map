@@ -183,6 +183,8 @@ function buildSwift() {
       experience: exp.join(", ") + (clean(r["Trainees OK?"]).toUpperCase() === "YES" ? " (trainees OK)" : ""),
       sob: bonus.join(", "),
       notes: notes.join(" · "),
+      // raw city list, only read by build-cities.mjs
+      hiringCities: lines(r["Hiring City(s)"]).join(", "),
     };
   });
   return withIds("swift", accounts);
@@ -315,6 +317,21 @@ function placemarkStates(p, pinRadiusMiles = 0) {
   });
   return out;
 }
+// Where a placemark sits: the pin itself, or the middle of its hiring-area
+// shape. Used by build-cities.mjs to put the account on the map.
+function placemarkPin(p) {
+  const m = p.match(/<coordinates>([\s\S]*?)<\/coordinates>/);
+  if (!m) return null;
+  const pts = m[1]
+    .trim()
+    .split(/\s+/)
+    .map((t) => t.split(",").map(Number))
+    .filter((c) => Number.isFinite(c[0]) && Number.isFinite(c[1]));
+  if (!pts.length) return null;
+  const lon = pts.reduce((n, c) => n + c[0], 0) / pts.length;
+  const lat = pts.reduce((n, c) => n + c[1], 0) / pts.length;
+  return [Number(lon.toFixed(4)), Number(lat.toFixed(4))];
+}
 function folders(kml) {
   return kml
     .split("<Folder>")
@@ -358,6 +375,7 @@ function buildHub() {
       cat: regional ? "Regional" : "Local",
       // Every Hub Group listing hires "within a 50-mile radius" of the yard.
       states: sortStates(placemarkStates(p, 50)),
+      pin: placemarkPin(p),
       payLow: pays.length ? Math.min(...pays) : null,
       payHigh: pays.length ? Math.max(...pays) : null,
       payText: [pays.length ? `$${Math.min(...pays).toLocaleString()}${pays.length > 1 && Math.max(...pays) !== Math.min(...pays) ? "–$" + Math.max(...pays).toLocaleString() : ""}/wk avg` : "", payLine.replace(/^pay[\s:-]+/i, "")]
@@ -434,6 +452,7 @@ function buildUsx() {
         name,
         cat,
         stateSet: states,
+        pin: placemarkPin(p),
         payLow: pays.length ? Math.min(...pays) : null,
         payHigh: pays.length ? Math.max(...pays) : null,
         payText: [avgLine && !/not listed/i.test(avgLine) ? avgLine : "", top && !avgLine.includes(top) ? clean(top.replace(/^.*?(top)/i, "Top")) : ""]

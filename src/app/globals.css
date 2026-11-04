@@ -99,6 +99,7 @@ body {
 #carrierTabs button:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,.45); }
 #carrierTabs button.active { border-width:2.5px; box-shadow:0 3px 10px rgba(0,0,0,.55); }
 #carrierTabs .carrierLogo { max-height:26px; max-width:110px; width:auto; height:auto; display:block; }
+#carrierTabs .carrierLabel { display:block; line-height:26px; font-size:14px; font-weight:800; letter-spacing:.2px; white-space:nowrap; }
 
 #catTabs { display:inline-flex; gap:2px; flex-wrap:wrap; background:var(--cpm-panel-alt); padding:4px; border-radius:999px; width:fit-content; }
 #catTabs button { padding:7px 16px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:500; border:none; background:transparent; color:var(--cpm-text-dim); transition:all .12s ease; }
@@ -177,6 +178,27 @@ body {
 .assignRow { display:flex; align-items:center; gap:8px; margin:10px 0 4px; font-size:13px; }
 .assignRow select { padding:5px 8px; border-radius:6px; border:1px solid var(--cpm-border-strong); font-size:13px; background:var(--cpm-panel-alt); color:var(--cpm-text); }
 .assignBadge { display:inline-block; padding:2px 9px; border-radius:12px; font-size:11px; font-weight:600; color:#fff; }
+.assignRow > label { min-width:72px; }
+.carrierChips { display:flex; flex-wrap:wrap; gap:6px; }
+.achip { padding:3px 10px; border-radius:999px; border:1.5px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text-dim); font-size:12px; font-weight:600; cursor:pointer; }
+.achip:hover { color:var(--cpm-text); }
+.catTag { display:inline-block; padding:0 6px; border-radius:6px; font-size:10.5px; font-weight:600; background:rgba(255,255,255,.07); color:var(--cpm-text-dim); }
+.sobTag { display:inline-block; padding:0 6px; border-radius:6px; font-size:10.5px; font-weight:700; background:var(--cpm-green-soft); color:#4ade80; }
+.checklistBtn { font-size:11.5px; font-weight:600; padding:3px 9px; border-radius:6px; border:1px solid var(--cpm-border-strong); color:var(--cpm-text-dim); background:transparent; cursor:pointer; white-space:nowrap; }
+.checklistBtn:hover:not(:disabled) { color:var(--cpm-text); border-color:var(--cpm-accent); }
+.checklistBtn:disabled { opacity:.4; cursor:default; }
+.checklistSeg { display:inline-flex; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border); border-radius:999px; padding:2px; }
+.checklistSeg button { font-size:11.5px; font-weight:600; padding:3px 11px; border-radius:999px; color:var(--cpm-text-dim); cursor:pointer; }
+.checklistSeg button.active { background:var(--cpm-accent); color:#241800; }
+.achip.mini { padding:1px 7px; font-size:11px; display:inline-flex; align-items:center; gap:4px; }
+.chipCount { font-size:10px; font-weight:700; opacity:.75; }
+table.strategyGrid { width:100%; border-collapse:collapse; font-size:12.5px; }
+table.strategyGrid thead th { position:sticky; top:0; background:var(--cpm-panel); text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--cpm-text-faint); font-weight:600; padding:6px 10px 6px 0; z-index:1; }
+table.strategyGrid td { border-top:1px solid var(--cpm-border); padding:6px 10px 6px 0; vertical-align:middle; }
+table.strategyGrid .stateLink { font-weight:600; color:var(--cpm-text); white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+table.strategyGrid .stateLink:hover { color:var(--cpm-accent); }
+table.strategyGrid .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+.apprBadge { display:inline-block; margin-left:6px; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:700; background:var(--cpm-red-soft); color:#ff9a9d; border:1px solid var(--cpm-red); vertical-align:1px; }
 .cross { margin-top:14px; border-top:1px solid var(--cpm-border); padding-top:10px; }
 .cross .line { font-size:12.5px; padding:3px 0; }
 .cross .cname { font-weight:600; }

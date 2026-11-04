@@ -18,7 +18,7 @@ export function StateAssignmentTable() {
     const q = query.trim().toLowerCase();
     let list = [...ALL_STATES].sort();
     if (q) list = list.filter((s) => s.toLowerCase().includes(q));
-    if (assignedOnly) list = list.filter((s) => assignments[s] || (recruiterAssignments[s] || []).length);
+    if (assignedOnly) list = list.filter((s) => (assignments[s] || []).length || (recruiterAssignments[s] || []).length);
     return list;
   }, [query, assignedOnly, assignments, recruiterAssignments]);
 
@@ -70,7 +70,7 @@ export function StateAssignmentTable() {
               >
                 <td className="py-1.5 pr-3 text-[var(--cpm-text)] font-semibold whitespace-nowrap">{s}</td>
                 <td className="py-1.5 pr-3">
-                  <AssignedBadge carrierId={assignments[s]} />
+                  <AssignedBadge carrierIds={assignments[s]} />
                 </td>
                 <td className="py-1.5 pr-3">
                   <RecruiterBadge names={recruiterAssignments[s] || []} recruiterColor={recruiterColor} />

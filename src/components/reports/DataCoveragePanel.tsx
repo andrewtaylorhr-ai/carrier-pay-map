@@ -13,7 +13,7 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 export function DataCoveragePanel() {
   const { assignments, recruiters, recruiterAssignments, getRecruiterPlan } = useCarrierMap();
 
-  const unassignedStates = ALL_STATES.filter((s) => !assignments[s]).length;
+  const unassignedStates = ALL_STATES.filter((s) => !(assignments[s] || []).length).length;
   const statesNoRecruiter = ALL_STATES.filter((s) => !(recruiterAssignments[s] || []).length).length;
   const recruitersNoTarget = recruiters.filter((r) => {
     const p = getRecruiterPlan(r);

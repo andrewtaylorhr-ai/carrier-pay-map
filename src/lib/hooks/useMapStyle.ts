@@ -8,7 +8,11 @@ import { ALL_STATES, CARRIERS, CARRIER_ORDER } from "@/lib/carriers/data";
 import { getStateRecord, isFlatCategory } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { recruiterGradId } from "@/lib/recruiters";
+import type { CarrierId } from "@/lib/carriers/types";
 import type { LegendSpec } from "@/lib/legend-types";
+
+const orderedCarriers = (ids: CarrierId[]) => CARRIER_ORDER.filter((id) => ids.includes(id));
+const carrierGradId = (ids: CarrierId[]) => "cgrad-" + orderedCarriers(ids).join("-");
 
 export interface StateStyle {
   fill: string;
@@ -18,9 +22,10 @@ export interface StateStyle {
   cursor: "pointer" | "default";
 }
 
+// Hard-stop split fill for a state shared by several recruiters or carriers.
 export interface GradientSpec {
   id: string;
-  names: string[];
+  colors: string[];
 }
 
 export interface MapStyle {
@@ -60,8 +65,16 @@ export function useMapStyle(): MapStyle {
         combos.set(recruiterGradId(sorted), sorted);
       }
     });
-    return Array.from(combos.entries()).map(([id, names]) => ({ id, names }));
-  }, [recruiterAssignments]);
+    return Array.from(combos.entries()).map(([id, names]) => ({ id, colors: names.map(recruiterColor) }));
+  }, [recruiterAssignments, recruiterColor]);
+
+  const carrierGradients = useMemo<GradientSpec[]>(() => {
+    const combos = new Map<string, CarrierId[]>();
+    Object.values(assignments).forEach((arr) => {
+      if (arr.length > 1) combos.set(carrierGradId(arr), orderedCarriers(arr));
+    });
+    return Array.from(combos.entries()).map(([id, ids]) => ({ id, colors: ids.map((c) => CARRIERS[c].color) }));
+  }, [assignments]);
 
   return useMemo<MapStyle>(() => {
     // ---- Strategy mode ----
@@ -126,11 +139,12 @@ export function useMapStyle(): MapStyle {
       }
       // colorMode === 'carrier'
       const getStyle = (stateName: string): StateStyle => {
-        const a = assignments[stateName];
+        const arr = assignments[stateName] || [];
+        const shared = arr.length > 1;
         return {
-          fill: a ? CARRIERS[a].color : UNASSIGNED_FILL,
-          stroke: DEFAULT_STROKE,
-          strokeWidth: 0.75,
+          fill: !arr.length ? UNASSIGNED_FILL : shared ? `url(#${carrierGradId(arr)})` : CARRIERS[arr[0]].color,
+          stroke: shared ? "#1a1a1a" : DEFAULT_STROKE,
+          strokeWidth: shared ? 1.6 : 0.75,
           opacity: 1,
           cursor: "pointer",
         };
@@ -139,7 +153,7 @@ export function useMapStyle(): MapStyle {
         kind: "carrier-assign",
         items: CARRIER_ORDER.map((id) => ({ id, label: CARRIERS[id].label, color: CARRIERS[id].color })),
       };
-      return { legend, getStyle, gradients, getRecruiterLabel: () => "" };
+      return { legend, getStyle, gradients: carrierGradients, getRecruiterLabel: () => "" };
     }
 
     // ---- Pay / coverage view ----
@@ -183,7 +197,8 @@ export function useMapStyle(): MapStyle {
       };
     };
 
-    const fmt = (n: number) => (currentCarrier === "swift" ? "$" + n.toLocaleString() + "/wk" : "$" + n.toFixed(2) + "/mi");
+    // Values under $10 are CPM (USX OTR Solo, PAM); everything else is weekly $.
+    const fmt = (n: number) => (n < 10 ? "$" + n.toFixed(2) + "/mi" : "$" + Math.round(n).toLocaleString() + "/wk");
     const legend: LegendSpec = {
       kind: "gradient",
       minLabel: vals.length ? fmt(min) : "n/a",
@@ -204,6 +219,7 @@ export function useMapStyle(): MapStyle {
     currentCarrier,
     currentCat,
     gradients,
+    carrierGradients,
     getMonthlyReport,
     reportsActiveMonth,
   ]);

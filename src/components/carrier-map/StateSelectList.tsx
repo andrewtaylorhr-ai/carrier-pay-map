@@ -51,7 +51,7 @@ export function StateSelectList() {
             >
               <span className="truncate">{s}</span>
               <span className="flex items-center gap-1 shrink-0">
-                <AssignedBadge carrierId={assignments[s]} />
+                <AssignedBadge carrierIds={assignments[s]} />
                 <RecruiterBadge names={recruiterAssignments[s] || []} recruiterColor={recruiterColor} />
               </span>
             </button>

@@ -29,8 +29,14 @@ export function Toolbar() {
                   boxShadow: active ? `0 3px 10px ${c.color}55` : undefined,
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`${BASE_PATH}${c.logo}`} alt={c.label} className="carrierLogo" />
+                {c.logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`${BASE_PATH}${c.logo}`} alt={c.label} className="carrierLogo" />
+                ) : (
+                  <span className="carrierLabel" style={{ color: c.color }}>
+                    {c.label}
+                  </span>
+                )}
               </button>
             );
           })}

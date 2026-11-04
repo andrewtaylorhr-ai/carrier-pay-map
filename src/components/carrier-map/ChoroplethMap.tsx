@@ -112,11 +112,13 @@ export function ChoroplethMap() {
                 `<div>Recruiter${recs.length > 1 ? "s" : ""}: ${recs.length ? recs.join(", ") : "— unassigned —"}</div>` +
                 `<div style="margin-top:2px;color:#7ab8f5">Click to ${on ? "remove" : "assign"} ${assignModeRecruiter}</div>`;
             } else if (strategyMode) {
-              const assigned = assignments[name];
+              const assigned = assignments[name] || [];
               const recs = recruiterAssignments[name] || [];
               html =
                 `<div style="font-weight:600;margin-bottom:4px">${name}</div>` +
-                `<div>Carrier: ${assigned ? CARRIERS[assigned].label : "— unassigned —"}</div>` +
+                `<div>Carrier${assigned.length > 1 ? "s" : ""}: ${
+                  assigned.length ? assigned.map((id) => CARRIERS[id].label).join(", ") : "— unassigned —"
+                }</div>` +
                 `<div>Recruiter${recs.length > 1 ? "s" : ""}: ${recs.length ? recs.join(", ") : "— unassigned —"}</div>` +
                 `<div style="margin-top:2px;color:#7ab8f5">Click to assign / see all carriers</div>`;
             } else {
@@ -175,7 +177,7 @@ export function ChoroplethMap() {
     if (!paths || !defs || !labelG || !features || !mapReady) return;
 
     defs.selectAll("linearGradient").remove();
-    mapStyle.gradients.forEach(({ id, names }) => {
+    mapStyle.gradients.forEach(({ id, colors }) => {
       const grad = defs
         .append("linearGradient")
         .attr("id", id)
@@ -183,10 +185,10 @@ export function ChoroplethMap() {
         .attr("y1", "0%")
         .attr("x2", "100%")
         .attr("y2", "100%");
-      const n = names.length;
-      names.forEach((name, i) => {
-        grad.append("stop").attr("offset", (i / n) * 100 + "%").attr("stop-color", recruiterColor(name));
-        grad.append("stop").attr("offset", ((i + 1) / n) * 100 + "%").attr("stop-color", recruiterColor(name));
+      const n = colors.length;
+      colors.forEach((color, i) => {
+        grad.append("stop").attr("offset", (i / n) * 100 + "%").attr("stop-color", color);
+        grad.append("stop").attr("offset", ((i + 1) / n) * 100 + "%").attr("stop-color", color);
       });
     });
 

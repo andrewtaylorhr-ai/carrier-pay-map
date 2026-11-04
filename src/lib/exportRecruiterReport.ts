@@ -1,30 +1,44 @@
-// Ported 1:1 from exportRecruiterReportToExcel() in the original HTML, using
-// the npm `xlsx` (SheetJS) package instead of the CDN build — same codebase,
-// same sheet shape (12 columns, frozen header, autofilter).
+// Per-recruiter Strategy Builder export, for managers to send to each
+// recruiter: their states (with the carriers assigned to each) plus one row
+// per carrier account they're assigned to work. Uses the npm `xlsx`
+// (SheetJS CE) package — real columns with autofilter, no cell styling
+// (CE can't write styles).
 import * as XLSX from "xlsx";
+import { ACCOUNTS_BY_ID, accountsInStates, formatPay } from "@/lib/carriers/accounts";
 import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
-import { getStateAccountRows } from "@/lib/carriers/logic";
-import type { PersistedAssignments, PersistedRecruiterAssignments } from "@/lib/carriers/types";
+import type {
+  Account,
+  CarrierId,
+  PersistedAssignments,
+  PersistedRecruiterAccounts,
+  PersistedRecruiterAssignments,
+} from "@/lib/carriers/types";
 
-interface ExportRow {
+interface StateRow {
   State: string;
-  Recruiter: string;
+  "Carriers Assigned": string;
   "Shared With": string;
-  "Assigned Carrier": string;
+  "Your Accounts Here": number;
+}
+
+interface AccountExportRow {
   Carrier: string;
-  "Assigned?": string;
   Category: string;
   Account: string;
-  "Approval Needed": string;
+  "Your States": string;
+  "Other Hiring States": string;
   Pay: string;
+  Bonus: string;
   "Home Time": string;
+  Experience: string;
+  "Approval Needed": string;
   Notes: string;
 }
 
 // Regression guard for a bug that shipped once already and was explicitly
 // rejected ("not professional"): literal HTML leaking into an exported cell.
 // Dev-only — a raw npm build has no console reading it, so this is free in prod.
-function warnIfLooksLikeHtml(row: ExportRow) {
+function warnIfLooksLikeHtml(row: object) {
   if (process.env.NODE_ENV === "production") return;
   for (const [field, value] of Object.entries(row)) {
     if (typeof value === "string" && /<[a-z][\s\S]*>/i.test(value)) {
@@ -34,102 +48,162 @@ function warnIfLooksLikeHtml(row: ExportRow) {
   }
 }
 
-export function exportRecruiterReportToExcel(
-  recruiterFilter: string,
-  assignments: PersistedAssignments,
-  recruiterAssignments: PersistedRecruiterAssignments
-): void {
-  if (!recruiterFilter) return;
-  const states = Object.keys(recruiterAssignments)
-    .filter((s) => (recruiterAssignments[s] || []).includes(recruiterFilter))
+export function recruiterStates(recruiter: string, recruiterAssignments: PersistedRecruiterAssignments): string[] {
+  return Object.keys(recruiterAssignments)
+    .filter((s) => (recruiterAssignments[s] || []).includes(recruiter))
     .sort();
-  const rows: ExportRow[] = [];
-  states.forEach((state) => {
-    const assignedId = assignments[state];
-    const assignedLabel = assignedId ? CARRIERS[assignedId].label : "(unassigned)";
-    const sharedWith = (recruiterAssignments[state] || []).filter((r) => r !== recruiterFilter).join(", ");
-    let anyForState = false;
-    CARRIER_ORDER.forEach((id) => {
-      CARRIERS[id].cats.forEach((cat) => {
-        const acctRows = getStateAccountRows(id, cat, state);
-        if (!acctRows.length) return;
-        anyForState = true;
-        acctRows.forEach((a) => {
-          rows.push({
-            State: state,
-            Recruiter: recruiterFilter,
-            "Shared With": sharedWith,
-            "Assigned Carrier": assignedLabel,
-            Carrier: CARRIERS[id].label,
-            "Assigned?": id === assignedId ? "Yes" : "",
-            Category: cat,
-            Account: a.account,
-            "Approval Needed": a.approval,
-            Pay: a.pay,
-            "Home Time": a.hometime,
-            Notes: a.notes,
-          });
-        });
-      });
-    });
-    if (!anyForState) {
-      rows.push({
-        State: state,
-        Recruiter: recruiterFilter,
-        "Shared With": sharedWith,
-        "Assigned Carrier": assignedLabel,
-        Carrier: "",
-        "Assigned?": "",
-        Category: "",
-        Account: "",
-        "Approval Needed": "",
-        Pay: "No carrier data available for this state.",
-        "Home Time": "",
-        Notes: "",
-      });
-    }
-  });
+}
 
-  if (!rows.length) {
-    alert(`No assigned states to export for ${recruiterFilter}.`);
-    return;
+// The accounts a recruiter is assigned, in carrier order. Ids that no longer
+// exist (account closed in a later data refresh) are skipped.
+export function recruiterAssignedAccounts(recruiter: string, recruiterAccounts: PersistedRecruiterAccounts): Account[] {
+  const list = Array.from(new Set(recruiterAccounts[recruiter] || []))
+    .map((id) => ACCOUNTS_BY_ID.get(id))
+    .filter((a): a is Account => !!a);
+  const order = (id: CarrierId) => CARRIER_ORDER.indexOf(id);
+  return list.sort(
+    (a, b) => order(a.carrier) - order(b.carrier) || a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name)
+  );
+}
+
+function buildRecruiterRows(
+  recruiter: string,
+  assignments: PersistedAssignments,
+  recruiterAssignments: PersistedRecruiterAssignments,
+  recruiterAccounts: PersistedRecruiterAccounts
+) {
+  const states = recruiterStates(recruiter, recruiterAssignments);
+  const stateSet = new Set(states);
+  let accounts = recruiterAssignedAccounts(recruiter, recruiterAccounts);
+  // Nothing ticked yet: fall back to every open account in their states for
+  // the carriers assigned to each state, so the file is still useful.
+  const fallback = !accounts.length;
+  if (fallback) {
+    accounts = accountsInStates(states).filter((a) =>
+      a.states.some((s) => stateSet.has(s) && (!(assignments[s] || []).length || assignments[s].includes(a.carrier)))
+    );
   }
 
-  rows.forEach(warnIfLooksLikeHtml);
+  const accountRows: AccountExportRow[] = accounts.map((a) => ({
+    Carrier: CARRIERS[a.carrier].label,
+    Category: a.cat,
+    Account: a.name,
+    "Your States": a.states.filter((s) => stateSet.has(s)).join(", ") || "(outside your states)",
+    "Other Hiring States": a.states.filter((s) => !stateSet.has(s)).join(", "),
+    Pay: formatPay(a),
+    Bonus: a.sob,
+    "Home Time": a.hometime,
+    Experience: a.experience,
+    "Approval Needed": a.approval,
+    Notes: a.notes,
+  }));
 
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = [
-    { wch: 16 },
-    { wch: 12 },
-    { wch: 16 },
-    { wch: 16 },
-    { wch: 14 },
-    { wch: 9 },
-    { wch: 24 },
-    { wch: 34 },
-    { wch: 15 },
-    { wch: 44 },
-    { wch: 24 },
-    { wch: 60 },
-  ];
-  ws["!autofilter"] = { ref: ws["!ref"] as string };
-  // NOTE: the free/community `xlsx` (SheetJS CE) package does not actually
-  // write frozen panes — its writer has a no-op case for 'freezepanes'
-  // (confirmed in node_modules/xlsx/xlsx.js). This matches the original CDN
-  // build's behavior (same SheetJS codebase), so the header row was never
-  // truly frozen there either. Left set for forward-compatibility / parity
-  // with the original source, but don't expect it to take effect.
-  ws["!views"] = [{ state: "frozen", ySplit: 1 }];
+  const stateRows: StateRow[] = states.map((s) => ({
+    State: s,
+    "Carriers Assigned": (assignments[s] || []).map((id) => CARRIERS[id].label).join(", ") || "(none yet)",
+    "Shared With": (recruiterAssignments[s] || []).filter((r) => r !== recruiter).join(", "),
+    "Your Accounts Here": accounts.filter((a) => a.states.includes(s)).length,
+  }));
+
+  accountRows.forEach(warnIfLooksLikeHtml);
+  return { states, stateRows, accountRows, fallback };
+}
+
+const ACCOUNT_COLS = [14, 22, 38, 26, 26, 40, 22, 26, 22, 10, 60].map((wch) => ({ wch }));
+const STATE_COLS = [16, 34, 24, 12].map((wch) => ({ wch }));
+
+function sheetFrom<T extends object>(rows: T[], cols: { wch: number }[], emptyNote: string) {
+  const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([[emptyNote]]);
+  ws["!cols"] = cols;
+  if (rows.length) ws["!autofilter"] = { ref: ws["!ref"] as string };
+  return ws;
+}
+
+// Excel sheet names: max 31 chars, no \ / ? * [ ] :, unique (case-insensitive).
+function sheetName(s: string, used: Set<string>): string {
+  const base = s.replace(/[\\/?*[\]:]/g, " ").slice(0, 28) || "Sheet";
+  let name = base;
+  for (let n = 2; used.has(name.toLowerCase()); n++) name = `${base.slice(0, 25)} ${n}`;
+  used.add(name.toLowerCase());
+  return name;
+}
+
+export function exportRecruiterReportToExcel(
+  recruiter: string,
+  assignments: PersistedAssignments,
+  recruiterAssignments: PersistedRecruiterAssignments,
+  recruiterAccounts: PersistedRecruiterAccounts
+): void {
+  if (!recruiter) return;
+  const { states, stateRows, accountRows, fallback } = buildRecruiterRows(
+    recruiter,
+    assignments,
+    recruiterAssignments,
+    recruiterAccounts
+  );
+  if (!states.length && !accountRows.length) {
+    alert(`${recruiter} has no states or accounts assigned yet.`);
+    return;
+  }
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, recruiterFilter.slice(0, 31));
-  XLSX.writeFile(wb, `${recruiterFilter.replace(/[^a-z0-9]+/gi, "_")}_assigned_states.xlsx`);
+  XLSX.utils.book_append_sheet(
+    wb,
+    sheetFrom(accountRows, ACCOUNT_COLS, "No accounts in this recruiter's states."),
+    fallback ? "All accounts in your states" : "Your accounts"
+  );
+  XLSX.utils.book_append_sheet(wb, sheetFrom(stateRows, STATE_COLS, "No states assigned."), "Your states");
+  XLSX.writeFile(wb, `${recruiter.replace(/[^a-z0-9]+/gi, "_")}_strategy.xlsx`);
+}
+
+// One workbook for the whole team: a Summary sheet, then one sheet per
+// recruiter with their assigned accounts.
+export function exportAllRecruitersToExcel(
+  recruiters: string[],
+  assignments: PersistedAssignments,
+  recruiterAssignments: PersistedRecruiterAssignments,
+  recruiterAccounts: PersistedRecruiterAccounts
+): void {
+  const built = recruiters
+    .map((r) => ({ r, ...buildRecruiterRows(r, assignments, recruiterAssignments, recruiterAccounts) }))
+    .filter((b) => b.states.length || (recruiterAccounts[b.r] || []).length);
+  if (!built.length) {
+    alert("No recruiter has states or accounts assigned yet.");
+    return;
+  }
+  const used = new Set<string>();
+  const wb = XLSX.utils.book_new();
+  const summary = built.map((b) => ({
+    Recruiter: b.r,
+    States: b.states.join(", "),
+    Carriers: Array.from(new Set(b.states.flatMap((s) => assignments[s] || [])))
+      .map((id) => CARRIERS[id].label)
+      .join(", "),
+    "Accounts Assigned": b.fallback ? 0 : b.accountRows.length,
+  }));
+  XLSX.utils.book_append_sheet(
+    wb,
+    sheetFrom(summary, [16, 50, 34, 16].map((wch) => ({ wch })), ""),
+    sheetName("Summary", used)
+  );
+  built.forEach((b) => {
+    XLSX.utils.book_append_sheet(
+      wb,
+      sheetFrom(
+        b.fallback ? [] : b.accountRows,
+        ACCOUNT_COLS,
+        `No accounts ticked for ${b.r} yet — states: ${b.states.join(", ") || "none"}.`
+      ),
+      sheetName(b.r, used)
+    );
+  });
+  XLSX.writeFile(wb, `Recruiter_Strategy_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
 // One row of the whole-team Reports page — target vs. actual for a single
 // recruiter for a single selected month, plus their states/carriers
 // footprint. Exported as-is (the same rows rendered on screen), unlike
-// exportRecruiterReportToExcel above which expands into a per-state/
-// per-account breakdown for one recruiter.
+// exportRecruiterReportToExcel above which expands into a per-account
+// breakdown for one recruiter.
 export interface TeamReportRow {
   Recruiter: string;
   Team: string;

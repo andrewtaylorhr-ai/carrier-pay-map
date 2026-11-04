@@ -2,12 +2,11 @@
 
 import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { carrierSummaryLines, getStateRecord } from "@/lib/carriers/logic";
-import type { CarrierId } from "@/lib/carriers/types";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { AssignedBadge, RecruiterBadge } from "./badges";
 
 export function DetailCard() {
-  const { strategyMode, selectedState, currentCarrier, currentCat, assignments, assignCarrierToState, recruiterAssignments, recruiterColor } =
+  const { strategyMode, selectedState, currentCarrier, currentCat, assignments, toggleCarrierOnState, recruiterAssignments, recruiterColor } =
     useCarrierMap();
 
   if (!selectedState) return null;
@@ -26,25 +25,36 @@ export function DetailCard() {
         <div className="card">
           <h3>
             {selectedState} <span className="meta">strategy assignment</span>{" "}
-            <AssignedBadge carrierId={assignments[selectedState]} />{" "}
+            <AssignedBadge carrierIds={assignments[selectedState]} />{" "}
             <RecruiterBadge names={selectedRecruiters} recruiterColor={recruiterColor} />
           </h3>
           <div className="assignRow">
-            <label>Carrier:</label>
-            <select
-              value={assignments[selectedState] ?? ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                assignCarrierToState(selectedState, v ? (v as CarrierId) : null);
-              }}
-            >
-              <option value="">— Unassigned —</option>
-              {CARRIER_ORDER.map((id) => (
-                <option key={id} value={id}>
-                  {CARRIERS[id].label}
-                </option>
-              ))}
-            </select>
+            <label>Carriers:</label>
+            <span className="carrierChips">
+              {CARRIER_ORDER.map((id) => {
+                const on = (assignments[selectedState] || []).includes(id);
+                const c = CARRIERS[id];
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`achip${on ? " selected" : ""}`}
+                    onClick={() => toggleCarrierOnState(selectedState, id)}
+                    style={on ? { background: c.color, borderColor: c.color, color: "#fff" } : { borderColor: c.color }}
+                    title={on ? `Remove ${c.label} from ${selectedState}` : `Add ${c.label} to ${selectedState}`}
+                  >
+                    {on ? "✓ " : "+ "}
+                    {c.label}
+                  </button>
+                );
+              })}
+            </span>
+          </div>
+          <div className="assignRow">
+            <label />
+            <span style={{ fontSize: 11.5, color: "var(--cpm-text-faint)" }}>
+              Click to add or remove — a state can have several carriers.
+            </span>
           </div>
           <div className="assignRow">
             <label>Recruiter(s):</label>
@@ -70,7 +80,7 @@ export function DetailCard() {
       <div className="card">
         <h3>
           {selectedState} — {CARRIERS[currentCarrier].label} · {currentCat}{" "}
-          <AssignedBadge carrierId={assignments[selectedState]} />
+          <AssignedBadge carrierIds={assignments[selectedState]} />
         </h3>
         <div dangerouslySetInnerHTML={{ __html: rec.detail }} />
       </div>

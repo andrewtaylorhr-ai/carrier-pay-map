@@ -1,28 +1,24 @@
-// Hand-ported (not auto-extracted) 1:1 from the original Multi_Carrier_Pay_Map.html
-// swiftState/usxState/pamState/transamState/creState functions and their
-// *AccountRows counterparts + dispatchers. Behavior, including the HTML
-// strings in `detail`, is preserved verbatim from the source app.
+// Per-state records for the map. PAM / TransAm / CR England are hand-ported
+// 1:1 from the original Multi_Carrier_Pay_Map.html (HTML in `detail`
+// preserved verbatim). Swift / USX / J.B. Hunt / Hub Group are account-based:
+// a state's record lists every open account hiring there (accounts.ts),
+// with the choropleth value = average of those accounts' weekly pay.
 import { mean as d3mean, max as d3max } from "d3-array";
+import { carrierAccounts, formatPay } from "./accounts";
 import {
   CARRIERS,
   CRE_ACCOUNTS,
   CRE_CADENCE_LABEL,
-  LOWER_48,
   PAM_DOMICILES,
   PAM_TIER_CPM,
-  SWIFT_DATA,
   TRANSAM_HIRE_STATES,
   TRANSAM_NOHIRE_STATES,
-  USX_DAILY_TEAM_NOTE,
-  USX_DEDICATED_DAILY_TEAM,
-  USX_DEDICATED_HOME_WEEKLY,
   USX_LOYALTY,
-  USX_OTR_REGIONAL,
   USX_OTR_SOLO_REGIONS,
   USX_SHORTHAUL,
   USX_STATE_REGION,
 } from "./data";
-import type { AccountRow, CarrierId, CpmTier, StateRecord } from "./types";
+import type { Account, AccountRow, CarrierId, CpmTier, StateRecord } from "./types";
 
 export function isFlatCategory(carrierId: CarrierId, cat: string): boolean {
   return (
@@ -35,204 +31,95 @@ export function money(n: number | null | undefined): string {
   return n == null ? "?" : "$" + n.toLocaleString();
 }
 
-/* ---- SWIFT ---- */
-function acctListSimple(accts: string[]): string {
-  if (!accts.length) return '<span class="none">none</span>';
-  return accts.map((a) => `<div class="acct">${a}</div>`).join("");
+/* ---- account-based carriers (Swift / USX / J.B. Hunt / Hub Group) ---- */
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+export function accountDetailHtml(a: Account): string {
+  const meta = [
+    a.hometime && `Home time: ${esc(a.hometime)}`,
+    a.experience && `Experience: ${esc(a.experience)}`,
+    a.sob && `Bonus: ${esc(a.sob)}`,
+  ].filter(Boolean);
+  return `<div class="acct"><div class="name">${esc(a.name)}${
+    a.approval === "Yes" ? ' <span class="apprBadge">needs approval</span>' : ""
+  }</div>
+    <div class="sub">${esc(formatPay(a))}</div>
+    ${meta.length ? `<div class="sub">${meta.join(" · ")}</div>` : ""}
+    ${a.notes ? `<div class="sub" style="color:#9aa0ad">${esc(a.notes)}</div>` : ""}
+  </div>`;
 }
 
-function swiftState(cat: string, state: string): StateRecord | null {
-  const rec = SWIFT_DATA[cat]?.[state];
-  if (!rec) return null;
-  const payLine = `Avg pay: ${money(rec.avg_low)}–${money(rec.avg_high)}/wk (true max ${money(rec.max_high)})`;
+function accountRecord(carrierId: CarrierId, cat: string, state: string): StateRecord | null {
+  const matches = carrierAccounts(carrierId, cat, state);
+  if (!matches.length) return null;
+  const paid = matches.filter((a) => a.payHigh != null).map((a) => a.payHigh as number);
+  const value = paid.length ? (d3mean(paid) ?? null) : null;
+  const needApproval = matches.filter((a) => a.approval === "Yes").length;
+  const lines = matches.map((a) => `${a.name}: ${formatPay(a)}`);
   return {
-    value: rec.avg_high,
+    value,
     tooltipLines: [
-      `${cat}: ${rec.n} posting${rec.n > 1 ? "s" : ""}`,
-      payLine,
-      `Needs approval: ${rec.n_yes} yes / ${rec.n_no} no`,
+      `${cat}: ${matches.length} account${matches.length > 1 ? "s" : ""}`,
+      ...(value != null ? [`Avg pay: ${money(Math.round(value))}/wk`] : []),
+      ...(needApproval ? [`Needs approval: ${needApproval} of ${matches.length}`] : []),
+      ...lines.slice(0, 2),
     ],
-    detail: `<div class="cols">
-        <div>
-          <div class="col-title yes">Needs leadership approval (${rec.n_yes})</div>
-          ${acctListSimple(rec.yes_accts)}
-        </div>
-        <div>
-          <div class="col-title no">No approval needed (${rec.n_no})</div>
-          ${acctListSimple(rec.no_accts)}
-        </div>
-      </div>`,
+    detail: matches.map(accountDetailHtml).join(""),
   };
 }
 
-function swiftAccountRows(cat: string, state: string): AccountRow[] {
-  const rec = SWIFT_DATA[cat]?.[state];
-  if (!rec) return [];
-  const pay = `${money(rec.avg_low)}–${money(rec.avg_high)}/wk (true max ${money(rec.max_high)})`;
-  const rows: AccountRow[] = [];
-  rec.yes_accts.forEach((name) => rows.push({ account: name, approval: "Yes", pay, hometime: "", notes: "" }));
-  rec.no_accts.forEach((name) => rows.push({ account: name, approval: "No", pay, hometime: "", notes: "" }));
-  if (!rows.length) {
-    rows.push({
-      account: "(no individual accounts listed)",
-      approval: "—",
-      pay,
-      hometime: "",
-      notes: `${rec.n} posting(s) total`,
-    });
-  }
-  return rows;
+function accountRows(carrierId: CarrierId, cat: string, state: string): AccountRow[] {
+  return carrierAccounts(carrierId, cat, state).map((a) => ({
+    account: a.name,
+    approval: a.approval || "—",
+    pay: formatPay(a),
+    hometime: a.hometime,
+    notes: [a.sob && `Bonus: ${a.sob}`, a.experience && `Experience: ${a.experience}`, a.notes]
+      .filter(Boolean)
+      .join(" · "),
+  }));
 }
 
-/* ---- USX ---- */
+/* ---- USX OTR Solo: pay is by CPM region, not per terminal ---- */
 function usxCpmTable(cpmArr: CpmTier[]): string {
   return `<table class="cpm"><tr><th>Tenure</th><th>CPM</th></tr>${cpmArr
     .map(([t, v]) => `<tr><td>${t}</td><td>$${v.toFixed(2)}</td></tr>`)
     .join("")}</table>`;
 }
 
-function usxState(cat: string, state: string): StateRecord | null {
-  if (cat === "OTR Solo Company") {
-    const region = USX_STATE_REGION[state];
-    if (!region) return null;
-    const r = USX_OTR_SOLO_REGIONS[region];
-    const top = r.cpm[r.cpm.length - 1][1];
-    return {
-      value: top,
-      tooltipLines: [
-        `OTR Solo Company — ${region} region`,
-        `CPM range: $${r.cpm[0][1].toFixed(2)} – $${top.toFixed(2)}`,
-        `+ loyalty pay up to $0.06/mi at 48mo+`,
-      ],
-      detail: `<div><b>${region} region</b> — pay is region-based, not per-terminal.</div>
-        ${usxCpmTable(r.cpm)}
-        <div style="margin-top:8px"><b>Loyalty pay adder (stacks on base CPM):</b></div>
-        <table class="cpm"><tr><th>USX tenure</th><th>Adder</th></tr>${USX_LOYALTY.map(
-          ([t, v]) => `<tr><td>${t}</td><td>${v}</td></tr>`
-        ).join("")}</table>
-        <div style="margin-top:8px"><b>Minimum short-haul pay</b> (pickup/delivery to customer locations, excludes terminal transfers):</div>
-        <table class="cpm"><tr><th>Miles</th><th>Min pay</th></tr>${USX_SHORTHAUL.map(
-          ([t, v]) => `<tr><td>${t}</td><td>${v}</td></tr>`
-        ).join("")}</table>
-        <div class="none" style="margin-top:6px">Montana and North Dakota are not in any of the 5 CPM regions and are excluded from OTR Solo pay zones.</div>`,
-    };
-  }
-  if (cat === "OTR Team Company") {
-    if (!LOWER_48.includes(state)) return null;
-    return {
-      value: null,
-      flatNo: false,
-      tooltipLines: [
-        `OTR Team Company — drive across all 48 states`,
-        `$10,000 split sign-on bonus (team)`,
-        `No published base pay rate captured`,
-      ],
-      detail: `<div class="card"><h3>${state} — OTR Team Company</h3>
-        <p>Coverage-only listing: "Drive Across All 48 States." $10,000 split sign-on bonus (team). No specific CPM/weekly pay figure was captured from the source data — confirm with USX before quoting to a driver.</p></div>`,
-    };
-  }
-  if (cat === "OTR Regional") {
-    const ne = USX_OTR_REGIONAL.northeast;
-    if (!ne.states.includes(state)) return null;
-    const top = ne.cpm[ne.cpm.length - 1][1];
-    return {
-      value: top,
-      tooltipLines: [
-        `OTR Regional — Northeast sub-fleet (approx.)`,
-        `CPM range: $${ne.cpm[0][1].toFixed(2)} – $${top.toFixed(2)}`,
-        `Top 20% earn $1,700+/wk`,
-      ],
-      detail: `<div><b>Northeast sub-fleet</b> — ${ne.note}</div>
-        ${usxCpmTable(ne.cpm)}
-        <div class="none" style="margin-top:6px">Southeast sub-fleet (Ellenwood, GA): ${USX_OTR_REGIONAL.southeast.note}</div>
-        <div class="none" style="margin-top:4px">West Coast sub-fleet: ${USX_OTR_REGIONAL.westcoast.note}</div>`,
-    };
-  }
-  if (cat === "Dedicated Home Weekly" || cat === "Dedicated Daily/Frequently/Team") {
-    const list = cat === "Dedicated Home Weekly" ? USX_DEDICATED_HOME_WEEKLY : USX_DEDICATED_DAILY_TEAM;
-    const matches = list.filter((a) => a.states.includes(state));
-    if (!matches.length) return null;
-    const paid = matches.filter((a) => a.payHigh != null).map((a) => a.payHigh as number);
-    const value = paid.length ? (d3mean(paid) ?? null) : null;
-    const lines = matches.map(
-      (a) =>
-        a.name +
-        ": " +
-        (a.payLow != null ? `${money(a.payLow)}${a.payHigh !== a.payLow ? "–" + money(a.payHigh) : ""}/wk` : "pay not confirmed")
-    );
-    return {
-      value,
-      tooltipLines: [`${cat}: ${matches.length} account${matches.length > 1 ? "s" : ""}`, ...lines.slice(0, 3)],
-      detail: `${matches
-        .map(
-          (a) =>
-            `<div class="acct"><div class="name">${a.name}</div><div class="sub">${
-              a.payLow != null
-                ? money(a.payLow) + (a.payHigh !== a.payLow ? "–" + money(a.payHigh) : "") + "/wk"
-                : "Pay not confirmed"
-            }${a.note ? " — " + a.note : ""}</div></div>`
-        )
-        .join("")}
-        ${cat === "Dedicated Daily/Frequently/Team" ? `<div class="none" style="margin-top:8px">${USX_DAILY_TEAM_NOTE}</div>` : ""}`,
-    };
-  }
-  return null;
+function usxOtrSoloState(state: string): StateRecord | null {
+  const region = USX_STATE_REGION[state];
+  if (!region) return null;
+  const r = USX_OTR_SOLO_REGIONS[region];
+  const top = r.cpm[r.cpm.length - 1][1];
+  const bases = carrierAccounts("usx", "OTR Solo Company", state);
+  return {
+    value: top,
+    tooltipLines: [
+      `OTR Solo Company — ${region} region`,
+      `CPM range: $${r.cpm[0][1].toFixed(2)} – $${top.toFixed(2)}`,
+      bases.length ? `Hiring bases: ${bases.map((b) => b.name).join(", ")}` : `No hiring base covers this state`,
+    ],
+    detail: `${bases.length ? `<div style="margin-bottom:8px"><b>Hiring bases covering this state</b></div>${bases.map(accountDetailHtml).join("")}` : ""}
+      <div style="margin-top:8px"><b>${region} region</b> — pay is region-based, not per-terminal.</div>
+      ${usxCpmTable(r.cpm)}
+      <div style="margin-top:8px"><b>Loyalty pay adder (stacks on base CPM):</b></div>
+      <table class="cpm"><tr><th>USX tenure</th><th>Adder</th></tr>${USX_LOYALTY.map(
+        ([t, v]) => `<tr><td>${t}</td><td>${v}</td></tr>`
+      ).join("")}</table>
+      <div style="margin-top:8px"><b>Minimum short-haul pay</b> (pickup/delivery to customer locations, excludes terminal transfers):</div>
+      <table class="cpm"><tr><th>Miles</th><th>Min pay</th></tr>${USX_SHORTHAUL.map(
+        ([t, v]) => `<tr><td>${t}</td><td>${v}</td></tr>`
+      ).join("")}</table>
+      <div class="none" style="margin-top:6px">Montana and North Dakota are not in any of the 5 CPM regions.</div>`,
+  };
 }
 
-function usxAccountRows(cat: string, state: string): AccountRow[] {
-  if (cat === "OTR Solo Company") {
-    const region = USX_STATE_REGION[state];
-    if (!region) return [];
-    const r = USX_OTR_SOLO_REGIONS[region];
-    const top = r.cpm[r.cpm.length - 1][1];
-    return [
-      {
-        account: `${region} region (all OTR Solo Company accounts)`,
-        approval: "—",
-        pay: `$${r.cpm[0][1].toFixed(2)}–$${top.toFixed(2)} CPM by tenure (+ loyalty pay up to $0.06/mi at 48mo+)`,
-        hometime: "",
-        notes: "Pay is region-based, not per-terminal. Minimum short-haul pay table applies for local/short runs.",
-      },
-    ];
-  }
-  if (cat === "OTR Team Company") {
-    if (!LOWER_48.includes(state)) return [];
-    return [
-      {
-        account: "Drive Across All 48 States (Team)",
-        approval: "—",
-        pay: "$10,000 split sign-on bonus (team); no base CPM/weekly rate captured",
-        hometime: "",
-        notes: "Coverage-only listing — confirm base pay with USX before quoting to a driver.",
-      },
-    ];
-  }
-  if (cat === "OTR Regional") {
-    const ne = USX_OTR_REGIONAL.northeast;
-    if (!ne.states.includes(state)) return [];
-    const top = ne.cpm[ne.cpm.length - 1][1];
-    return [
-      {
-        account: "Northeast sub-fleet",
-        approval: "—",
-        pay: `$${ne.cpm[0][1].toFixed(2)}–$${top.toFixed(2)} CPM by tenure`,
-        hometime: "",
-        notes: `Top 20% earn $1,700+/wk. Southeast (Ellenwood GA, $1,100/wk) and West Coast ($1,100/wk) sub-fleets have no confirmed state list and are not mapped here.`,
-      },
-    ];
-  }
-  if (cat === "Dedicated Home Weekly" || cat === "Dedicated Daily/Frequently/Team") {
-    const list = cat === "Dedicated Home Weekly" ? USX_DEDICATED_HOME_WEEKLY : USX_DEDICATED_DAILY_TEAM;
-    const matches = list.filter((a) => a.states.includes(state));
-    return matches.map((a) => ({
-      account: a.name,
-      approval: "—",
-      pay: a.payLow != null ? `${money(a.payLow)}${a.payHigh !== a.payLow ? "–" + money(a.payHigh) : ""}/wk` : "Pay not confirmed",
-      hometime: "",
-      notes: a.note || "",
-    }));
-  }
-  return [];
+function usxOtrSoloRows(state: string): AccountRow[] {
+  const region = USX_STATE_REGION[state];
+  const r = region ? USX_OTR_SOLO_REGIONS[region] : null;
+  const pay = r ? `$${r.cpm[0][1].toFixed(2)}–$${r.cpm[r.cpm.length - 1][1].toFixed(2)} CPM by tenure (${region} region, + loyalty pay up to $0.06/mi)` : "";
+  return accountRows("usx", "OTR Solo Company", state).map((row) => ({ ...row, pay: pay || row.pay }));
 }
 
 /* ---- PAM ---- */
@@ -368,21 +255,19 @@ function transamAccountRows(cat: string, state: string): AccountRow[] {
 
 /* ---- dispatcher ---- */
 export function getStateRecord(carrierId: CarrierId, cat: string, state: string): StateRecord | null {
-  if (carrierId === "swift") return swiftState(cat, state);
-  if (carrierId === "usx") return usxState(cat, state);
+  if (carrierId === "usx" && cat === "OTR Solo Company") return usxOtrSoloState(state);
   if (carrierId === "pam") return pamState(cat, state);
   if (carrierId === "transam") return transamState(cat, state);
   if (carrierId === "cre") return creState(cat, state);
-  return null;
+  return accountRecord(carrierId, cat, state);
 }
 
 export function getStateAccountRows(carrierId: CarrierId, cat: string, state: string): AccountRow[] {
-  if (carrierId === "swift") return swiftAccountRows(cat, state);
-  if (carrierId === "usx") return usxAccountRows(cat, state);
+  if (carrierId === "usx" && cat === "OTR Solo Company") return usxOtrSoloRows(state);
   if (carrierId === "pam") return pamAccountRows(cat, state);
   if (carrierId === "transam") return transamAccountRows(cat, state);
   if (carrierId === "cre") return creAccountRows(cat, state);
-  return [];
+  return accountRows(carrierId, cat, state);
 }
 
 export function carrierSummaryLines(carrierId: CarrierId, state: string): string[] {

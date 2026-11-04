@@ -3,12 +3,12 @@
 // loosely typed (e.g. `cats: string[]`) — this is a solo-user internal tool,
 // not a shared library, so there's no value in over-formalizing.
 
-export type CarrierId = "swift" | "usx" | "pam" | "transam" | "cre";
+export type CarrierId = "swift" | "usx" | "jbh" | "hub" | "pam" | "transam" | "cre";
 
 export interface CarrierMeta {
   label: string;
   color: string;
-  logo: string;
+  logo: string; // "" = no logo file yet, toolbar shows the label instead
   cats: string[];
 }
 
@@ -34,19 +34,28 @@ export interface AccountRow {
   notes: string;
 }
 
-// ---- SWIFT ----
-export interface SwiftStateEntry {
-  n: number;
-  avg_low: number;
-  avg_high: number;
-  max_high: number;
-  n_yes: number;
-  n_no: number;
-  yes_accts: string[];
-  no_accts: string[];
+// One open position/account at a carrier — the unit managers assign to
+// recruiters in the Strategy Builder. Swift / J.B. Hunt / Hub Group / USX
+// come straight from the carriers' source files via
+// scripts/build-accounts.mjs (generated/accounts-*.json); PAM / TransAm /
+// CR England are adapted from their older data shapes in accounts.ts.
+// `id` is stable across rebuilds (carrier + name + category), so saved
+// recruiter→account assignments survive a data refresh.
+export interface Account {
+  id: string;
+  carrier: CarrierId;
+  name: string;
+  cat: string;
+  states: string[]; // full state names (hiring states), matches ALL_STATES
+  payLow: number | null; // average weekly $, when the source gives one
+  payHigh: number | null;
+  payText: string;
+  hometime: string;
+  approval: string; // "Yes" / "No" / "" (unknown)
+  experience: string;
+  sob: string; // sign-on / other bonus offer
+  notes: string;
 }
-// SWIFT_DATA[cat][state] -> entry | undefined
-export type SwiftData = Record<string, Record<string, SwiftStateEntry>>;
 
 // ---- USX ----
 export type CpmTier = [string, number];
@@ -60,29 +69,6 @@ export type UsxOtrSoloRegions = Record<string, UsxOtrSoloRegion>;
 export type UsxLoyalty = [string, string][];
 export type UsxShorthaul = [string, string][];
 export type UsxStateRegion = Record<string, string>;
-
-export interface UsxDedicatedAccount {
-  name: string;
-  states: string[];
-  payLow: number | null;
-  payHigh: number | null;
-  note?: string;
-}
-
-export interface UsxOtrRegionalSubfleet {
-  states: string[];
-  cpm: CpmTier[];
-  note: string;
-}
-export interface UsxOtrRegionalSecondary {
-  note: string;
-  pay: string;
-}
-export interface UsxOtrRegional {
-  northeast: UsxOtrRegionalSubfleet;
-  southeast: UsxOtrRegionalSecondary;
-  westcoast: UsxOtrRegionalSecondary;
-}
 
 // ---- PAM ----
 export interface PamDomicile {
@@ -117,7 +103,12 @@ export interface CreAccount {
 export type CreCadenceLabel = Record<string, string>;
 
 // ---- persisted localStorage shapes (keys unchanged from the original) ----
-export type PersistedAssignments = Record<string, CarrierId>;
+// State -> carriers assigned to it (several allowed). Older saves stored a
+// single CarrierId string per state; useAssignments() upgrades those on read.
+export type PersistedAssignments = Record<string, CarrierId[]>;
+// Recruiter -> ids of the carrier accounts (Account.id) they're assigned to
+// work, on top of their states.
+export type PersistedRecruiterAccounts = Record<string, string[]>;
 export type PersistedRecruiters = string[];
 export type PersistedRecruiterAssignments = Record<string, string[]>;
 

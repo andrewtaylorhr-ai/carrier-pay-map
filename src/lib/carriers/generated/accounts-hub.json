@@ -1,0 +1,359 @@
+[
+ {
+  "id": "hub:austell-iml:local",
+  "carrier": "hub",
+  "payLow": 1737,
+  "payHigh": 1737,
+  "payText": "$1,737/wk avg · $11.87 (Days) $15.37 (Nights) $26.62 (Weekends) plus .34 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $100/day",
+  "name": "Austell IML",
+  "cat": "Local",
+  "states": [
+   "Alabama",
+   "Georgia"
+  ]
+ },
+ {
+  "id": "hub:ringgold-chattanooga-iml:local",
+  "carrier": "hub",
+  "payLow": 1295,
+  "payHigh": 1295,
+  "payText": "$1,295/wk avg · $12.00 (Days) $15.50 (Nights) $18.00 (Weekends) plus .33 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT pay- $100/day",
+  "name": "Ringgold/Chattanooga IML",
+  "cat": "Local",
+  "states": [
+   "Alabama",
+   "Georgia",
+   "North Carolina",
+   "Tennessee"
+  ]
+ },
+ {
+  "id": "hub:south-kearny-iml:local",
+  "carrier": "hub",
+  "payLow": 1709,
+  "payHigh": 1709,
+  "payText": "$1,709/wk avg · $12.73 (Days) $15.27 (Nights) $19.09 (Weekends) plus .40 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $154.90/day",
+  "name": "South Kearny IML",
+  "cat": "Local",
+  "states": [
+   "Connecticut",
+   "New Jersey",
+   "New York",
+   "Pennsylvania"
+  ]
+ },
+ {
+  "id": "hub:harrisburg-iml:local",
+  "carrier": "hub",
+  "payLow": 1868,
+  "payHigh": 1868,
+  "payText": "$1,868/wk avg · $12.23 (Days) $15.83 (Nights) $26.62 (Weekends) plus .37 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $100/day",
+  "name": "Harrisburg IML",
+  "cat": "Local",
+  "states": [
+   "Maryland",
+   "Pennsylvania"
+  ]
+ },
+ {
+  "id": "hub:milwaukee-iml:local",
+  "carrier": "hub",
+  "payLow": 1437,
+  "payHigh": 1437,
+  "payText": "$1,437/wk avg · $11.30 (Days) $14.80 (Nights) $16.95 (Weekend) plus .42 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Milwaukee IML",
+  "cat": "Local",
+  "states": [
+   "Illinois",
+   "Wisconsin"
+  ]
+ },
+ {
+  "id": "hub:indianapolis-iml:local",
+  "carrier": "hub",
+  "payLow": 1614,
+  "payHigh": 1614,
+  "payText": "$1,614/wk avg · $13.20 (Days) $16.70 ( nights) $19.80 ( Weekends) plus .38 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Indianapolis IML",
+  "cat": "Local",
+  "states": [
+   "Indiana"
+  ]
+ },
+ {
+  "id": "hub:columbus-iml:local",
+  "carrier": "hub",
+  "payLow": 1524,
+  "payHigh": 1524,
+  "payText": "$1,524/wk avg · $12.00 (Days) $15.50 (Nights) $18.00(weekends) plus .36 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay: $ 107/day",
+  "name": "Columbus IML",
+  "cat": "Local",
+  "states": [
+   "Ohio"
+  ]
+ },
+ {
+  "id": "hub:portage-iml:local",
+  "carrier": "hub",
+  "payLow": 1574,
+  "payHigh": 1574,
+  "payText": "$1,574/wk avg · $12.20 (Days) $15.70 (Nights) $18.30 (Weekends) plus .40 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 124.80/day",
+  "name": "Portage IML",
+  "cat": "Local",
+  "states": [
+   "Indiana",
+   "Michigan"
+  ]
+ },
+ {
+  "id": "hub:warrensville-iml:local",
+  "carrier": "hub",
+  "payLow": 1608,
+  "payHigh": 1608,
+  "payText": "$1,608/wk avg · $11.57 (Days) $15.07 (Nights) $17.36 (weekends) plus .36 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 107/day",
+  "name": "Warrensville IML",
+  "cat": "Local",
+  "states": [
+   "Ohio",
+   "Pennsylvania"
+  ]
+ },
+ {
+  "id": "hub:liberty-kansas-city-mo-iml:local",
+  "carrier": "hub",
+  "payLow": 1390,
+  "payHigh": 1390,
+  "payText": "$1,390/wk avg · $12.60 (Days) $16.10 (Nights) $18.90 (Weekends) plus .33 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 137.50/day",
+  "name": "Liberty/Kansas City MO IML",
+  "cat": "Local",
+  "states": [
+   "Kansas",
+   "Missouri"
+  ]
+ },
+ {
+  "id": "hub:salt-lake-city-iml:local",
+  "carrier": "hub",
+  "payLow": 1295,
+  "payHigh": 1295,
+  "payText": "$1,295/wk avg · $11.45 (Days) $14.95 (Nights) $17.18 (Weekends) plus .32 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Salt Lake City IML",
+  "cat": "Local",
+  "states": [
+   "Utah",
+   "Wyoming"
+  ]
+ },
+ {
+  "id": "hub:nashville-iml:local",
+  "carrier": "hub",
+  "payLow": 1500,
+  "payHigh": 1500,
+  "payText": "$1,500/wk avg · $11.45 (Days) $14.95 (Nights) $17.18 (Weekends) plus .36 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Nashville IML",
+  "cat": "Local",
+  "states": [
+   "Kentucky",
+   "Tennessee"
+  ]
+ },
+ {
+  "id": "hub:portland-iml:local",
+  "carrier": "hub",
+  "payLow": 1536,
+  "payHigh": 1536,
+  "payText": "$1,536/wk avg · $12.04 (Days) $14.45 (Nights) $18.07 (Weekends) plus .32 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Intermodal / container, no touch · Live within 50 mi / 1 hr of the yard · ORT Pay- $ 159.50/day",
+  "name": "Portland IML",
+  "cat": "Local",
+  "states": [
+   "Oregon",
+   "Washington"
+  ]
+ },
+ {
+  "id": "hub:home-depot-lacey:local",
+  "carrier": "hub",
+  "payLow": 1750,
+  "payHigh": 1942,
+  "payText": "$1,750–$1,942/wk avg · $30.50 (Days) $32.00 (Nights) plus OT after 40 hours",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · HAZMAT REQUIRED WITHIN 90 DAYS OF HIRE · ORT Pay- $ 212/day",
+  "name": "Home Depot Lacey",
+  "cat": "Local",
+  "states": [
+   "Washington"
+  ]
+ },
+ {
+  "id": "hub:lowe-s-shippensburg-warrensville-oh:local",
+  "carrier": "hub",
+  "payLow": 1635,
+  "payHigh": 1769,
+  "payText": "$1,635–$1,769/wk avg · $0.75 a mile/ $20 a stop (Day)",
+  "hometime": "",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Lowe's Shippensburg- Warrensville, OH",
+  "cat": "Local",
+  "states": [
+   "Ohio"
+  ]
+ },
+ {
+  "id": "hub:lowe-s-shippensburg:local",
+  "carrier": "hub",
+  "payLow": 1635,
+  "payHigh": 1769,
+  "payText": "$1,635–$1,769/wk avg · $0.75 a mile/ $20 a stop (Day)",
+  "hometime": "",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · ORT Pay- $ 100/day",
+  "name": "Lowe's Shippensburg",
+  "cat": "Local",
+  "states": [
+   "Maryland",
+   "Pennsylvania",
+   "West Virginia"
+  ]
+ },
+ {
+  "id": "hub:tj-maxx-fort-worth-regional:regional",
+  "carrier": "hub",
+  "payLow": 1800,
+  "payHigh": 1800,
+  "payText": "$1,800/wk avg · $18.00 per hour + .36 CPM (Regional)",
+  "hometime": "Regional — 2-3 layovers per week",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · HAZMAT REQUIRED WITHIN 90 DAYS OF HIRE · ORT Pay- $100/day",
+  "name": "TJ Maxx Fort Worth Regional",
+  "cat": "Regional",
+  "states": [
+   "Texas"
+  ]
+ },
+ {
+  "id": "hub:home-depot-ontario-ranch-sdc:local",
+  "carrier": "hub",
+  "payLow": 1830,
+  "payHigh": 1830,
+  "payText": "$1,830/wk avg · $20.59 (Days) and $22.08 (Nights) per hour plus .51 CPM",
+  "hometime": "",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · HAZMAT REQUIRED AT TIME OF APP · ORT Pay- TBD",
+  "name": "Home Depot Ontario Ranch SDC",
+  "cat": "Local",
+  "states": [
+   "California"
+  ]
+ },
+ {
+  "id": "hub:home-depot-fremont:local",
+  "carrier": "hub",
+  "payLow": 1950,
+  "payHigh": 1950,
+  "payText": "$1,950/wk avg · $22.79 plus $0.54 CPM Days/ $23.85 Nights plus $0.54 CPM",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "ORT Pay: $ 199/day",
+  "name": "Home Depot Fremont",
+  "cat": "Local",
+  "states": [
+   "California"
+  ]
+ },
+ {
+  "id": "hub:home-depot-salem-or:local",
+  "carrier": "hub",
+  "payLow": 1750,
+  "payHigh": 1826,
+  "payText": "$1,750–$1,826/wk avg · $30.50 (Days) $32.00 (Nights) plus OT after 40 hours",
+  "hometime": "Home daily",
+  "approval": "",
+  "experience": "",
+  "sob": "",
+  "notes": "Live within 50 mi / 1 hr of the yard · HAZMAT REQUIRED WITHIN 90 DAYS OF HIRE · ORT Pay: $ 159.50/day",
+  "name": "Home Depot Salem, OR",
+  "cat": "Local",
+  "states": [
+   "Oregon"
+  ]
+ }
+]

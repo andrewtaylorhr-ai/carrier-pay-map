@@ -3,13 +3,17 @@
 import { CARRIERS } from "@/lib/carriers/data";
 import type { CarrierId } from "@/lib/carriers/types";
 
-export function AssignedBadge({ carrierId }: { carrierId: CarrierId | undefined }) {
-  if (!carrierId) return <span className="assignBadge" style={{ background: "#5b6270" }}>unassigned</span>;
-  const c = CARRIERS[carrierId];
+export function AssignedBadge({ carrierIds }: { carrierIds: CarrierId[] | undefined }) {
+  if (!carrierIds || !carrierIds.length)
+    return <span className="assignBadge" style={{ background: "#5b6270" }}>unassigned</span>;
   return (
-    <span className="assignBadge" style={{ background: c.color }}>
-      {c.label}
-    </span>
+    <>
+      {carrierIds.map((id) => (
+        <span key={id} className="assignBadge" style={{ background: CARRIERS[id].color }}>
+          {CARRIERS[id].label}
+        </span>
+      ))}
+    </>
   );
 }
 

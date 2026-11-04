@@ -7,6 +7,7 @@ import type {
   MonthlyReport,
   PersistedAssignments,
   PersistedMonthlyReports,
+  PersistedRecruiterAccounts,
   PersistedRecruiterActuals,
   PersistedRecruiterAssignments,
   PersistedRecruiterPlans,
@@ -21,6 +22,7 @@ import { EMPTY_MONTHLY_REPORT } from "@/lib/carriers/types";
 import { useAssignments } from "@/lib/hooks/useAssignments";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { useMonthlyReports } from "@/lib/hooks/useMonthlyReports";
+import { useRecruiterAccounts } from "@/lib/hooks/useRecruiterAccounts";
 import { useRecruiterActuals } from "@/lib/hooks/useRecruiterActuals";
 import { useRecruiterAssignments } from "@/lib/hooks/useRecruiterAssignments";
 import { useRecruiters } from "@/lib/hooks/useRecruiters";
@@ -60,9 +62,9 @@ interface CarrierMapContextValue {
   recruiterFilter: string;
   setRecruiterFilter: (r: string) => void;
 
-  // persisted: carrier assignments (Strategy mode)
+  // persisted: carrier assignments (Strategy mode) — several carriers per state
   assignments: PersistedAssignments;
-  assignCarrierToState: (state: string, carrierId: CarrierId | null) => void;
+  toggleCarrierOnState: (state: string, carrierId: CarrierId) => void;
 
   // persisted: recruiter roster
   recruiters: string[];
@@ -73,6 +75,12 @@ interface CarrierMapContextValue {
   // persisted: recruiter -> states assignments
   recruiterAssignments: PersistedRecruiterAssignments;
   toggleRecruiterOnState: (state: string, recruiter: string) => void;
+
+  // persisted: recruiter -> carrier account ids (Strategy Builder checklist)
+  recruiterAccounts: PersistedRecruiterAccounts;
+  toggleRecruiterAccount: (recruiter: string, accountId: string) => void;
+  // add (on=true) or remove (on=false) many accounts at once — "Select all"
+  setRecruiterAccountsOn: (recruiter: string, accountIds: string[], on: boolean) => void;
 
   // map-click assign mode: while set, clicking a state on the map toggles
   // this recruiter on/off that state directly, instead of opening the detail
@@ -149,6 +157,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();
   const [recruiterAssignments, setRecruiterAssignments] = useRecruiterAssignments();
+  const [recruiterAccounts, setRecruiterAccountsMap] = useRecruiterAccounts();
   const [recruiterPlans, setRecruiterPlans] = useRecruiterPlans();
   const [recruiterTeams, setRecruiterTeams] = useRecruiterTeams();
   const [recruiterActuals, setRecruiterActuals] = useRecruiterActuals();
@@ -167,16 +176,50 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     setSelectedState(null);
   }, []);
 
-  const assignCarrierToState = useCallback(
-    (state: string, carrierId: CarrierId | null) => {
+  const toggleCarrierOnState = useCallback(
+    (state: string, carrierId: CarrierId) => {
       setAssignments((prev) => {
+        const arr = prev[state] ? prev[state].slice() : [];
+        const idx = arr.indexOf(carrierId);
+        if (idx === -1) arr.push(carrierId);
+        else arr.splice(idx, 1);
         const next = { ...prev };
-        if (carrierId) next[state] = carrierId;
+        if (arr.length) next[state] = arr;
         else delete next[state];
         return next;
       });
     },
     [setAssignments]
+  );
+
+  const toggleRecruiterAccount = useCallback(
+    (recruiter: string, accountId: string) => {
+      setRecruiterAccountsMap((prev) => {
+        const arr = prev[recruiter] ? prev[recruiter].slice() : [];
+        const idx = arr.indexOf(accountId);
+        if (idx === -1) arr.push(accountId);
+        else arr.splice(idx, 1);
+        const next = { ...prev };
+        if (arr.length) next[recruiter] = arr;
+        else delete next[recruiter];
+        return next;
+      });
+    },
+    [setRecruiterAccountsMap]
+  );
+
+  const setRecruiterAccountsOn = useCallback(
+    (recruiter: string, accountIds: string[], on: boolean) => {
+      setRecruiterAccountsMap((prev) => {
+        const set = new Set(prev[recruiter] || []);
+        accountIds.forEach((id) => (on ? set.add(id) : set.delete(id)));
+        const next = { ...prev };
+        if (set.size) next[recruiter] = Array.from(set);
+        else delete next[recruiter];
+        return next;
+      });
+    },
+    [setRecruiterAccountsMap]
   );
 
   const recruiterColor = useMemo(() => buildRecruiterColorScale(recruiters), [recruiters]);
@@ -201,6 +244,12 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
           const filtered = arr.filter((r) => r !== name);
           if (filtered.length) next[state] = filtered;
         }
+        return next;
+      });
+      setRecruiterAccountsMap((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
         return next;
       });
       setRecruiterPlans((prev) => {
@@ -233,6 +282,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     [
       setRecruiters,
       setRecruiterAssignments,
+      setRecruiterAccountsMap,
       setRecruiterPlans,
       setRecruiterTeams,
       setRecruiterActuals,
@@ -374,13 +424,16 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     recruiterFilter,
     setRecruiterFilter,
     assignments,
-    assignCarrierToState,
+    toggleCarrierOnState,
     recruiters,
     addRecruiter,
     removeRecruiter,
     recruiterColor,
     recruiterAssignments,
     toggleRecruiterOnState,
+    recruiterAccounts,
+    toggleRecruiterAccount,
+    setRecruiterAccountsOn,
     assignModeRecruiter,
     setAssignModeRecruiter,
     recruiterPlans,

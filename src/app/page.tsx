@@ -1,10 +1,12 @@
 import { AssignedCarriersPanel } from "@/components/carrier-map/AssignedCarriersPanel";
 import { ColorModeBar } from "@/components/carrier-map/ColorModeBar";
 import { DetailCard } from "@/components/carrier-map/DetailCard";
+import { RecruiterAccountsPanel } from "@/components/carrier-map/RecruiterAccountsPanel";
 import { RecruiterPanel } from "@/components/carrier-map/RecruiterPanel";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
 import { RecruiterStrategyPlan } from "@/components/carrier-map/RecruiterStrategyPlan";
 import { StatePerformancePanel } from "@/components/carrier-map/StatePerformancePanel";
+import { StrategyTable } from "@/components/carrier-map/StrategyTable";
 import { Toolbar } from "@/components/carrier-map/Toolbar";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { MonthlyTargetActualTable } from "@/components/dashboard/MonthlyTargetActualTable";
@@ -23,8 +25,8 @@ export default function Home() {
       <div className="mx-auto w-full max-w-[1400px] px-6 pt-5">
         <h1 className="text-xl font-semibold mb-1">CDL-A multi-carrier pay &amp; strategy map</h1>
         <p className="text-[13px] text-[#9aa0ad]">
-          Pick a carrier and category to see pay by state. Switch to Strategy mode to lock in which carrier each state
-          is assigned to for your recruiters.
+          Pick a carrier and category to see pay by state. In Strategy mode, assign one or more carriers to each state,
+          give each recruiter their states and carrier accounts, then download each recruiter&apos;s plan to send them.
         </p>
       </div>
 
@@ -47,7 +49,9 @@ export default function Home() {
 
       <div className="mx-auto w-full max-w-[1400px] px-6 py-4">
         <DetailCard />
+        <RecruiterAccountsPanel />
         <RecruiterReport />
+        <StrategyTable />
       </div>
     </>
   );

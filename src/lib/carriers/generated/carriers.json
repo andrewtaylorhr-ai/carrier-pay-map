@@ -18,6 +18,8 @@
       "OTR Solo Company",
       "OTR Team Company",
       "OTR Regional",
+      "True Up Fleets",
+      "Specialized Fleets",
       "Dedicated Home Weekly",
       "Dedicated Daily/Frequently/Team"
     ]
@@ -46,6 +48,27 @@
       "Home Daily / Local",
       "Home Weekly",
       "Multi-Week OTR (Bi-Weekly+)"
+    ]
+  },
+  "jbh": {
+    "label": "J.B. Hunt",
+    "color": "#ca8a04",
+    "logo": "",
+    "cats": [
+      "Local",
+      "Semi-Local",
+      "Regional",
+      "OTR",
+      "Final Mile"
+    ]
+  },
+  "hub": {
+    "label": "Hub Group",
+    "color": "#0891b2",
+    "logo": "",
+    "cats": [
+      "Local",
+      "Regional"
     ]
   }
 }

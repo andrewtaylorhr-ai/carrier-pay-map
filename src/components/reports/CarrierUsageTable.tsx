@@ -11,7 +11,7 @@ export function CarrierUsageTable() {
   const { assignments, recruiters, getRecruiterPlan, recruiterColor } = useCarrierMap();
 
   const rows = CARRIER_ORDER.map((id) => {
-    const statesAssigned = ALL_STATES.filter((s) => assignments[s] === id).length;
+    const statesAssigned = ALL_STATES.filter((s) => (assignments[s] || []).includes(id)).length;
     const repsForCarrier = recruiters.filter((r) => getRecruiterPlan(r).carriers.includes(id));
     return { id, label: CARRIERS[id].label, color: CARRIERS[id].color, statesAssigned, reps: repsForCarrier };
   }).sort((a, b) => b.statesAssigned - a.statesAssigned);

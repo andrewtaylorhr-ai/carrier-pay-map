@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ALL_STATES, CARRIERS } from "@/lib/carriers/data";
+import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { RECRUITER_TARGET } from "@/lib/recruiters";
 
@@ -27,6 +27,8 @@ export function RecruiterPanel() {
     recruiters,
     recruiterColor,
     recruiterAssignments,
+    recruiterAccounts,
+    assignments,
     recruiterFilter,
     setRecruiterFilter,
     teamFilter,
@@ -60,6 +62,10 @@ export function RecruiterPanel() {
           const states = Object.keys(recruiterAssignments)
             .filter((s) => (recruiterAssignments[s] || []).includes(r))
             .sort();
+          // carriers on this recruiter's states, plus any tagged in their Strategy Plan
+          const carriers = CARRIER_ORDER.filter(
+            (id) => plan.carriers.includes(id) || states.some((s) => (assignments[s] || []).includes(id))
+          );
           const over = states.length > RECRUITER_TARGET;
           const selected = recruiterFilter === r;
           const inactive = getRecruiterStatus(r) === "inactive";
@@ -99,8 +105,8 @@ export function RecruiterPanel() {
                 States assigned ({states.length}): {states.length ? states.join(", ") : "none yet"}
               </div>
               <div className="mt-0.5 text-[11px] text-[var(--cpm-text-faint)]">
-                Carriers assigned ({plan.carriers.length}):{" "}
-                {plan.carriers.length ? plan.carriers.map((id) => CARRIERS[id].label).join(", ") : "none yet"}
+                Carriers ({carriers.length}): {carriers.length ? carriers.map((id) => CARRIERS[id].label).join(", ") : "none yet"}
+                {" · "}Accounts assigned: {(recruiterAccounts[r] || []).length}
               </div>
             </div>
           );

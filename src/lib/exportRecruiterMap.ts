@@ -33,7 +33,7 @@ const PAD = 28;
 const BG = "#171a21";
 const FONT = "Segoe UI, system-ui, -apple-system, sans-serif";
 // call window in each state's own local time
-const CALL_START = 9;
+const CALL_START = 8;
 const CALL_END = 19;
 const ET = "America/New_York";
 

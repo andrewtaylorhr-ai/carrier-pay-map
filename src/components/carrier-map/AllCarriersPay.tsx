@@ -204,9 +204,9 @@ export function AllCarriersPay() {
       </div>
 
       {multi && (
-        <div className={`grid grid-cols-1 gap-5 ${metrics.length === 3 ? "xl:grid-cols-3" : "lg:grid-cols-2"}`}>
+        <div className={`grid grid-cols-1 gap-3 ${metrics.length === 3 ? "xl:grid-cols-3" : "lg:grid-cols-2"}`}>
           {metrics.map((m) => (
-            <div key={m} className="wizCard min-w-0">
+            <div key={m} className="wizCard min-w-0 !px-3 !py-3">
               <div className="text-[14px] font-bold text-[var(--cpm-text)] mb-2">{METRIC_TITLE[m]}</div>
               <ChoroplethMap paint={paints[m]} />
               {legend(m)}

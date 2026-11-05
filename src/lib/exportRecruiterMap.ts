@@ -2,7 +2,8 @@
 // states zoomed in and colored, a pin for every city their accounts hire
 // from, and a side panel listing each state's carriers and accounts. Drawn
 // on a canvas in the browser (no extra libraries), so it can sit next to the
-// Excel file when the plan is sent to the recruiter.
+// Excel file when the plan is sent to the recruiter. A band at the bottom
+// orders the states by time zone into a daily call plan (start east, end west).
 import { geoAlbersUsa, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { Feature, Geometry } from "geojson";
@@ -14,8 +15,10 @@ import type {
   PersistedAssignments,
   PersistedRecruiterAccounts,
   PersistedRecruiterAssignments,
+  RecruiterTeam,
 } from "@/lib/carriers/types";
 import { recruiterPlanAccounts, recruiterStates } from "./exportRecruiterReport";
+import { clock, localHourToday, shortZoneName, TEAM_TZ, zoneOfState, type UsZone } from "./timeZones";
 
 type StateFeature = Feature<Geometry, { name: string }>;
 
@@ -29,12 +32,17 @@ const PANEL_W = 540;
 const PAD = 28;
 const BG = "#171a21";
 const FONT = "Segoe UI, system-ui, -apple-system, sans-serif";
+// call window in each state's own local time
+const CALL_START = 9;
+const CALL_END = 19;
+const ET = "America/New_York";
 
 export async function downloadRecruiterMap(
   recruiter: string,
   assignments: PersistedAssignments,
   recruiterAssignments: PersistedRecruiterAssignments,
-  recruiterAccounts: PersistedRecruiterAccounts
+  recruiterAccounts: PersistedRecruiterAccounts,
+  team: RecruiterTeam | null = null
 ): Promise<void> {
   const states = recruiterStates(recruiter, recruiterAssignments);
   const { accounts, fallback } = recruiterPlanAccounts(recruiter, assignments, recruiterAssignments, recruiterAccounts);
@@ -54,7 +62,26 @@ export async function downloadRecruiterMap(
     return { s, n: here.length, byCarrier };
   });
   const panelH = 70 + 340 + perState.reduce((h, p) => h + 58 + Math.max(1, p.byCarrier.length) * 24, 0) + 60;
-  const H = Math.max(1100, HEADER + panelH + PAD);
+  const bodyH = Math.max(1100, HEADER + panelH + PAD); // map panels + side panel end here
+
+  // ---- call plan: the recruiter's states grouped by time zone, east to west ----
+  const now = new Date();
+  // zones on the same clock today share a row (Arizona = Mountain in winter, Pacific in summer)
+  const zoneRows: { z: UsZone; states: string[]; start: number; end: number }[] = [];
+  states.forEach((s) => {
+    const z = zoneOfState(STATE_CODE[s]);
+    if (!z) return;
+    const start = localHourToday(z.tz, CALL_START, now);
+    const row = zoneRows.find((r) => r.start === start);
+    if (!row) zoneRows.push({ z, states: [STATE_CODE[s]], start, end: localHourToday(z.tz, CALL_END, now) });
+    else {
+      row.states.push(STATE_CODE[s]);
+      if (row.z.key === "AZ") row.z = z; // name the row after the regular zone
+    }
+  });
+  zoneRows.sort((a, b) => a.start - b.start);
+  const PLAN_H = zoneRows.length ? 196 + zoneRows.length * 46 : 0;
+  const H = bodyH + PLAN_H;
 
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -79,7 +106,7 @@ export async function downloadRecruiterMap(
   const mapX = PAD;
   const mapY = HEADER;
   const mapW = W - PANEL_W - PAD * 3;
-  const mapH = H - HEADER - PAD - 30; // room for the legend line under the panels
+  const mapH = bodyH - HEADER - PAD - 30; // room for the legend line under the panels
   const GAP = 16;
   const n = Math.max(1, states.length);
   const cols = n === 1 ? 1 : n <= 4 ? 2 : 3;
@@ -223,7 +250,7 @@ export async function downloadRecruiterMap(
   });
 
   // legend under the panels
-  const ly = H - PAD - 10;
+  const ly = bodyH - PAD - 10;
   ctx.textAlign = "left";
   ctx.beginPath();
   ctx.arc(mapX + 10, ly - 5, 8, 0, Math.PI * 2);
@@ -236,7 +263,7 @@ export async function downloadRecruiterMap(
   // ---- side panel ----
   const px = W - PANEL_W - PAD;
   ctx.fillStyle = "#1f232d";
-  roundRect(ctx, px, HEADER, PANEL_W, H - HEADER - PAD, 14);
+  roundRect(ctx, px, HEADER, PANEL_W, bodyH - HEADER - PAD, 14);
   ctx.fill();
   // overview: the whole US with the recruiter's states colored
   const ow = PANEL_W - 48;
@@ -304,7 +331,9 @@ export async function downloadRecruiterMap(
   });
   ctx.fillStyle = "#6b7280";
   ctx.font = `400 13px ${FONT}`;
-  ctx.fillText(`Class A Recruiting · ${new Date().toLocaleDateString("en-US")} · full account list in the Excel file`, px + 24, H - PAD - 20);
+  ctx.fillText(`Class A Recruiting · ${new Date().toLocaleDateString("en-US")} · full account list in the Excel file`, px + 24, bodyH - PAD - 20);
+
+  if (zoneRows.length) drawCallPlan(ctx, bodyH, zoneRows, team);
 
   const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
   if (!blob) return;
@@ -314,6 +343,101 @@ export async function downloadRecruiterMap(
   link.download = `${recruiter.replace(/[^a-z0-9]+/gi, "_")}_strategy_map.png`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+type ZoneRow = { z: UsZone; states: string[]; start: number; end: number };
+
+// Bottom band: the order to call the zones in, and a timeline of when each
+// zone is in its call window, in the recruiter's own time when their team is
+// known (the clock they work by), else in US Eastern time.
+function drawCallPlan(ctx: CanvasRenderingContext2D, top: number, rows: ZoneRow[], team: RecruiterTeam | null) {
+  const home = team ? TEAM_TZ[team] : null;
+  const refTz = home?.tz ?? ET;
+  const refName = home ? `${home.city} time` : shortZoneName(ET);
+  const x = PAD;
+  const w = W - PAD * 2;
+  const h = 196 + rows.length * 46 - PAD;
+  ctx.fillStyle = "#1f232d";
+  roundRect(ctx, x, top, w, h, 14);
+  ctx.fill();
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#f2f3f5";
+  ctx.font = `700 24px ${FONT}`;
+  ctx.fillText("Daily call plan — start in the East, finish in the West", x + 24, top + 40);
+  ctx.fillStyle = "#9aa0ad";
+  ctx.font = `400 16px ${FONT}`;
+  const fmt = (hour: number) => (hour === 12 ? "12 PM" : hour > 12 ? `${hour - 12} PM` : `${hour} AM`);
+  ctx.fillText(
+    `Call each state ${fmt(CALL_START)} – ${fmt(CALL_END)} in its own local time. Times on the right are ${refName}${home ? " (and US Eastern)" : ""}, for today.`,
+    x + 24,
+    top + 66
+  );
+
+  // order line: 1. Eastern: NY, NJ → 2. Central: MO → …
+  let ox = x + 24;
+  const oy = top + 104;
+  ctx.font = `700 18px ${FONT}`;
+  rows.forEach((r, i) => {
+    const text = `${i + 1}. ${r.z.label.split(" (")[0]}: ${r.states.join(", ")}`;
+    ctx.fillStyle = r.z.color;
+    ctx.fillText(text, ox, oy);
+    ox += ctx.measureText(text).width + 14;
+    if (i < rows.length - 1) {
+      ctx.fillStyle = "#9aa0ad";
+      ctx.fillText("→", ox, oy);
+      ox += ctx.measureText("→").width + 14;
+    }
+  });
+
+  // timeline: hour ticks from the first start to the last end
+  const t0 = Math.min(...rows.map((r) => r.start));
+  const t1 = Math.max(...rows.map((r) => r.end));
+  const labelW = 360;
+  const textW = 330;
+  const bx = x + 24 + labelW;
+  const bw = w - 48 - labelW - textW;
+  const X = (t: number) => bx + ((t - t0) / (t1 - t0)) * bw;
+  const axisY = top + 140;
+  ctx.font = `500 13px ${FONT}`;
+  ctx.textAlign = "center";
+  for (let t = t0; t <= t1; t += 3600000) {
+    ctx.fillStyle = "#6b7280";
+    ctx.fillText(clock(t, refTz), X(t), axisY);
+    ctx.strokeStyle = "#2f3542";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(X(t), axisY + 8);
+    ctx.lineTo(X(t), axisY + 14 + rows.length * 46);
+    ctx.stroke();
+  }
+
+  rows.forEach((r, i) => {
+    const y = axisY + 22 + i * 46;
+    ctx.textAlign = "left";
+    ctx.fillStyle = r.z.color;
+    ctx.font = `700 17px ${FONT}`;
+    ctx.fillText(`${i + 1}. ${r.z.label}`, x + 24, y + 19);
+    ctx.fillStyle = "#c8ccd4";
+    ctx.font = `500 14px ${FONT}`;
+    ctx.fillText(r.states.join(", "), x + 24, y + 37);
+    ctx.fillStyle = r.z.color;
+    roundRect(ctx, X(r.start), y + 6, X(r.end) - X(r.start), 26, 6);
+    ctx.fill();
+    ctx.fillStyle = "#11131a";
+    ctx.font = `700 14px ${FONT}`;
+    ctx.textAlign = "center";
+    ctx.fillText(`${clock(r.start, r.z.tz)} – ${clock(r.end, r.z.tz)} local`, (X(r.start) + X(r.end)) / 2, y + 24);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#f2f3f5";
+    ctx.font = `600 15px ${FONT}`;
+    ctx.fillText(`${clock(r.start, refTz)} – ${clock(r.end, refTz)} ${home ? home.city : shortZoneName(ET)}`, x + w - textW, y + 19);
+    if (home) {
+      ctx.fillStyle = "#9aa0ad";
+      ctx.font = `400 13px ${FONT}`;
+      ctx.fillText(`${clock(r.start, ET)} – ${clock(r.end, ET)} ${shortZoneName(ET)}`, x + w - textW, y + 37);
+    }
+  });
 }
 
 function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {

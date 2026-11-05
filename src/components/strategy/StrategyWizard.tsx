@@ -298,7 +298,7 @@ function StatesStep() {
 
 /* ---------- 4. Download ---------- */
 function DownloadStep({ onNext }: { onNext: () => void }) {
-  const { recruiterFilter, recruiterAssignments, recruiterAccounts, assignments } = useCarrierMap();
+  const { recruiterFilter, recruiterAssignments, recruiterAccounts, assignments, getRecruiterTeam } = useCarrierMap();
   const states = recruiterStates(recruiterFilter, recruiterAssignments);
   const accounts = (recruiterAccounts[recruiterFilter] || []).length;
   const carriers = CARRIER_ORDER.filter((id) => states.some((s) => (assignments[s] || []).includes(id)));
@@ -331,7 +331,7 @@ function DownloadStep({ onNext }: { onNext: () => void }) {
           type="button"
           className="wizBtn primary"
           disabled={!states.length}
-          onClick={() => downloadRecruiterMap(recruiterFilter, assignments, recruiterAssignments, recruiterAccounts)}
+          onClick={() => downloadRecruiterMap(recruiterFilter, assignments, recruiterAssignments, recruiterAccounts, getRecruiterTeam(recruiterFilter))}
         >
           <MapIcon size={15} /> Download map (picture)
         </button>

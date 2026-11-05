@@ -62,6 +62,11 @@ export function TrackerApp() {
   const [dragging, setDragging] = useState<string[] | null>(null);
   const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
   const rowColor = (r: string) => data.rowColors?.[r] ?? DEFAULT_ROW_COLOR;
+  // numbering starts again at 1 wherever the row color changes (one block per team color)
+  const blockNo = ordered.reduce<number[]>((acc, r, i) => {
+    acc.push(i > 0 && rowColor(r) === rowColor(ordered[i - 1]) ? acc[i - 1] + 1 : 1);
+    return acc;
+  }, []);
 
   const updateRow = (name: string, fn: (r: TrackerRow) => TrackerRow) =>
     setData((d) => {
@@ -190,7 +195,7 @@ export function TrackerApp() {
       }}
       title="Click to select for coloring (Shift = range, Ctrl = add) · drag to move the row"
     >
-      {i + 1}
+      {blockNo[i]}
     </td>
   );
 

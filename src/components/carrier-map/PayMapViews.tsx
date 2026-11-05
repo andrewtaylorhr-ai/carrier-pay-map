@@ -6,7 +6,7 @@ import { AllCarriersPay } from "./AllCarriersPay";
 import { OneCarrierPay } from "./OneCarrierPay";
 
 // Pay Map: "All carriers" (every carrier's pay range per state) or
-// "One carrier" (one carrier + category, top pay per state).
+// "By position" (carriers + Local/Regional/Dedicated/OTR, top pay per state).
 export function PayMapViews() {
   const [view, setView] = useState<"all" | "one">("all");
   return (
@@ -16,7 +16,7 @@ export function PayMapViews() {
           <Layers size={14} /> All carriers
         </button>
         <button type="button" className={view === "one" ? "active" : undefined} onClick={() => setView("one")}>
-          <Truck size={14} /> One carrier
+          <Truck size={14} /> By position
         </button>
       </div>
       {view === "all" ? (

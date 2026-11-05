@@ -3,29 +3,71 @@
 import { useMemo, useState } from "react";
 import { interpolateRgb } from "d3-interpolate";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
-import { carrierAccounts, formatPayShort } from "@/lib/carriers/accounts";
+import { ALL_ACCOUNTS, formatPayShort } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
-import { useCarrierMap } from "@/lib/carrier-map-context";
+import { POSITIONS, positionOf, type Position } from "@/lib/carriers/positions";
+import type { Account, CarrierId } from "@/lib/carriers/types";
 
 const NO_DATA_FILL = "#232733";
 const LOW_FILL = "#2c3446";
+const MIX_COLOR = "#14b8a6"; // several carriers picked
 const usd = (n: number | null) => (n == null ? "" : `$${Math.round(n).toLocaleString("en-US")}`);
+const lo = (a: number | null, b: number | null) => (b == null ? a : a == null ? b : Math.min(a, b));
+const hi = (a: number | null, b: number | null) => (b == null ? a : a == null ? b : Math.max(a, b));
 
-// Pay Map "One carrier": pick a carrier and a category; each state shows that
-// carrier's top weekly pay there (brighter = higher), click it for the accounts.
+// toggle one item in a multi-select; never leaves it empty
+function toggleIn<T>(cur: T[], x: T, order: T[]): T[] {
+  if (cur.includes(x)) return cur.length > 1 ? cur.filter((y) => y !== x) : cur;
+  return order.filter((y) => y === x || cur.includes(y));
+}
+
+// Pay Map "By position": pick one or more carriers and position types
+// (Local / Regional / Dedicated / OTR); each state shows the top weekly pay
+// among them, click it for the accounts.
 export function OneCarrierPay() {
-  const { currentCarrier: carrier, setCarrier, currentCat: cat, setCat } = useCarrierMap();
+  const [carriers, setCarriers] = useState<CarrierId[]>(CARRIER_ORDER);
+  const [positions, setPositions] = useState<Position[]>(POSITIONS);
   const [selected, setSelected] = useState<string | null>(null);
-  const c = CARRIERS[carrier];
 
+  const allCarriers = carriers.length === CARRIER_ORDER.length;
+  const allPositions = positions.length === POSITIONS.length;
+  const single = carriers.length === 1 ? CARRIERS[carriers[0]] : null;
+  const tint = single?.color ?? MIX_COLOR;
+
+  const picked = (a: Account) => carriers.includes(a.carrier) && positions.includes(positionOf(a.carrier, a.cat));
+  const accounts = ALL_ACCOUNTS.filter((a) => a.states.length && picked(a));
+  const countFor = (p: Position) =>
+    ALL_ACCOUNTS.filter((a) => a.states.length && carriers.includes(a.carrier) && positionOf(a.carrier, a.cat) === p).length;
+
+  // pay per state across the picked carriers' picked categories
   const pay = useMemo(() => {
     const out: Record<string, CarrierStatePay | undefined> = {};
-    ALL_STATES.forEach((s) => (out[s] = statePay(s, cat, carrier)[0]));
+    ALL_STATES.forEach((s) => {
+      let m: CarrierStatePay | undefined;
+      carriers.forEach((c) =>
+        CARRIERS[c].cats
+          .filter((cat) => positions.includes(positionOf(c, cat)))
+          .forEach((cat) => {
+            const p = statePay(s, cat, c)[0];
+            if (!p) return;
+            m = m
+              ? {
+                  ...m,
+                  accounts: m.accounts + p.accounts,
+                  weekMin: lo(m.weekMin, p.weekMin),
+                  weekMax: hi(m.weekMax, p.weekMax),
+                  cpmMin: lo(m.cpmMin, p.cpmMin),
+                  cpmMax: hi(m.cpmMax, p.cpmMax),
+                }
+              : p;
+          })
+      );
+      out[s] = m;
+    });
     return out;
-  }, [carrier, cat]);
+  }, [carriers, positions]);
 
-  const accounts = carrierAccounts(carrier, cat).filter((a) => a.states.length);
   const states = ALL_STATES.filter((s) => pay[s]);
   const weekly = states.map((s) => pay[s]!.weekMax).filter((v): v is number => v != null);
   const lowest = states.map((s) => pay[s]!.weekMin).filter((v): v is number => v != null);
@@ -33,8 +75,12 @@ export function OneCarrierPay() {
   const maxPay = weekly.length ? Math.max(...weekly) : null;
   const topLow = weekly.length ? Math.min(...weekly) : 0;
 
+  const accountsIn = (s: string) => accounts.filter((a) => a.states.includes(s));
+  const positionMix = (list: Account[]) =>
+    POSITIONS.map((p) => [p, list.filter((a) => positionOf(a.carrier, a.cat) === p).length] as const).filter(([, n]) => n);
+
   const paint = useMemo<MapPaint>(() => {
-    const shade = interpolateRgb(LOW_FILL, c.color);
+    const shade = interpolateRgb(LOW_FILL, tint);
     const span = (maxPay ?? 0) - topLow;
     return {
       selected,
@@ -53,40 +99,47 @@ export function OneCarrierPay() {
       },
       tooltip: (s) => {
         const p = pay[s];
-        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">${c.label} ${cat}: not hiring here</div>`;
+        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No open offers for this pick</div>`;
+        const mix = positionMix(accountsIn(s))
+          .map(([pos, n]) => `${pos} ${n}`)
+          .join(" · ");
         return (
           `<div style="font-weight:700;margin-bottom:2px">${s}</div>` +
           `<div>${formatPayRange(p)}</div>` +
-          `<div style="color:#9aa0ad">${p.accounts} open offer${p.accounts === 1 ? "" : "s"} · click for the list</div>`
+          `<div style="color:#9aa0ad">${p.accounts} open offer${p.accounts === 1 ? "" : "s"} · ${mix}</div>` +
+          `<div style="margin-top:3px;color:#7ab8f5">Click for the list</div>`
         );
       },
       onClick: (s) => setSelected(pay[s] ? s : null),
     };
-  }, [pay, selected, c, cat, maxPay, topLow]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pay, selected, tint, maxPay, topLow]);
 
-  const pickCarrier = (id: typeof carrier) => {
-    setCarrier(id);
-    setSelected(null);
-  };
-  const pickCat = (k: string) => {
-    setCat(k);
-    setSelected(null);
-  };
-  const selAccounts = selected ? carrierAccounts(carrier, cat, selected) : [];
+  const selAccounts = selected ? accountsIn(selected) : [];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[11.5px] font-bold uppercase tracking-wider text-[var(--cpm-text-faint)] mr-1">Carriers</span>
+        <button
+          type="button"
+          className={`carrierToggle${allCarriers ? " on" : ""}`}
+          style={allCarriers ? { borderColor: "var(--cpm-accent)", color: "var(--cpm-accent)" } : undefined}
+          onClick={() => setCarriers(CARRIER_ORDER)}
+        >
+          All
+        </button>
         {CARRIER_ORDER.map((id) => {
           const k = CARRIERS[id];
-          const active = id === carrier;
+          const active = carriers.includes(id);
           return (
             <button
               key={id}
               type="button"
               className={`carrierToggle${active ? " on" : ""}`}
               style={active ? { borderColor: k.color, color: k.color, background: `${k.color}1f` } : undefined}
-              onClick={() => pickCarrier(id)}
+              // from "All", a click picks just this carrier
+              onClick={() => setCarriers(allCarriers ? [id] : toggleIn(carriers, id, CARRIER_ORDER))}
               aria-pressed={active}
             >
               <span className="dot" style={{ background: active ? k.color : "transparent", borderColor: k.color }} />
@@ -97,10 +150,19 @@ export function OneCarrierPay() {
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
+        <span className="text-[11.5px] font-bold uppercase tracking-wider text-[var(--cpm-text-faint)]">Positions</span>
         <div className="segTabs">
-          {c.cats.map((k) => (
-            <button key={k} type="button" className={k === cat ? "active" : undefined} onClick={() => pickCat(k)}>
-              {k} <span className="opacity-60">{carrierAccounts(carrier, k).filter((a) => a.states.length).length}</span>
+          <button type="button" className={allPositions ? "active" : undefined} onClick={() => setPositions(POSITIONS)}>
+            All
+          </button>
+          {POSITIONS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              className={!allPositions && positions.includes(p) ? "active" : undefined}
+              onClick={() => setPositions(allPositions ? [p] : toggleIn(positions, p, POSITIONS))}
+            >
+              {p} <span className="opacity-60">{countFor(p)}</span>
             </button>
           ))}
         </div>
@@ -113,6 +175,9 @@ export function OneCarrierPay() {
           )}
         </div>
       </div>
+      <div className="text-[11.5px] text-[var(--cpm-text-faint)] -mt-2">
+        Click to pick one; click more to add them. &quot;All&quot; brings everything back.
+      </div>
 
       <div className="flex flex-col xl:flex-row gap-5">
         <div className="wizCard xl:w-[62%] shrink-0">
@@ -121,7 +186,10 @@ export function OneCarrierPay() {
             <span>Number = highest pay in the state (per week, or per mile)</span>
             <span className="flex items-center gap-1.5">
               lower
-              <span className="w-[90px] h-[9px] rounded inline-block" style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, c.color)(0.3)}, ${c.color})` }} />
+              <span
+                className="w-[90px] h-[9px] rounded inline-block"
+                style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, tint)(0.3)}, ${tint})` }}
+              />
               higher
             </span>
             <span className="flex items-center gap-1">
@@ -132,43 +200,58 @@ export function OneCarrierPay() {
 
         <div className="wizCard flex-1 min-w-0">
           {!selected ? (
-            <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-6 text-center">
-              Click a state to see {c.label}&apos;s {cat} offers there.
-            </div>
+            <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-6 text-center">Click a state to see its offers.</div>
           ) : (
             <>
-              <div className="flex items-baseline justify-between gap-2 mb-3">
-                <div className="text-[17px] font-bold text-[var(--cpm-text)]">
-                  {selected} <span style={{ color: c.color }}>· {c.label} {cat}</span>
-                </div>
+              <div className="flex items-baseline justify-between gap-2 mb-1">
+                <div className="text-[17px] font-bold text-[var(--cpm-text)]">{selected}</div>
                 <div className="text-[12px] text-[var(--cpm-text-faint)]">
                   {selAccounts.length} offer{selAccounts.length === 1 ? "" : "s"}
                 </div>
               </div>
-              <table className="payTable">
-                <thead>
-                  <tr>
-                    <th>Account</th>
-                    <th>Pay</th>
-                    <th>Home time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selAccounts
-                    .slice()
-                    .sort((a, b) => (b.payHigh ?? b.payLow ?? 0) - (a.payHigh ?? a.payLow ?? 0))
-                    .map((a) => (
-                      <tr key={a.id}>
-                        <td className="font-semibold">
-                          {a.name}
-                          {a.approval === "Yes" && <span className="ml-1 text-[10.5px] text-[#f5c451]">needs approval</span>}
-                        </td>
-                        <td>{formatPayShort(a)}</td>
-                        <td className="text-[var(--cpm-text-dim)]">{a.hometime || "—"}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <div className="flex gap-2 flex-wrap mb-3">
+                {positionMix(selAccounts).map(([p, n]) => (
+                  <span key={p} className="catTag">
+                    {p} {n}
+                  </span>
+                ))}
+              </div>
+              <div className="max-h-[560px] overflow-y-auto">
+                <table className="payTable">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Pay</th>
+                      <th>Home time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selAccounts
+                      .slice()
+                      .sort((a, b) => (b.payHigh ?? b.payLow ?? 0) - (a.payHigh ?? a.payLow ?? 0))
+                      .map((a) => (
+                        <tr key={a.id}>
+                          <td>
+                            <div className="font-semibold">
+                              {a.name}
+                              {a.approval === "Yes" && <span className="ml-1 text-[10.5px] text-[#f5c451]">needs approval</span>}
+                            </div>
+                            <div className="text-[11px]">
+                              <b style={{ color: CARRIERS[a.carrier].color }}>{CARRIERS[a.carrier].label}</b>
+                              <span className="text-[var(--cpm-text-faint)]">
+                                {" "}
+                                · {positionOf(a.carrier, a.cat)}
+                                {a.cat !== positionOf(a.carrier, a.cat) ? ` (${a.cat})` : ""}
+                              </span>
+                            </div>
+                          </td>
+                          <td>{formatPayShort(a)}</td>
+                          <td className="text-[var(--cpm-text-dim)]">{a.hometime || "—"}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </>
           )}
         </div>

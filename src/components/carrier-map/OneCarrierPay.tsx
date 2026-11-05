@@ -12,6 +12,7 @@ import type { Account, CarrierId } from "@/lib/carriers/types";
 const NO_DATA_FILL = "#232733";
 const LOW_FILL = "#2c3446";
 const MIX_COLOR = "#14b8a6"; // several carriers picked
+const NO_WEEKLY_FILL = "#3a4a63";
 const usd = (n: number | null) => (n == null ? "" : `$${Math.round(n).toLocaleString("en-US")}`);
 const lo = (a: number | null, b: number | null) => (b == null ? a : a == null ? b : Math.min(a, b));
 const hi = (a: number | null, b: number | null) => (b == null ? a : a == null ? b : Math.max(a, b));
@@ -42,25 +43,28 @@ export function OneCarrierPay() {
 
   // pay per state across the picked carriers' picked categories
   const pay = useMemo(() => {
-    const out: Record<string, CarrierStatePay | undefined> = {};
+    const out: Record<string, (CarrierStatePay & { top: CarrierId | null }) | undefined> = {};
     ALL_STATES.forEach((s) => {
-      let m: CarrierStatePay | undefined;
+      // `top` = the carrier with the highest weekly pay (first in carrier order on a tie)
+      let m: (CarrierStatePay & { top: CarrierId | null }) | undefined;
       carriers.forEach((c) =>
         CARRIERS[c].cats
           .filter((cat) => positions.includes(positionOf(c, cat)))
           .forEach((cat) => {
             const p = statePay(s, cat, c)[0];
             if (!p) return;
+            const top = p.weekMax != null && (m?.weekMax == null || p.weekMax > m.weekMax) ? c : m?.top ?? null;
             m = m
               ? {
                   ...m,
+                  top,
                   accounts: m.accounts + p.accounts,
                   weekMin: lo(m.weekMin, p.weekMin),
                   weekMax: hi(m.weekMax, p.weekMax),
                   cpmMin: lo(m.cpmMin, p.cpmMin),
                   cpmMax: hi(m.cpmMax, p.cpmMax),
                 }
-              : p;
+              : { ...p, top };
           })
       );
       out[s] = m;
@@ -74,6 +78,7 @@ export function OneCarrierPay() {
   const minPay = lowest.length ? Math.min(...lowest) : null;
   const maxPay = weekly.length ? Math.max(...weekly) : null;
   const topLow = weekly.length ? Math.min(...weekly) : 0;
+  const winners = CARRIER_ORDER.filter((id) => states.some((s) => pay[s]!.top === id));
 
   const accountsIn = (s: string) => accounts.filter((a) => a.states.includes(s));
   const positionMix = (list: Account[]) =>
@@ -87,6 +92,8 @@ export function OneCarrierPay() {
       fill: (s) => {
         const p = pay[s];
         if (!p) return NO_DATA_FILL;
+        // several carriers: color = the carrier paying the most there
+        if (!single) return p.top ? CARRIERS[p.top].color : NO_WEEKLY_FILL;
         if (p.weekMax == null || !span) return shade(0.75);
         return shade(0.3 + (0.7 * (p.weekMax - topLow)) / span);
       },
@@ -106,6 +113,7 @@ export function OneCarrierPay() {
         return (
           `<div style="font-weight:700;margin-bottom:2px">${s}</div>` +
           `<div>${formatPayRange(p)}</div>` +
+          (p.top && !single ? `<div>Top pay: <b style="color:${CARRIERS[p.top].color}">${CARRIERS[p.top].label}</b></div>` : "") +
           `<div style="color:#9aa0ad">${p.accounts} open offer${p.accounts === 1 ? "" : "s"} · ${mix}</div>` +
           `<div style="margin-top:3px;color:#7ab8f5">Click for the list</div>`
         );
@@ -113,7 +121,7 @@ export function OneCarrierPay() {
       onClick: (s) => setSelected(pay[s] ? s : null),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pay, selected, tint, maxPay, topLow]);
+  }, [pay, selected, tint, single, maxPay, topLow]);
 
   const selAccounts = selected ? accountsIn(selected) : [];
 
@@ -183,15 +191,32 @@ export function OneCarrierPay() {
         <div className="wizCard xl:w-[62%] shrink-0">
           <ChoroplethMap paint={paint} />
           <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-            <span>Number = highest pay in the state (per week, or per mile)</span>
-            <span className="flex items-center gap-1.5">
-              lower
-              <span
-                className="w-[90px] h-[9px] rounded inline-block"
-                style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, tint)(0.3)}, ${tint})` }}
-              />
-              higher
-            </span>
+            {single ? (
+              <>
+                <span>Number = highest pay in the state (per week, or per mile)</span>
+                <span className="flex items-center gap-1.5">
+                  lower
+                  <span
+                    className="w-[90px] h-[9px] rounded inline-block"
+                    style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, tint)(0.3)}, ${tint})` }}
+                  />
+                  higher
+                </span>
+              </>
+            ) : (
+              <>
+                <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
+                {winners.map((id) => (
+                  <span key={id} className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
+                    {CARRIERS[id].label}
+                  </span>
+                ))}
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
+                </span>
+              </>
+            )}
             <span className="flex items-center gap-1">
               <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_DATA_FILL, border: "1px solid #555" }} /> not hiring
             </span>

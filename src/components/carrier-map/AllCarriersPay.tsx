@@ -2,17 +2,22 @@
 
 import { Fragment, useMemo, useState } from "react";
 import { scaleSequential } from "d3-scale";
-import { interpolateGreens } from "d3-scale-chromatic";
-import { ChevronDown, ChevronRight, DollarSign, Hash, Search } from "lucide-react";
+import { interpolateBlues, interpolateGreens } from "d3-scale-chromatic";
+import { Briefcase, ChevronDown, ChevronRight, DollarSign, Hash, Search } from "lucide-react";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
 import { ALL_ACCOUNTS, carrierAccounts, formatPayShort } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
 import { formatCpmRange, formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
+import { INDEED_PAY_AS_OF, INDEED_WEEKLY_PAY, indeedSourceUrl } from "@/lib/carriers/indeedPay";
 import type { CarrierId } from "@/lib/carriers/types";
 
 const NO_DATA_FILL = "#232733";
 const NO_WEEKLY_FILL = "#3a4a63";
 const usd = (n: number | null) => (n == null ? "" : `$${Math.round(n).toLocaleString("en-US")}`);
+// Indeed's average weekly truck driver pay in the state (see indeedPay.ts)
+const indeedOf = (s: string): number | undefined => INDEED_WEEKLY_PAY[STATE_CODE[s]];
+const diffText = (d: number) => `${d >= 0 ? "+" : "−"}${usd(Math.abs(d))}`;
+const diffColor = (d: number) => (d >= 0 ? "#4ade80" : "#f87171");
 
 // Pay Map "All carriers": every carrier's lowest and highest pay in each
 // state, on the map (hover / click) and in one table of all states.
@@ -20,7 +25,7 @@ export function AllCarriersPay() {
   const [on, setOn] = useState<Set<CarrierId>>(() => new Set(CARRIER_ORDER));
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [metric, setMetric] = useState<"pay" | "offers">("pay");
+  const [metric, setMetric] = useState<"pay" | "offers" | "indeed">("pay");
   const [open, setOpen] = useState<Set<CarrierId>>(() => new Set()); // carriers whose accounts are shown
   const toggleOpen = (id: CarrierId) =>
     setOpen((cur) => {
@@ -56,15 +61,19 @@ export function AllCarriersPay() {
   const paint = useMemo<MapPaint>(() => {
     const bestCpm = (s: string) => Math.max(...byState[s].map((p) => p.cpmMax ?? 0));
     const green = scaleSequential(interpolateGreens).domain([-maxOffers * 0.15, maxOffers]);
+    // clamped so one high state (Vermont) doesn't wash out the rest
+    const blue = scaleSequential(interpolateBlues).domain([1350, 2100]).clamp(true);
     return {
       selected,
       fill: (s) => {
+        if (metric === "indeed") return indeedOf(s) != null ? blue(indeedOf(s)!) : NO_DATA_FILL;
         if (!byState[s]?.length) return NO_DATA_FILL;
         if (metric === "offers") return green(offersIn(s));
         const b = best[s];
         return b ? CARRIERS[b.carrier].color : NO_WEEKLY_FILL;
       },
       label: (s) => {
+        if (metric === "indeed") return indeedOf(s) != null ? usd(indeedOf(s)!) : null;
         if (!byState[s]?.length) return null;
         if (metric === "offers") return String(offersIn(s));
         const b = best[s];
@@ -77,6 +86,7 @@ export function AllCarriersPay() {
         if (!list.length) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No open accounts</div>`;
         return (
           `<div style="font-weight:700;margin-bottom:4px">${s} — ${offersIn(s)} open offer${offersIn(s) === 1 ? "" : "s"}</div>` +
+          (indeedOf(s) != null ? `<div style="color:#7ab8f5;margin-bottom:2px">Indeed average — ${usd(indeedOf(s)!)}/wk</div>` : "") +
           list
             .map(
               (p) =>
@@ -119,6 +129,9 @@ export function AllCarriersPay() {
           <button type="button" className={metric === "offers" ? "active" : undefined} onClick={() => setMetric("offers")}>
             <Hash size={14} /> Number of offers
           </button>
+          <button type="button" className={metric === "indeed" ? "active" : undefined} onClick={() => setMetric("indeed")}>
+            <Briefcase size={14} /> Indeed pay
+          </button>
         </div>
         <div className="offerTotal">
           <b>{totalOffers.toLocaleString("en-US")}</b> open offers · <b>{statesWithOffers}</b> states
@@ -150,7 +163,14 @@ export function AllCarriersPay() {
         <div className="wizCard xl:w-[62%] shrink-0">
           <ChoroplethMap paint={paint} />
           <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-            {metric === "offers" ? (
+            {metric === "indeed" ? (
+              <>
+                <span>Number = Indeed average weekly truck driver pay (from Indeed job postings, {INDEED_PAY_AS_OF})</span>
+                <span className="flex items-center gap-1.5">
+                  lower <span className="payRamp" /> higher
+                </span>
+              </>
+            ) : metric === "offers" ? (
               <>
                 <span>Number = open offers hiring in the state · darker = more</span>
                 <span className="offerRamp" />
@@ -180,7 +200,7 @@ export function AllCarriersPay() {
             </div>
           ) : (
             <>
-              <div className="flex items-baseline justify-between gap-2 mb-3">
+              <div className="flex items-baseline justify-between gap-2 mb-1">
                 <div className="text-[17px] font-bold text-[var(--cpm-text)]">{selected}</div>
                 <div className="text-[12px] text-[var(--cpm-text-faint)]">
                   {sel.length} carrier{sel.length === 1 ? "" : "s"} · {sel.reduce((n, p) => n + p.accounts, 0)} open accounts
@@ -195,6 +215,14 @@ export function AllCarriersPay() {
                   )}
                 </div>
               </div>
+              {indeedOf(selected) != null && (
+                <div className="text-[13px] mb-3 text-[var(--cpm-text-dim)]">
+                  Indeed average: <b className="text-[var(--cpm-text)]">{usd(indeedOf(selected)!)}/wk</b>{" "}
+                  <a href={indeedSourceUrl(STATE_CODE[selected])} target="_blank" rel="noreferrer" className="text-[#7ab8f5] hover:underline">
+                    Indeed ↗
+                  </a>
+                </div>
+              )}
               {!sel.length ? (
                 <div className="text-[13px] text-[var(--cpm-text-dim)]">No open accounts here for the carriers picked.</div>
               ) : (
@@ -224,7 +252,14 @@ export function AllCarriersPay() {
                                 </span>
                               </td>
                               <td>{p.weekMin != null ? `${usd(p.weekMin)}/wk` : "—"}</td>
-                              <td className="font-bold">{p.weekMax != null ? `${usd(p.weekMax)}/wk` : "—"}</td>
+                              <td className="font-bold">
+                                {p.weekMax != null ? `${usd(p.weekMax)}/wk` : "—"}
+                                {p.weekMax != null && indeedOf(selected) != null && (
+                                  <div className="text-[10.5px] font-semibold" style={{ color: diffColor(p.weekMax - indeedOf(selected)!) }}>
+                                    {diffText(p.weekMax - indeedOf(selected)!)} vs Indeed
+                                  </div>
+                                )}
+                              </td>
                               <td>{formatCpmRange(p) || "—"}</td>
                               <td>
                                 <button type="button" className="text-[#7ab8f5] hover:underline whitespace-nowrap">
@@ -285,6 +320,7 @@ export function AllCarriersPay() {
               <tr>
                 <th>State</th>
                 <th>Offers</th>
+                <th>Indeed avg</th>
                 {carriersShown.map((id) => (
                   <th key={id} style={{ color: CARRIERS[id].color }}>
                     {CARRIERS[id].label}
@@ -301,6 +337,7 @@ export function AllCarriersPay() {
                       {STATE_CODE[s]} <span className="text-[var(--cpm-text-faint)] font-normal">{s}</span>
                     </td>
                     <td className="font-bold">{offersIn(s)}</td>
+                    <td className="text-[#7ab8f5] font-semibold">{indeedOf(s) != null ? usd(indeedOf(s)!) : "—"}</td>
                     {carriersShown.map((id) => {
                       const p = list.find((x) => x.carrier === id);
                       if (!p) return <td key={id} className="empty">—</td>;

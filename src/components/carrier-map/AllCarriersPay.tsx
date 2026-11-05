@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { scaleSequential } from "d3-scale";
-import { interpolateBlues } from "d3-scale-chromatic";
 import { Search } from "lucide-react";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
@@ -25,22 +23,34 @@ export function AllCarriersPay() {
     ALL_STATES.forEach((s) => (out[s] = statePay(s).filter((p) => on.has(p.carrier))));
     return out;
   }, [on]);
-  const topWeekly = (s: string) => {
-    const v = byState[s]?.map((p) => p.weekMax).filter((x): x is number => x != null) ?? [];
-    return v.length ? Math.max(...v) : null;
-  };
-  const tops = ALL_STATES.map(topWeekly).filter((x): x is number => x != null);
-  const lo = tops.length ? Math.min(...tops) : 0;
-  const hi = tops.length ? Math.max(...tops) : 1;
+  // the carrier paying the most per week in each state (first in carrier order on a tie)
+  const best = useMemo(() => {
+    const out: Record<string, CarrierStatePay | null> = {};
+    ALL_STATES.forEach((s) => {
+      out[s] = byState[s].reduce<CarrierStatePay | null>(
+        (b, p) => (p.weekMax != null && (b?.weekMax == null || p.weekMax > b.weekMax) ? p : b),
+        null
+      );
+    });
+    return out;
+  }, [byState]);
+  const winners = CARRIER_ORDER.filter((id) => ALL_STATES.some((s) => best[s]?.carrier === id));
 
   const paint = useMemo<MapPaint>(() => {
-    const color = scaleSequential(interpolateBlues).domain([lo - (hi - lo) * 0.15, hi]);
+    const bestCpm = (s: string) => Math.max(...byState[s].map((p) => p.cpmMax ?? 0));
     return {
       selected,
       fill: (s) => {
         if (!byState[s]?.length) return NO_DATA_FILL;
-        const t = topWeekly(s);
-        return t == null ? NO_WEEKLY_FILL : color(t);
+        const b = best[s];
+        return b ? CARRIERS[b.carrier].color : NO_WEEKLY_FILL;
+      },
+      label: (s) => {
+        if (!byState[s]?.length) return null;
+        const b = best[s];
+        if (b?.weekMax != null) return usd(b.weekMax);
+        const c = bestCpm(s);
+        return c ? `$${c.toFixed(2)}/mi` : null;
       },
       tooltip: (s) => {
         const list = byState[s] || [];
@@ -59,7 +69,7 @@ export function AllCarriersPay() {
       onClick: (s) => setSelected(s),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [byState, selected, lo, hi]);
+  }, [byState, best, selected]);
 
   const toggle = (id: CarrierId) =>
     setOn((cur) => {
@@ -103,10 +113,13 @@ export function AllCarriersPay() {
         <div className="wizCard xl:w-[62%] shrink-0">
           <ChoroplethMap paint={paint} />
           <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-            <span>{usd(lo)}/wk</span>
-            <span className="payRamp" />
-            <span>{usd(hi)}/wk</span>
-            <span>· color = best weekly pay in the state</span>
+            <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
+            {winners.map((id) => (
+              <span key={id} className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
+                {CARRIERS[id].label}
+              </span>
+            ))}
             <span className="flex items-center gap-1">
               <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
             </span>

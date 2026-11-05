@@ -46,7 +46,40 @@ export interface MapPaint {
   tooltip: (state: string) => string | null; // HTML
   onClick: (state: string) => void;
   selected?: string | null;
+  label?: (state: string) => string | null; // text written on the state
 }
+
+// Small north-east states: their label goes in a stack off the coast with a leader line.
+const OFFSHORE: Record<string, number> = {
+  Vermont: 0,
+  "New Hampshire": 1,
+  Massachusetts: 2,
+  "Rhode Island": 3,
+  Connecticut: 4,
+  "New Jersey": 5,
+  Delaware: 6,
+  Maryland: 7,
+  "District of Columbia": 8,
+};
+const OFFSHORE_X = 905;
+const OFFSHORE_TOP = 175;
+// Where a state's centroid is a poor spot for its label (map units).
+const NUDGE: Record<string, [number, number]> = {
+  Florida: [16, 12],
+  Michigan: [12, 22],
+  Louisiana: [-12, -4],
+  Idaho: [0, 18],
+  Kentucky: [8, 3],
+  Virginia: [10, 4],
+  "West Virginia": [-3, 4],
+  California: [-10, 6],
+  Minnesota: [-8, 6],
+  Hawaii: [10, 18],
+  Oklahoma: [12, 0],
+  Texas: [6, 6],
+  "New York": [6, 4],
+  Maine: [0, 6],
+};
 
 // Same projection the states-albers-10m topojson was pre-projected with.
 const PROJECT = geoAlbersUsa().scale(1300).translate([487.5, 305]);
@@ -288,6 +321,27 @@ export function ChoroplethMap({
         mapStyle.legend.kind === "recruiter-filtered" ? mapStyle.legend.name : "",
         mapStyle.getRecruiterLabel
       );
+    }
+    labelG.selectAll("g.payLabels").remove();
+    if (paint?.label) {
+      const pg = labelG.append("g").attr("class", "payLabels");
+      features.forEach((f) => {
+        const name = f.properties.name;
+        const text = paint.label!(name);
+        if (!text) return;
+        let [x, y] = pathGenRef.current.centroid(f);
+        if (!Number.isFinite(x)) return;
+        const out = OFFSHORE[name];
+        if (out) {
+          const ly = OFFSHORE_TOP + out * 19;
+          pg.append("line").attr("x1", x).attr("y1", y).attr("x2", OFFSHORE_X - 3).attr("y2", ly - 4).attr("class", "payLeader");
+          [x, y] = [OFFSHORE_X, ly];
+          pg.append("text").attr("x", x).attr("y", y).attr("class", "payLabel").attr("text-anchor", "start").text(`${STATE_CODE[name] ?? ""} ${text}`);
+          return;
+        }
+        const [dx, dy] = NUDGE[name] ?? [0, 0];
+        pg.append("text").attr("x", x + dx).attr("y", y + dy + 4).attr("class", "payLabel").attr("text-anchor", "middle").text(text);
+      });
     }
   }, [mapStyle, mapReady, recruiterAssignments, recruiterColor, hideStateLabels, paint]);
 

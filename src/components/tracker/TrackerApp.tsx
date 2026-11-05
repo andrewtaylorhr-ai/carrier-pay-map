@@ -173,9 +173,9 @@ export function TrackerApp() {
                 <tr>
                   <th className="stick num">#</th>
                   <th className="stick name">Recruiter</th>
-                  <th className="hDqp">DQP</th>
-                  <th className="hAtDqp">at DQP</th>
-                  <th className="hHire">Hire</th>
+                  <th className="stick c1 hDqp">DQP</th>
+                  <th className="stick c2 hAtDqp">at DQP</th>
+                  <th className="stick c3 hHire">Hire</th>
                   {weeks.map((w) => (
                     <Fragment key={w.idx}>
                       {w.days.map((d) => (
@@ -199,7 +199,10 @@ export function TrackerApp() {
                       <td className="stick name" style={{ borderLeft: `3px solid ${g.color}` }}>
                         {g.name}
                       </td>
-                      <td colSpan={days.length + weeks.length * 2 + 5} />
+                      <td className="stick c1" />
+                      <td className="stick c2" />
+                      <td className="stick c3" />
+                      <td colSpan={days.length + weeks.length * 2 + 2} />
                     </tr>
                     {g.members.map((name, i) => {
                       const r = rows[name];
@@ -211,9 +214,9 @@ export function TrackerApp() {
                             {i + 1}
                           </td>
                           <td className="stick name">{name}</td>
-                          <td>{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
-                          <td>{num(`${name} at DQP`, r?.atDqp, (v) => updateRow(name, (x) => ({ ...x, atDqp: v ?? undefined })), ri, c++)}</td>
-                          <td className="calc hire">{totalHires(r)}</td>
+                          <td className="stick c1">{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
+                          <td className="stick c2">{num(`${name} at DQP`, r?.atDqp, (v) => updateRow(name, (x) => ({ ...x, atDqp: v ?? undefined })), ri, c++)}</td>
+                          <td className="stick c3 calc hire">{totalHires(r)}</td>
                           {weeks.map((w) => (
                             <Fragment key={w.idx}>
                               {w.days.map((d) => (
@@ -237,9 +240,9 @@ export function TrackerApp() {
                 <tr>
                   <td className="stick num" />
                   <td className="stick name">TOTAL</td>
-                  <td>{colSum((r) => r?.dqp ?? 0)}</td>
-                  <td>{colSum((r) => r?.atDqp ?? 0)}</td>
-                  <td>{grandHires}</td>
+                  <td className="stick c1">{colSum((r) => r?.dqp ?? 0)}</td>
+                  <td className="stick c2">{colSum((r) => r?.atDqp ?? 0)}</td>
+                  <td className="stick c3">{grandHires}</td>
                   {weeks.map((w) => (
                     <Fragment key={w.idx}>
                       {w.days.map((d) => (

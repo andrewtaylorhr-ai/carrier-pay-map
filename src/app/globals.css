@@ -337,3 +337,15 @@ table.tracker tfoot td.stick { z-index:3; background:#1e3a8a; }
 .attCell.aA { background:var(--cpm-red-soft); color:var(--cpm-red); }
 .attCell.aO { background:var(--cpm-blue-soft); color:var(--cpm-blue); }
 .attCell.legend { display:inline-flex; align-items:center; justify-content:center; width:22px; height:18px; border-radius:4px; margin:0 2px; cursor:default; }
+/* DQP / at DQP / Hire stay frozen next to the names (subs tab) */
+table.tracker .stick.name { width:170px; max-width:170px; }
+table.tracker .stick.c1, table.tracker .stick.c2, table.tracker .stick.c3 { width:56px; min-width:56px; max-width:56px; }
+table.tracker .stick.c1 { left:200px; }
+table.tracker .stick.c2 { left:256px; }
+table.tracker .stick.c3 { left:312px; box-shadow:2px 0 0 var(--cpm-border-strong); }
+table.tracker:has(.stick.c3) .stick.name { box-shadow:none; }
+table.tracker thead th.stick.hDqp { background:#2563eb; }
+table.tracker thead th.stick.hAtDqp { background:#ca8a04; }
+table.tracker thead th.stick.hHire { background:#15803d; }
+table.tracker tbody td.stick.c3.hire { background:#1f3a2c; }
+table.tracker tr.groupRow td.stick { background:var(--cpm-bg); }

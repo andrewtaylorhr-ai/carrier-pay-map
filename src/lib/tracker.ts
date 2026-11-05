@@ -18,6 +18,7 @@ export interface TrackerRow {
 export interface TrackerData {
   groups: string[]; // ordered group names
   rowGroup: Record<string, string>; // recruiter -> group name
+  groupColors?: Record<string, string>; // group name -> color picked by the user
   months: Record<string, Record<string, TrackerRow>>; // "YYYY-MM" -> recruiter -> row
 }
 

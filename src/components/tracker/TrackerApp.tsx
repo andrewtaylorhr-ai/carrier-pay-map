@@ -26,6 +26,11 @@ import {
 
 const GROUP_COLORS = ["#7c2d4f", "#a8577e", "#16a34a", "#ea8a0c", "#2563eb", "#7c3aed", "#0891b2"];
 const OTHER = "Other";
+// the user's pick, else a default by position (Other is always last)
+const colorOf = (data: TrackerData, name: string) => {
+  const i = name === OTHER ? data.groups.length : data.groups.indexOf(name);
+  return data.groupColors?.[name] ?? GROUP_COLORS[Math.max(0, i) % GROUP_COLORS.length];
+};
 
 const thisMonth = () => {
   const d = new Date();
@@ -50,7 +55,7 @@ export function TrackerApp() {
   const shown = recruiters.filter((r) => getRecruiterStatus(r) === "active" || rows[r]);
   const groupOf = (r: string) => (data.groups.includes(data.rowGroup[r]) ? data.rowGroup[r] : OTHER);
   const groups = [...data.groups, OTHER]
-    .map((g, i) => ({ name: g, color: GROUP_COLORS[i % GROUP_COLORS.length], members: shown.filter((r) => groupOf(r) === g) }))
+    .map((g) => ({ name: g, color: colorOf(data, g), members: shown.filter((r) => groupOf(r) === g) }))
     .filter((g) => g.members.length);
   const ordered = groups.flatMap((g) => g.members);
 
@@ -117,6 +122,9 @@ export function TrackerApp() {
   const grandSubs = colSum(totalSubs);
   const grandHires = colSum(totalHires);
 
+  const setGroupColor = (name: string, color: string) =>
+    setData((d) => ({ ...d, groupColors: { ...(d.groupColors || {}), [name]: color } }));
+
   const markAllPresentToday = () => {
     if (!today) return;
     ordered.forEach((name) => {
@@ -159,7 +167,7 @@ export function TrackerApp() {
         </div>
       </div>
 
-      {manage && <ManageGroups data={data} setData={setData} shown={shown} groupOf={groupOf} addRecruiter={addRecruiter} onClose={() => setManage(false)} />}
+      {manage && <ManageGroups data={data} setData={setData} setGroupColor={setGroupColor} shown={shown} groupOf={groupOf} addRecruiter={addRecruiter} onClose={() => setManage(false)} />}
 
       {!ordered.length ? (
         <div className="py-10 text-center text-[14px] text-[var(--cpm-text-dim)]">
@@ -195,7 +203,9 @@ export function TrackerApp() {
                 {groups.map((g) => (
                   <Fragment key={g.name}>
                     <tr className="groupRow">
-                      <td className="stick num" style={{ background: g.color }} />
+                      <td className="stick num" style={{ background: g.color }}>
+                        <ColorPick value={g.color} onChange={(c) => setGroupColor(g.name, c)} label={g.name} />
+                      </td>
                       <td className="stick name" style={{ borderLeft: `3px solid ${g.color}` }}>
                         {g.name}
                       </td>
@@ -279,7 +289,9 @@ export function TrackerApp() {
                 {groups.map((g) => (
                   <Fragment key={g.name}>
                     <tr className="groupRow">
-                      <td className="stick num" style={{ background: g.color }} />
+                      <td className="stick num" style={{ background: g.color }}>
+                        <ColorPick value={g.color} onChange={(c) => setGroupColor(g.name, c)} label={g.name} />
+                      </td>
                       <td className="stick name" style={{ borderLeft: `3px solid ${g.color}` }}>
                         {g.name}
                       </td>
@@ -360,6 +372,7 @@ export function TrackerApp() {
 function ManageGroups({
   data,
   setData,
+  setGroupColor,
   shown,
   groupOf,
   addRecruiter,
@@ -367,6 +380,7 @@ function ManageGroups({
 }: {
   data: TrackerData;
   setData: (fn: (d: TrackerData) => TrackerData) => void;
+  setGroupColor: (name: string, color: string) => void;
   shown: string[];
   groupOf: (r: string) => string;
   addRecruiter: (name: string) => string | null;
@@ -381,7 +395,12 @@ function ManageGroups({
       const groups = d.groups.slice();
       groups[i] = name;
       const rowGroup = Object.fromEntries(Object.entries(d.rowGroup).map(([r, g]) => [r, g === old ? name : g]));
-      return { ...d, groups, rowGroup };
+      const groupColors = { ...(d.groupColors || {}) };
+      if (old in groupColors) {
+        groupColors[name] = groupColors[old];
+        delete groupColors[old];
+      }
+      return { ...d, groups, rowGroup, groupColors };
     });
   const removeGroup = (i: number) => setData((d) => ({ ...d, groups: d.groups.filter((_, j) => j !== i) }));
   const addGroup = () =>
@@ -406,13 +425,17 @@ function ManageGroups({
           <div className="flex flex-col gap-1.5">
             {data.groups.map((g, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: GROUP_COLORS[i % GROUP_COLORS.length] }} />
+                <ColorPick value={colorOf(data, g)} onChange={(c) => setGroupColor(g, c)} label={g} swatch />
                 <input className="tmInput flex-1" value={g} onChange={(e) => renameGroup(i, e.target.value)} />
                 <button type="button" className="iconBtn" onClick={() => removeGroup(i)} title="Remove group (its recruiters move to Other)">
                   <X size={14} />
                 </button>
               </div>
             ))}
+            <div className="flex items-center gap-2">
+              <ColorPick value={colorOf(data, OTHER)} onChange={(c) => setGroupColor(OTHER, c)} label={OTHER} swatch />
+              <span className="text-[13px] text-[var(--cpm-text-dim)] px-[9px]">Other (anyone not in a group)</span>
+            </div>
             <button type="button" className="ghostBtn self-start" onClick={addGroup}>
               <Plus size={14} /> Add group
             </button>
@@ -457,5 +480,14 @@ function ManageGroups({
         </div>
       </div>
     </div>
+  );
+}
+
+// A color swatch that opens the browser's color picker.
+function ColorPick({ value, onChange, label, swatch }: { value: string; onChange: (c: string) => void; label: string; swatch?: boolean }) {
+  return (
+    <label className={swatch ? "colorSwatch" : "colorCell"} style={swatch ? { background: value } : undefined} title={`Pick a color for ${label}`}>
+      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`Color for ${label}`} />
+    </label>
   );
 }

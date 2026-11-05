@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { scaleSequential } from "d3-scale";
 import { interpolateGreens } from "d3-scale-chromatic";
-import { DollarSign, Hash, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, DollarSign, Hash, Search } from "lucide-react";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
-import { ALL_ACCOUNTS } from "@/lib/carriers/accounts";
+import { ALL_ACCOUNTS, carrierAccounts, formatPay } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
 import { formatCpmRange, formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
 import type { CarrierId } from "@/lib/carriers/types";
@@ -21,6 +21,14 @@ export function AllCarriersPay() {
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [metric, setMetric] = useState<"pay" | "offers">("pay");
+  const [open, setOpen] = useState<Set<CarrierId>>(() => new Set()); // carriers whose accounts are shown
+  const toggleOpen = (id: CarrierId) =>
+    setOpen((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const byState = useMemo(() => {
     const out: Record<string, CarrierStatePay[]> = {};
@@ -78,7 +86,10 @@ export function AllCarriersPay() {
           `<div style="margin-top:4px;color:#7ab8f5">Click for the table</div>`
         );
       },
-      onClick: (s) => setSelected(s),
+      onClick: (s) => {
+        setSelected(s);
+        setOpen(new Set());
+      },
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [byState, best, selected, metric, maxOffers]);
@@ -173,6 +184,15 @@ export function AllCarriersPay() {
                 <div className="text-[17px] font-bold text-[var(--cpm-text)]">{selected}</div>
                 <div className="text-[12px] text-[var(--cpm-text-faint)]">
                   {sel.length} carrier{sel.length === 1 ? "" : "s"} · {sel.reduce((n, p) => n + p.accounts, 0)} open accounts
+                  {sel.length > 0 && (
+                    <button
+                      type="button"
+                      className="ml-2 text-[#7ab8f5] hover:underline"
+                      onClick={() => setOpen(open.size === sel.length ? new Set() : new Set(sel.map((p) => p.carrier)))}
+                    >
+                      {open.size === sel.length ? "Hide all" : "Show all"}
+                    </button>
+                  )}
                 </div>
               </div>
               {!sel.length ? (
@@ -192,17 +212,54 @@ export function AllCarriersPay() {
                     {sel
                       .slice()
                       .sort((a, b) => (b.weekMax ?? 0) - (a.weekMax ?? 0))
-                      .map((p) => (
-                        <tr key={p.carrier}>
-                          <td>
-                            <b style={{ color: CARRIERS[p.carrier].color }}>{CARRIERS[p.carrier].label}</b>
-                          </td>
-                          <td>{p.weekMin != null ? `${usd(p.weekMin)}/wk` : "—"}</td>
-                          <td className="font-bold">{p.weekMax != null ? `${usd(p.weekMax)}/wk` : "—"}</td>
-                          <td>{formatCpmRange(p) || "—"}</td>
-                          <td>{p.accounts}</td>
-                        </tr>
-                      ))}
+                      .map((p) => {
+                        const isOpen = open.has(p.carrier);
+                        return (
+                          <Fragment key={p.carrier}>
+                            <tr className="cursor-pointer hover:bg-[var(--cpm-panel-alt)]" onClick={() => toggleOpen(p.carrier)}>
+                              <td>
+                                <span className="inline-flex items-center gap-1">
+                                  {isOpen ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                                  <b style={{ color: CARRIERS[p.carrier].color }}>{CARRIERS[p.carrier].label}</b>
+                                </span>
+                              </td>
+                              <td>{p.weekMin != null ? `${usd(p.weekMin)}/wk` : "—"}</td>
+                              <td className="font-bold">{p.weekMax != null ? `${usd(p.weekMax)}/wk` : "—"}</td>
+                              <td>{formatCpmRange(p) || "—"}</td>
+                              <td>
+                                <button type="button" className="text-[#7ab8f5] hover:underline whitespace-nowrap">
+                                  {p.accounts} · {isOpen ? "Hide" : "Show"}
+                                </button>
+                              </td>
+                            </tr>
+                            {isOpen && (
+                              <tr>
+                                <td colSpan={5} className="!p-0">
+                                  <div className="max-h-[260px] overflow-y-auto bg-[var(--cpm-panel-alt)] px-3 py-1">
+                                    {carrierAccounts(p.carrier, undefined, selected!)
+                                      .slice()
+                                      .sort((a, b) => (b.payHigh ?? b.payLow ?? 0) - (a.payHigh ?? a.payLow ?? 0))
+                                      .map((a) => (
+                                        <div key={a.id} className="flex gap-3 py-1.5 border-b border-[var(--cpm-border)] last:border-0 text-[12.5px]">
+                                          <div className="flex-1 min-w-0">
+                                            <div className="font-semibold">
+                                              {a.name}
+                                              {a.approval === "Yes" && <span className="ml-1 text-[10.5px] text-[#f5c451]">needs approval</span>}
+                                            </div>
+                                            <div className="text-[11px] text-[var(--cpm-text-faint)]">
+                                              {[a.cat, a.hometime].filter(Boolean).join(" · ")}
+                                            </div>
+                                          </div>
+                                          <div className="text-right whitespace-nowrap text-[var(--cpm-text-dim)]">{formatPay(a)}</div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
+                        );
+                      })}
                   </tbody>
                 </table>
               )}

@@ -108,6 +108,20 @@ export function CarrierAccountsStep() {
     toggleRecruiterAccount(recruiterFilter, accountId);
   };
 
+  // tick (or untick) every account in `list`; ticking switches its carrier on for the state
+  const setAll = (list: { id: CarrierId; accounts: Account[] }[], tick: boolean) => {
+    list.forEach(({ id, accounts }) => {
+      if (tick && accounts.length && !carriersOn(focus).includes(id)) {
+        toggleCarrierOnState(focus, id);
+        setOpen((p) => ({ ...p, [`${focus}|${id}`]: true }));
+      }
+    });
+    const ids = list.flatMap((g) => g.accounts.map((a) => a.id));
+    if (ids.length) setRecruiterAccountsOn(recruiterFilter, ids, tick);
+  };
+  const allShown = groups.map((g) => ({ id: g.id, accounts: g.shown }));
+  const everyShownTicked = allShown.every((g) => g.accounts.every((a) => ticked.has(a.id))) && allShown.some((g) => g.accounts.length);
+
   return (
     <>
       <div className="mb-4">
@@ -161,7 +175,12 @@ export function CarrierAccountsStep() {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-            <div className="text-[16px] font-bold text-[var(--cpm-text)]">{focus}</div>
+            <div className="flex items-center gap-3">
+              <div className="text-[16px] font-bold text-[var(--cpm-text)]">{focus}</div>
+              <button type="button" className="selAllBtn" onClick={() => setAll(allShown, !everyShownTicked)}>
+                {everyShownTicked ? "Clear all" : "Select all"}
+              </button>
+            </div>
             <div className="wizInput w-[230px]">
               <Search size={14} />
               <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={`Search accounts in ${focus}…`} />
@@ -184,6 +203,7 @@ export function CarrierAccountsStep() {
               const on = carriersOn(focus).includes(id);
               const nTicked = all.filter((a) => ticked.has(a.id)).length;
               const expanded = isOpen(id);
+              const allTicked = shown.length > 0 && shown.every((a) => ticked.has(a.id));
               return (
                 <div key={id} className={`carrierBlock${on ? " on" : ""}`} style={on ? { borderColor: c.color } : undefined}>
                   <div className="head">
@@ -210,6 +230,11 @@ export function CarrierAccountsStep() {
                         {expanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
                       </span>
                     </button>
+                    {shown.length > 0 && (
+                      <button type="button" className="selAllBtn" onClick={() => setAll([{ id, accounts: shown }], !allTicked)}>
+                        {allTicked ? "Clear" : "Select all"}
+                      </button>
+                    )}
                   </div>
                   {expanded && (
                     <div className="accts">

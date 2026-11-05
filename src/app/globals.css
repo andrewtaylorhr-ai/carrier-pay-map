@@ -364,3 +364,6 @@ table.payTable tr.sel td { background:rgba(212,161,55,.1); }
 table.payTable td.empty { color:var(--cpm-text-faint); }
 #map .payLabel { font-size:12.5px; font-weight:800; fill:#fff; stroke:#11131a; stroke-width:3px; paint-order:stroke; pointer-events:none; }
 #map .payLeader { stroke:rgba(255,255,255,.45); stroke-width:.8; vector-effect:non-scaling-stroke; }
+.offerTotal { font-size:13px; color:var(--cpm-text-dim); }
+.offerTotal b { color:var(--cpm-text); font-size:15px; }
+.offerRamp { width:110px; height:9px; border-radius:5px; background:linear-gradient(90deg, #d5efcf, #00441b); display:inline-block; }

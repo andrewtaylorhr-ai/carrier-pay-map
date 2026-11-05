@@ -1,8 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { scaleSequential } from "d3-scale";
+import { interpolateGreens } from "d3-scale-chromatic";
+import { DollarSign, Hash, Search } from "lucide-react";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
+import { ALL_ACCOUNTS } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
 import { formatCpmRange, formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
 import type { CarrierId } from "@/lib/carriers/types";
@@ -17,6 +20,7 @@ export function AllCarriersPay() {
   const [on, setOn] = useState<Set<CarrierId>>(() => new Set(CARRIER_ORDER));
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [metric, setMetric] = useState<"pay" | "offers">("pay");
 
   const byState = useMemo(() => {
     const out: Record<string, CarrierStatePay[]> = {};
@@ -34,19 +38,27 @@ export function AllCarriersPay() {
     });
     return out;
   }, [byState]);
+  // open offers (accounts) hiring in each state; one account can hire in several states
+  const offersIn = (s: string) => (byState[s] || []).reduce((n, p) => n + p.accounts, 0);
+  const maxOffers = Math.max(1, ...ALL_STATES.map(offersIn));
+  const totalOffers = ALL_ACCOUNTS.filter((a) => on.has(a.carrier) && a.states.length).length;
+  const statesWithOffers = ALL_STATES.filter((s) => offersIn(s) > 0).length;
   const winners = CARRIER_ORDER.filter((id) => ALL_STATES.some((s) => best[s]?.carrier === id));
 
   const paint = useMemo<MapPaint>(() => {
     const bestCpm = (s: string) => Math.max(...byState[s].map((p) => p.cpmMax ?? 0));
+    const green = scaleSequential(interpolateGreens).domain([-maxOffers * 0.15, maxOffers]);
     return {
       selected,
       fill: (s) => {
         if (!byState[s]?.length) return NO_DATA_FILL;
+        if (metric === "offers") return green(offersIn(s));
         const b = best[s];
         return b ? CARRIERS[b.carrier].color : NO_WEEKLY_FILL;
       },
       label: (s) => {
         if (!byState[s]?.length) return null;
+        if (metric === "offers") return String(offersIn(s));
         const b = best[s];
         if (b?.weekMax != null) return usd(b.weekMax);
         const c = bestCpm(s);
@@ -56,7 +68,7 @@ export function AllCarriersPay() {
         const list = byState[s] || [];
         if (!list.length) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No open accounts</div>`;
         return (
-          `<div style="font-weight:700;margin-bottom:4px">${s}</div>` +
+          `<div style="font-weight:700;margin-bottom:4px">${s} — ${offersIn(s)} open offer${offersIn(s) === 1 ? "" : "s"}</div>` +
           list
             .map(
               (p) =>
@@ -69,7 +81,7 @@ export function AllCarriersPay() {
       onClick: (s) => setSelected(s),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [byState, best, selected]);
+  }, [byState, best, selected, metric, maxOffers]);
 
   const toggle = (id: CarrierId) =>
     setOn((cur) => {
@@ -88,6 +100,20 @@ export function AllCarriersPay() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="segTabs">
+          <button type="button" className={metric === "pay" ? "active" : undefined} onClick={() => setMetric("pay")}>
+            <DollarSign size={14} /> Top pay
+          </button>
+          <button type="button" className={metric === "offers" ? "active" : undefined} onClick={() => setMetric("offers")}>
+            <Hash size={14} /> Number of offers
+          </button>
+        </div>
+        <div className="offerTotal">
+          <b>{totalOffers.toLocaleString("en-US")}</b> open offers · <b>{statesWithOffers}</b> states
+        </div>
+      </div>
+
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-[11.5px] font-bold uppercase tracking-wider text-[var(--cpm-text-faint)] mr-1">Carriers</span>
         {CARRIER_ORDER.map((id) => {
@@ -113,16 +139,26 @@ export function AllCarriersPay() {
         <div className="wizCard xl:w-[62%] shrink-0">
           <ChoroplethMap paint={paint} />
           <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-            <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
-            {winners.map((id) => (
-              <span key={id} className="flex items-center gap-1">
-                <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
-                {CARRIERS[id].label}
-              </span>
-            ))}
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
-            </span>
+            {metric === "offers" ? (
+              <>
+                <span>Number = open offers hiring in the state · darker = more</span>
+                <span className="offerRamp" />
+                <span>1 – {maxOffers}</span>
+              </>
+            ) : (
+              <>
+                <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
+                {winners.map((id) => (
+                  <span key={id} className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
+                    {CARRIERS[id].label}
+                  </span>
+                ))}
+                <span className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -191,6 +227,7 @@ export function AllCarriersPay() {
             <thead>
               <tr>
                 <th>State</th>
+                <th>Offers</th>
                 {carriersShown.map((id) => (
                   <th key={id} style={{ color: CARRIERS[id].color }}>
                     {CARRIERS[id].label}
@@ -206,6 +243,7 @@ export function AllCarriersPay() {
                     <td className="font-semibold">
                       {STATE_CODE[s]} <span className="text-[var(--cpm-text-faint)] font-normal">{s}</span>
                     </td>
+                    <td className="font-bold">{offersIn(s)}</td>
                     {carriersShown.map((id) => {
                       const p = list.find((x) => x.carrier === id);
                       if (!p) return <td key={id} className="empty">—</td>;

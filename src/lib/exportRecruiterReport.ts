@@ -14,13 +14,6 @@ import type {
   PersistedRecruiterAssignments,
 } from "@/lib/carriers/types";
 
-interface StateRow {
-  State: string;
-  "Carriers Assigned": string;
-  "Shared With": string;
-  "Your Accounts Here": number;
-}
-
 interface AccountExportRow {
   Carrier: string;
   Category: string;
@@ -108,19 +101,11 @@ function buildRecruiterRows(
     Notes: a.notes,
   }));
 
-  const stateRows: StateRow[] = states.map((s) => ({
-    State: s,
-    "Carriers Assigned": (assignments[s] || []).map((id) => CARRIERS[id].label).join(", ") || "(none yet)",
-    "Shared With": (recruiterAssignments[s] || []).filter((r) => r !== recruiter).join(", "),
-    "Your Accounts Here": accounts.filter((a) => a.states.includes(s)).length,
-  }));
-
   accountRows.forEach(warnIfLooksLikeHtml);
-  return { states, stateRows, accountRows, fallback };
+  return { states, accountRows, fallback };
 }
 
 const ACCOUNT_COLS = [14, 22, 38, 26, 26, 40, 22, 26, 22, 10, 60].map((wch) => ({ wch }));
-const STATE_COLS = [16, 34, 24, 12].map((wch) => ({ wch }));
 
 function sheetFrom<T extends object>(rows: T[], cols: { wch: number }[], emptyNote: string) {
   const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([[emptyNote]]);
@@ -145,12 +130,7 @@ export function exportRecruiterReportToExcel(
   recruiterAccounts: PersistedRecruiterAccounts
 ): void {
   if (!recruiter) return;
-  const { states, stateRows, accountRows, fallback } = buildRecruiterRows(
-    recruiter,
-    assignments,
-    recruiterAssignments,
-    recruiterAccounts
-  );
+  const { states, accountRows, fallback } = buildRecruiterRows(recruiter, assignments, recruiterAssignments, recruiterAccounts);
   if (!states.length && !accountRows.length) {
     alert(`${recruiter} has no states or accounts assigned yet.`);
     return;
@@ -161,7 +141,6 @@ export function exportRecruiterReportToExcel(
     sheetFrom(accountRows, ACCOUNT_COLS, "No accounts in this recruiter's states."),
     fallback ? "All accounts in your states" : "Your accounts"
   );
-  XLSX.utils.book_append_sheet(wb, sheetFrom(stateRows, STATE_COLS, "No states assigned."), "Your states");
   XLSX.writeFile(wb, `${recruiter.replace(/[^a-z0-9]+/gi, "_")}_strategy.xlsx`);
 }
 

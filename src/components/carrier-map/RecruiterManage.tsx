@@ -67,6 +67,7 @@ export function RecruiterManage() {
     .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
     .slice()
     .sort(compareRecruitersByStatus);
+  const formerRecruiters = visibleRecruiters.filter((r) => getRecruiterStatus(r) === "inactive");
 
   return (
     <div>
@@ -113,7 +114,7 @@ export function RecruiterManage() {
           return (
             <span
               key={r}
-              className={`inline-flex items-center gap-2 pl-2.5 pr-1.5 py-1 rounded-lg text-[12.5px] font-medium bg-[var(--cpm-panel-alt)] border transition-colors ${
+              className={`w-full flex flex-wrap items-center gap-x-2 gap-y-1 pl-2.5 pr-1.5 py-1.5 rounded-lg text-[12.5px] font-medium bg-[var(--cpm-panel-alt)] border transition-colors ${
                 inactive
                   ? "border-[var(--cpm-red)] text-[#ff9a9d]"
                   : "border-[var(--cpm-border)] text-[var(--cpm-text)] hover:border-[var(--cpm-border-strong)]"
@@ -123,10 +124,25 @@ export function RecruiterManage() {
                 className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10"
                 style={{ background: recruiterColor(r) }}
               />
-              {r}
+              <span className="flex-1 min-w-0 truncate" title={r}>
+                {r}
+              </span>
               {inactive && (
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-[#ff9a9d]">Former</span>
               )}
+              <button
+                type="button"
+                title={`Remove ${r} for good`}
+                aria-label={`Remove ${r}`}
+                onClick={() => {
+                  if (!confirm(`Remove ${r} for good? Their states, accounts and plan will be cleared.`)) return;
+                  removeRecruiter(r);
+                }}
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] text-[var(--cpm-text-faint)] hover:bg-[var(--cpm-red)] hover:text-white transition-colors shrink-0"
+              >
+                ✕
+              </button>
+              <span className="w-full flex items-center gap-1.5 pl-[18px]">
               <button
                 type="button"
                 title={inactive ? `Mark ${r} active` : `Mark ${r} inactive (left/fired)`}
@@ -149,17 +165,7 @@ export function RecruiterManage() {
                 <option value="uzbek">Uzbek</option>
                 <option value="philippines">Philippines</option>
               </select>
-              <button
-                type="button"
-                title={`Remove ${r}`}
-                onClick={() => {
-                  if (!confirm(`Remove ${r}? Their state assignments will be cleared.`)) return;
-                  removeRecruiter(r);
-                }}
-                className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] text-[var(--cpm-text-faint)] hover:bg-[var(--cpm-red)] hover:text-white transition-colors"
-              >
-                ✕
-              </button>
+              </span>
             </span>
           );
         })}
@@ -167,6 +173,21 @@ export function RecruiterManage() {
           <span className="text-[11.5px] text-[var(--cpm-text-faint)] italic">No recruiters on this team yet.</span>
         )}
       </div>
+
+      {formerRecruiters.length > 0 && (
+        <button
+          type="button"
+          onClick={() => {
+            if (!confirm(`Remove all ${formerRecruiters.length} former recruiters for good?
+
+${formerRecruiters.join(", ")}`)) return;
+            formerRecruiters.forEach((r) => removeRecruiter(r));
+          }}
+          className="w-full mb-3 h-8 rounded-lg border border-[var(--cpm-red)] text-[12px] font-semibold text-[#ff9a9d] hover:bg-[var(--cpm-red)] hover:text-white transition-colors"
+        >
+          Remove all {formerRecruiters.length} former recruiters
+        </button>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-[var(--cpm-border)]">
         <input

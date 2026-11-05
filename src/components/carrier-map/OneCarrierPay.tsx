@@ -115,7 +115,7 @@ export function OneCarrierPay() {
           `<div>${formatPayRange(p)}</div>` +
           (p.top && !single ? `<div>Top pay: <b style="color:${CARRIERS[p.top].color}">${CARRIERS[p.top].label}</b></div>` : "") +
           `<div style="color:#9aa0ad">${p.accounts} open offer${p.accounts === 1 ? "" : "s"} · ${mix}</div>` +
-          `<div style="margin-top:3px;color:#7ab8f5">Click for the list</div>`
+          `<div style="margin-top:3px;color:#7ab8f5">Click for the list below the map</div>`
         );
       },
       onClick: (s) => setSelected(pay[s] ? s : null),
@@ -187,8 +187,8 @@ export function OneCarrierPay() {
         Click to pick one; click more to add them. &quot;All&quot; brings everything back.
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-5">
-        <div className="wizCard xl:w-[62%] shrink-0">
+      <div className="flex flex-col gap-5">
+        <div className="wizCard">
           <ChoroplethMap paint={paint} />
           <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
             {single ? (
@@ -223,9 +223,9 @@ export function OneCarrierPay() {
           </div>
         </div>
 
-        <div className="wizCard flex-1 min-w-0">
+        <div className="wizCard min-w-0 !min-h-0">
           {!selected ? (
-            <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-6 text-center">Click a state to see its offers.</div>
+            <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-4 text-center">Click a state on the map to see its offers here.</div>
           ) : (
             <>
               <div className="flex items-baseline justify-between gap-2 mb-1">
@@ -241,7 +241,7 @@ export function OneCarrierPay() {
                   </span>
                 ))}
               </div>
-              <div className="max-h-[560px] overflow-y-auto">
+              <div>
                 <table className="payTable">
                   <thead>
                     <tr>

@@ -44,7 +44,7 @@ export function StrategyWizard() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] px-6 py-6">
+    <div className="mx-auto w-full max-w-[1900px] px-6 py-6">
       <div className="flex items-end justify-between gap-4 flex-wrap mb-5">
         <div>
           <h1 className="text-[22px] font-bold text-[var(--cpm-text)]">Strategy Builder</h1>

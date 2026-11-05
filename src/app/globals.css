@@ -278,12 +278,12 @@ table.wizTable tr.allRow td { font-size:11.5px; color:var(--cpm-text-faint); bac
 .acctRow.ticked { background:rgba(212,161,55,.07); }
 .acctRow .box { width:18px; height:18px; border-radius:5px; border:1.5px solid var(--cpm-border-strong); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; color:var(--cpm-accent-ink); }
 .acctRow .box.on { background:var(--cpm-accent); border-color:var(--cpm-accent); }
-.bigMap #map svg { min-height:420px; }
+.bigMap #map svg { min-height:520px; }
 .legendPin { width:12px; height:12px; border-radius:50%; background:#3a4152; border:1.5px solid #fff; display:inline-block; }
 .legendPin.hl { background:#d4a137; }
 .cityFilterBar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 12px; margin-bottom:10px; border-radius:9px; background:rgba(212,161,55,.1); border:1px solid var(--cpm-accent); font-size:13px; color:var(--cpm-text); }
 .cityFilterBar button { margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:600; color:var(--cpm-accent); cursor:pointer; }
-.accountsScroll { max-height:640px; overflow-y:auto; padding-right:2px; }
+.accountsScroll { max-height:780px; overflow-y:auto; padding-right:2px; }
 
 /* ---------- Daily Tracker ---------- */
 .monthNav { display:inline-flex; align-items:center; gap:4px; padding:3px; border-radius:10px; background:var(--cpm-panel-alt); border:1px solid var(--cpm-border-strong); }

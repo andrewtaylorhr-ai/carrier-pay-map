@@ -66,6 +66,24 @@ export function recruiterAssignedAccounts(recruiter: string, recruiterAccounts: 
   );
 }
 
+// The accounts that go in a recruiter's plan (Excel file and map picture).
+// Nothing ticked yet: fall back to every open account in their states for
+// the carriers assigned to each state, so the download is still useful.
+export function recruiterPlanAccounts(
+  recruiter: string,
+  assignments: PersistedAssignments,
+  recruiterAssignments: PersistedRecruiterAssignments,
+  recruiterAccounts: PersistedRecruiterAccounts
+): { accounts: Account[]; fallback: boolean } {
+  const stateSet = new Set(recruiterStates(recruiter, recruiterAssignments));
+  const ticked = recruiterAssignedAccounts(recruiter, recruiterAccounts);
+  if (ticked.length) return { accounts: ticked, fallback: false };
+  const accounts = accountsInStates([...stateSet]).filter((a) =>
+    a.states.some((s) => stateSet.has(s) && (!(assignments[s] || []).length || assignments[s].includes(a.carrier)))
+  );
+  return { accounts, fallback: true };
+}
+
 function buildRecruiterRows(
   recruiter: string,
   assignments: PersistedAssignments,
@@ -74,15 +92,7 @@ function buildRecruiterRows(
 ) {
   const states = recruiterStates(recruiter, recruiterAssignments);
   const stateSet = new Set(states);
-  let accounts = recruiterAssignedAccounts(recruiter, recruiterAccounts);
-  // Nothing ticked yet: fall back to every open account in their states for
-  // the carriers assigned to each state, so the file is still useful.
-  const fallback = !accounts.length;
-  if (fallback) {
-    accounts = accountsInStates(states).filter((a) =>
-      a.states.some((s) => stateSet.has(s) && (!(assignments[s] || []).length || assignments[s].includes(a.carrier)))
-    );
-  }
+  const { accounts, fallback } = recruiterPlanAccounts(recruiter, assignments, recruiterAssignments, recruiterAccounts);
 
   const accountRows: AccountExportRow[] = accounts.map((a) => ({
     Carrier: CARRIERS[a.carrier].label,

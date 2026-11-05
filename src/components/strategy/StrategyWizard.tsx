@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Download, Plus, Search, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, Map as MapIcon, Plus, Search, X } from "lucide-react";
 import { ChoroplethMap } from "@/components/carrier-map/ChoroplethMap";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
+import { downloadRecruiterMap } from "@/lib/exportRecruiterMap";
 import { exportRecruiterReportToExcel, recruiterStates } from "@/lib/exportRecruiterReport";
 import { CarrierAccountsStep } from "./CarrierAccountsStep";
 
@@ -304,7 +305,7 @@ function DownloadStep({ onNext }: { onNext: () => void }) {
 
   return (
     <>
-      <StepTitle title={`${recruiterFilter}'s plan is ready`} hint="Check the summary, then download the Excel file to send." />
+      <StepTitle title={`${recruiterFilter}'s plan is ready`} hint="Check the summary, then download the Excel file and the map picture to send." />
       <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}>
         <SummaryTile label="States" value={states.length} sub={states.join(", ") || "none"} />
         <SummaryTile
@@ -325,6 +326,14 @@ function DownloadStep({ onNext }: { onNext: () => void }) {
           onClick={() => exportRecruiterReportToExcel(recruiterFilter, assignments, recruiterAssignments, recruiterAccounts)}
         >
           <Download size={15} /> Download {recruiterFilter}&apos;s Excel
+        </button>
+        <button
+          type="button"
+          className="wizBtn primary"
+          disabled={!states.length}
+          onClick={() => downloadRecruiterMap(recruiterFilter, assignments, recruiterAssignments, recruiterAccounts)}
+        >
+          <MapIcon size={15} /> Download map (picture)
         </button>
         <button type="button" className="wizBtn ghost" onClick={onNext}>
           Plan another recruiter <ArrowRight size={15} />

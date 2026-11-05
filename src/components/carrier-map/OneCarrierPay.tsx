@@ -189,8 +189,10 @@ export function OneCarrierPay() {
 
       <div className="flex flex-col gap-5">
         <div className="wizCard">
-          <ChoroplethMap paint={paint} />
-          <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
+          <div className="max-w-[960px] mx-auto">
+            <ChoroplethMap paint={paint} />
+          </div>
+          <div className="flex items-center justify-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
             {single ? (
               <>
                 <span>Number = highest pay in the state (per week, or per mile)</span>

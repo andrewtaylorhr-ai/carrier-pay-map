@@ -19,13 +19,22 @@ const indeedOf = (s: string): number | undefined => INDEED_WEEKLY_PAY[STATE_CODE
 const diffText = (d: number) => `${d >= 0 ? "+" : "−"}${usd(Math.abs(d))}`;
 const diffColor = (d: number) => (d >= 0 ? "#4ade80" : "#f87171");
 
+type Metric = "pay" | "offers" | "indeed";
+const METRICS: Metric[] = ["pay", "offers", "indeed"];
+const METRIC_TITLE: Record<Metric, string> = { pay: "Our top pay", offers: "Number of offers", indeed: "Indeed pay" };
+
 // Pay Map "All carriers": every carrier's lowest and highest pay in each
 // state, on the map (hover / click) and in one table of all states.
 export function AllCarriersPay() {
   const [on, setOn] = useState<Set<CarrierId>>(() => new Set(CARRIER_ORDER));
   const [selected, setSelected] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [metric, setMetric] = useState<"pay" | "offers" | "indeed">("pay");
+  // map(s) shown; pick several to see them side by side
+  const [metrics, setMetrics] = useState<Metric[]>(["pay"]);
+  const toggleMetric = (m: Metric) =>
+    setMetrics((cur) =>
+      cur.includes(m) ? (cur.length > 1 ? cur.filter((x) => x !== m) : cur) : METRICS.filter((x) => x === m || cur.includes(x))
+    );
   const [open, setOpen] = useState<Set<CarrierId>>(() => new Set()); // carriers whose accounts are shown
   const toggleOpen = (id: CarrierId) =>
     setOpen((cur) => {
@@ -58,12 +67,12 @@ export function AllCarriersPay() {
   const statesWithOffers = ALL_STATES.filter((s) => offersIn(s) > 0).length;
   const winners = CARRIER_ORDER.filter((id) => ALL_STATES.some((s) => best[s]?.carrier === id));
 
-  const paint = useMemo<MapPaint>(() => {
+  const paints = useMemo<Record<Metric, MapPaint>>(() => {
     const bestCpm = (s: string) => Math.max(...byState[s].map((p) => p.cpmMax ?? 0));
     const green = scaleSequential(interpolateGreens).domain([-maxOffers * 0.15, maxOffers]);
     // clamped so one high state (Vermont) doesn't wash out the rest
     const blue = scaleSequential(interpolateBlues).domain([1350, 2100]).clamp(true);
-    return {
+    const make = (metric: Metric): MapPaint => ({
       selected,
       fill: (s) => {
         if (metric === "indeed") return indeedOf(s) != null ? blue(indeedOf(s)!) : NO_DATA_FILL;
@@ -100,9 +109,43 @@ export function AllCarriersPay() {
         setSelected(s);
         setOpen(new Set());
       },
-    };
+    });
+    return { pay: make("pay"), offers: make("offers"), indeed: make("indeed") };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [byState, best, selected, metric, maxOffers]);
+  }, [byState, best, selected, maxOffers]);
+
+  const legend = (metric: Metric) => (
+    <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
+      {metric === "indeed" ? (
+        <>
+          <span>Number = Indeed average weekly truck driver pay (from Indeed job postings, {INDEED_PAY_AS_OF})</span>
+          <span className="flex items-center gap-1.5">
+            lower <span className="payRamp" /> higher
+          </span>
+        </>
+      ) : metric === "offers" ? (
+        <>
+          <span>Number = open offers hiring in the state · darker = more</span>
+          <span className="offerRamp" />
+          <span>1 – {maxOffers}</span>
+        </>
+      ) : (
+        <>
+          <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
+          {winners.map((id) => (
+            <span key={id} className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
+              {CARRIERS[id].label}
+            </span>
+          ))}
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
+          </span>
+        </>
+      )}
+    </div>
+  );
+  const multi = metrics.length > 1;
 
   const toggle = (id: CarrierId) =>
     setOn((cur) => {
@@ -123,16 +166,17 @@ export function AllCarriersPay() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="segTabs">
-          <button type="button" className={metric === "pay" ? "active" : undefined} onClick={() => setMetric("pay")}>
+          <button type="button" className={metrics.includes("pay") ? "active" : undefined} onClick={() => toggleMetric("pay")}>
             <DollarSign size={14} /> Top pay
           </button>
-          <button type="button" className={metric === "offers" ? "active" : undefined} onClick={() => setMetric("offers")}>
+          <button type="button" className={metrics.includes("offers") ? "active" : undefined} onClick={() => toggleMetric("offers")}>
             <Hash size={14} /> Number of offers
           </button>
-          <button type="button" className={metric === "indeed" ? "active" : undefined} onClick={() => setMetric("indeed")}>
+          <button type="button" className={metrics.includes("indeed") ? "active" : undefined} onClick={() => toggleMetric("indeed")}>
             <Briefcase size={14} /> Indeed pay
           </button>
         </div>
+        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Turn on two to compare side by side</span>
         <div className="offerTotal">
           <b>{totalOffers.toLocaleString("en-US")}</b> open offers · <b>{statesWithOffers}</b> states
         </div>
@@ -159,39 +203,25 @@ export function AllCarriersPay() {
         })}
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-5">
-        <div className="wizCard xl:w-[62%] shrink-0">
-          <ChoroplethMap paint={paint} />
-          <div className="flex items-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-            {metric === "indeed" ? (
-              <>
-                <span>Number = Indeed average weekly truck driver pay (from Indeed job postings, {INDEED_PAY_AS_OF})</span>
-                <span className="flex items-center gap-1.5">
-                  lower <span className="payRamp" /> higher
-                </span>
-              </>
-            ) : metric === "offers" ? (
-              <>
-                <span>Number = open offers hiring in the state · darker = more</span>
-                <span className="offerRamp" />
-                <span>1 – {maxOffers}</span>
-              </>
-            ) : (
-              <>
-                <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
-                {winners.map((id) => (
-                  <span key={id} className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-sm inline-block" style={{ background: CARRIERS[id].color }} />
-                    {CARRIERS[id].label}
-                  </span>
-                ))}
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_WEEKLY_FILL }} /> per-mile pay only
-                </span>
-              </>
-            )}
-          </div>
+      {multi && (
+        <div className={`grid grid-cols-1 gap-5 ${metrics.length === 3 ? "xl:grid-cols-3" : "lg:grid-cols-2"}`}>
+          {metrics.map((m) => (
+            <div key={m} className="wizCard min-w-0">
+              <div className="text-[14px] font-bold text-[var(--cpm-text)] mb-2">{METRIC_TITLE[m]}</div>
+              <ChoroplethMap paint={paints[m]} />
+              {legend(m)}
+            </div>
+          ))}
         </div>
+      )}
+
+      <div className="flex flex-col xl:flex-row gap-5">
+        {!multi && (
+          <div className="wizCard xl:w-[62%] shrink-0">
+            <ChoroplethMap paint={paints[metrics[0]]} />
+            {legend(metrics[0])}
+          </div>
+        )}
 
         <div className="wizCard flex-1 min-w-0">
           {!selected ? (

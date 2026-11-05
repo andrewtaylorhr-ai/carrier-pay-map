@@ -6,7 +6,7 @@ import { select, type Selection } from "d3-selection";
 import { feature } from "topojson-client";
 import type { Feature, Geometry } from "geojson";
 import type { Topology } from "topojson-specification";
-import { CARRIERS, MAJOR_CITIES } from "@/lib/carriers/data";
+import { CARRIERS, MAJOR_CITIES, STATE_CITIES, STATE_CODE } from "@/lib/carriers/data";
 import { getStateRecord } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useMapStyle } from "@/lib/hooks/useMapStyle";
@@ -298,15 +298,34 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
       });
     const pinNames = new Set((pins ?? []).map((p) => p.label.toLowerCase()));
 
-    // reference cities: all of them when zoomed in, the biggest 30 otherwise
+    // Try a label right of the marker, then left, above, below; null if all collide.
+    const placeLabel = (p: [number, number], gap: number, w: number, font: number) => {
+      const h = font * 1.1;
+      const spots: { x: number; y: number; anchor: string; bx: number; by: number }[] = [
+        { x: p[0] + gap, y: p[1] + font * 0.35, anchor: "start", bx: p[0] + gap, by: p[1] - font * 0.7 },
+        { x: p[0] - gap, y: p[1] + font * 0.35, anchor: "end", bx: p[0] - gap - w, by: p[1] - font * 0.7 },
+        { x: p[0], y: p[1] - gap - font * 0.25, anchor: "middle", bx: p[0] - w / 2, by: p[1] - gap - h },
+        { x: p[0], y: p[1] + gap + font * 0.85, anchor: "middle", bx: p[0] - w / 2, by: p[1] + gap },
+      ];
+      return spots.find((s) => fits(s.bx, s.by, w, h)) ?? null;
+    };
+
+    // reference cities: zoomed into a state, every sizeable city there plus the
+    // big ones around it; otherwise the biggest 30 in the country
     cityG.selectAll("*").remove();
     const cityLabels: { name: string; p: [number, number] }[] = [];
     if (showCities) {
-      const list = k > 1 ? MAJOR_CITIES : MAJOR_CITIES.slice(0, 30);
-      list.forEach(([name, , lon, lat]) => {
+      const code = zoomTo ? STATE_CODE[zoomTo] : "";
+      const list: [string, number, number][] =
+        k > 1
+          ? [
+              ...(STATE_CITIES[code] || []).map(([name, lon, lat]): [string, number, number] => [name, lon, lat]),
+              ...MAJOR_CITIES.filter(([, st]) => st !== code).map(([name, , lon, lat]): [string, number, number] => [name, lon, lat]),
+            ]
+          : MAJOR_CITIES.slice(0, 30).map(([name, , lon, lat]) => [name, lon, lat]);
+      list.forEach(([name, lon, lat]) => {
         const p = PROJECT([lon, lat]);
         if (!p || pinNames.has(name.toLowerCase())) return;
-        cityG.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 2.6 / k).attr("class", "refCityDot");
         cityLabels.push({ name, p });
       });
     }
@@ -330,25 +349,33 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
         .attr("text-anchor", "middle")
         .attr("class", "pinCount")
         .text(pin.count);
-      const lx = p[0] + r + 3 / k;
-      const w = pin.label.length * PIN_FONT * 0.56;
-      if (pin.active || fits(lx, p[1] - PIN_FONT * 0.7, w, PIN_FONT * 1.1)) {
+      const gap = r + 3 / k;
+      const spot =
+        placeLabel(p, gap, pin.label.length * PIN_FONT * 0.56, PIN_FONT) ??
+        (pin.active ? { x: p[0] + gap, y: p[1] + PIN_FONT * 0.35, anchor: "start" } : null);
+      if (spot) {
         g.append("text")
-          .attr("x", lx)
-          .attr("y", p[1] + PIN_FONT * 0.35)
+          .attr("x", spot.x)
+          .attr("y", spot.y)
+          .attr("text-anchor", spot.anchor)
           .attr("font-size", PIN_FONT)
           .attr("stroke-width", 3.5 / k)
           .attr("class", "pinLabel")
           .text(pin.label);
       }
     });
+    // a city is drawn only if its label finds room, so the map never turns to mush
     cityLabels.forEach(({ name, p }) => {
-      const lx = p[0] + 5 / k;
-      if (!fits(lx, p[1] - CITY_FONT * 0.7, name.length * CITY_FONT * 0.55, CITY_FONT * 1.1)) return;
+      const dot = 3 / k;
+      if (!fits(p[0] - dot, p[1] - dot, 2 * dot, 2 * dot)) return;
+      const spot = placeLabel(p, 5 / k, name.length * CITY_FONT * 0.55, CITY_FONT);
+      if (!spot) return;
+      cityG.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 2.6 / k).attr("class", "refCityDot");
       cityG
         .append("text")
-        .attr("x", lx)
-        .attr("y", p[1] + CITY_FONT * 0.35)
+        .attr("x", spot.x)
+        .attr("y", spot.y)
+        .attr("text-anchor", spot.anchor)
         .attr("font-size", CITY_FONT)
         .attr("stroke-width", 3 / k)
         .attr("class", "refCityLabel")

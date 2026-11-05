@@ -9,6 +9,7 @@ import creAccountsJson from "./generated/cre-accounts.json";
 import creCadenceLabelJson from "./generated/cre-cadence-label.json";
 import lower48Json from "./generated/lower-48.json";
 import majorCitiesJson from "./generated/major-cities.json";
+import stateCitiesJson from "./generated/state-cities.json";
 import usStateAbbrJson from "./generated/us-state-abbr.json";
 import pamDomicilesJson from "./generated/pam-domiciles.json";
 import pamTierCpmJson from "./generated/pam-tier-cpm.json";
@@ -39,6 +40,9 @@ export const LOWER_48 = lower48Json as string[];
 // Reference city labels for the map: [name, ST, lon, lat], biggest first
 // (scripts/build-cities.mjs, from the US Census Gazetteer).
 export const MAJOR_CITIES = majorCitiesJson as [string, string, number, number][];
+// Every city of 10,000+ (at least 15 per state) by state code: [name, lon, lat, population],
+// biggest first (scripts/build-state-cities.mjs) — drawn when the map zooms into a state.
+export const STATE_CITIES = stateCitiesJson as unknown as Record<string, [string, number, number, number][]>;
 // full state name -> 2-letter code ("Texas" -> "TX")
 export const STATE_CODE: Record<string, string> = Object.fromEntries(
   Object.entries(usStateAbbrJson as Record<string, string>).map(([code, name]) => [name, code])

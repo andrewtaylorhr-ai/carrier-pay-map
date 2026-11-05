@@ -3,14 +3,10 @@
 import { useState } from "react";
 import { Layers, Truck } from "lucide-react";
 import { AllCarriersPay } from "./AllCarriersPay";
-import { CatNote } from "./CatNote";
-import { ChoroplethMap } from "./ChoroplethMap";
-import { DetailCard } from "./DetailCard";
-import { Legend } from "./Legend";
-import { Toolbar } from "./Toolbar";
+import { OneCarrierPay } from "./OneCarrierPay";
 
 // Pay Map: "All carriers" (every carrier's pay range per state) or
-// "One carrier" (the original carrier + category explorer).
+// "One carrier" (one carrier + category, top pay per state).
 export function PayMapViews() {
   const [view, setView] = useState<"all" | "one">("all");
   return (
@@ -26,17 +22,7 @@ export function PayMapViews() {
       {view === "all" ? (
         <AllCarriersPay />
       ) : (
-        <>
-          <Toolbar showViewToggle={false} />
-          <div className="wizCard mt-2">
-            <ChoroplethMap />
-            <Legend />
-            <CatNote />
-          </div>
-          <div className="mt-4">
-            <DetailCard />
-          </div>
-        </>
+        <OneCarrierPay />
       )}
     </>
   );

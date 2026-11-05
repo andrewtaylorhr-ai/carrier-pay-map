@@ -18,9 +18,9 @@ export interface CarrierStatePay {
 const lo = (a: number | null, b: number) => (a == null ? b : Math.min(a, b));
 const hi = (a: number | null, b: number) => (a == null ? b : Math.max(a, b));
 
-export function statePay(state: string): CarrierStatePay[] {
-  return CARRIER_ORDER.map((carrier): CarrierStatePay => {
-    const list = carrierAccounts(carrier, undefined, state);
+export function statePay(state: string, cat?: string, only?: CarrierId): CarrierStatePay[] {
+  return CARRIER_ORDER.filter((c) => !only || c === only).map((carrier): CarrierStatePay => {
+    const list = carrierAccounts(carrier, cat, state);
     const p: CarrierStatePay = { carrier, accounts: list.length, weekMin: null, weekMax: null, cpmMin: null, cpmMax: null };
     list.forEach((a) => {
       if (a.payLow != null) {

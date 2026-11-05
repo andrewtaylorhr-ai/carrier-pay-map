@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { interpolateRgb } from "d3-interpolate";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
-import { carrierAccounts, formatPay } from "@/lib/carriers/accounts";
+import { carrierAccounts, formatPayShort } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
 import { useCarrierMap } from "@/lib/carrier-map-context";
@@ -163,7 +163,7 @@ export function OneCarrierPay() {
                           {a.name}
                           {a.approval === "Yes" && <span className="ml-1 text-[10.5px] text-[#f5c451]">needs approval</span>}
                         </td>
-                        <td>{formatPay(a)}</td>
+                        <td>{formatPayShort(a)}</td>
                         <td className="text-[var(--cpm-text-dim)]">{a.hometime || "—"}</td>
                       </tr>
                     ))}

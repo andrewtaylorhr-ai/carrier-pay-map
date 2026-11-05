@@ -5,7 +5,7 @@ import { scaleSequential } from "d3-scale";
 import { interpolateGreens } from "d3-scale-chromatic";
 import { ChevronDown, ChevronRight, DollarSign, Hash, Search } from "lucide-react";
 import { ChoroplethMap, type MapPaint } from "./ChoroplethMap";
-import { ALL_ACCOUNTS, carrierAccounts, formatPay } from "@/lib/carriers/accounts";
+import { ALL_ACCOUNTS, carrierAccounts, formatPayShort } from "@/lib/carriers/accounts";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
 import { formatCpmRange, formatPayRange, statePay, type CarrierStatePay } from "@/lib/carriers/payByState";
 import type { CarrierId } from "@/lib/carriers/types";
@@ -250,7 +250,7 @@ export function AllCarriersPay() {
                                               {[a.cat, a.hometime].filter(Boolean).join(" · ")}
                                             </div>
                                           </div>
-                                          <div className="text-right whitespace-nowrap text-[var(--cpm-text-dim)]">{formatPay(a)}</div>
+                                          <div className="text-right max-w-[45%] shrink-0 text-[var(--cpm-text-dim)]">{formatPayShort(a)}</div>
                                         </div>
                                       ))}
                                   </div>

@@ -110,3 +110,13 @@ export function formatPay(a: Account): string {
   if (a.payLow == null) return "Pay not listed";
   return `$${a.payLow.toLocaleString()}${a.payHigh != null && a.payHigh !== a.payLow ? "–$" + a.payHigh.toLocaleString() : ""}/wk`;
 }
+
+// formatPay, but a list of 2+ weekly amounts ("$1,000 / $1,100 / … /wk")
+// becomes just its lowest – highest.
+export function formatPayShort(a: Account): string {
+  const text = formatPay(a);
+  const nums = (text.match(/\$[\d,]+(?:\.\d+)?/g) || []).map((n) => Number(n.replace(/[$,]/g, "")));
+  if (nums.length < 2 || !/^[$\d,.\s/]+\/\s*wk$/.test(text.trim())) return text;
+  const fmt = (n: number) => `$${n.toLocaleString("en-US")}`;
+  return `${fmt(Math.min(...nums))} – ${fmt(Math.max(...nums))}/wk`;
+}

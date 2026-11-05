@@ -349,3 +349,16 @@ table.tracker thead th.stick.hAtDqp { background:#ca8a04; }
 table.tracker thead th.stick.hHire { background:#15803d; }
 table.tracker tbody td.stick.c3.hire { background:#1f3a2c; }
 table.tracker tr.groupRow td.stick { background:var(--cpm-bg); }
+
+/* ---------- Pay Map: All carriers ---------- */
+.carrierToggle { display:inline-flex; align-items:center; gap:6px; padding:5px 11px; border-radius:999px; font-size:12.5px; font-weight:700; border:1px solid var(--cpm-border-strong); color:var(--cpm-text-faint); background:var(--cpm-panel); cursor:pointer; }
+.carrierToggle .dot { width:9px; height:9px; border-radius:50%; border:1.5px solid; }
+.payRamp { width:110px; height:9px; border-radius:5px; background:linear-gradient(90deg, #c6dbef, #08306b); display:inline-block; }
+table.payTable { width:100%; border-collapse:collapse; font-size:13px; }
+table.payTable th { text-align:left; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--cpm-text-faint); padding:7px 8px; border-bottom:1px solid var(--cpm-border-strong); white-space:nowrap; }
+table.payTable td { padding:7px 8px; border-bottom:1px solid var(--cpm-border); color:var(--cpm-text); vertical-align:top; }
+table.payTable.wide td { white-space:nowrap; }
+table.payTable.wide tbody tr { cursor:pointer; }
+table.payTable.wide tbody tr:hover td { background:var(--cpm-panel-alt); }
+table.payTable tr.sel td { background:rgba(212,161,55,.1); }
+table.payTable td.empty { color:var(--cpm-text-faint); }

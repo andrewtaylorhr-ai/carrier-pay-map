@@ -37,6 +37,15 @@ interface ChoroplethMapProps {
   onPinClick?: (key: string) => void;
   // hide the recruiter-name labels stamped on states
   hideStateLabels?: boolean;
+  // caller-driven colors / tooltip / click (Pay Map "All carriers"); memoize it
+  paint?: MapPaint;
+}
+
+export interface MapPaint {
+  fill: (state: string) => string;
+  tooltip: (state: string) => string | null; // HTML
+  onClick: (state: string) => void;
+  selected?: string | null;
 }
 
 // Same projection the states-albers-10m topojson was pre-projected with.
@@ -49,7 +58,14 @@ const VIEW_H = 610;
 // a D3 selection — React never re-renders the <path> list itself. This
 // avoids React reconciliation cost on every hover/recolor and matches the
 // original app's imperative update loop (updateMap()).
-export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinClick, hideStateLabels = false }: ChoroplethMapProps = {}) {
+export function ChoroplethMap({
+  zoomTo = null,
+  showCities = false,
+  pins,
+  onPinClick,
+  hideStateLabels = false,
+  paint,
+}: ChoroplethMapProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const zoomGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
   const cityGRef = useRef<Selection<SVGGElement, unknown, null, undefined> | null>(null);
@@ -89,6 +105,7 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    paint,
   });
   latest.current = {
     strategyMode,
@@ -99,6 +116,7 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    paint,
   };
 
   // ---- Mount: build the svg + join paths to the topojson features once ----
@@ -139,7 +157,14 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
             const { strategyMode, currentCarrier, currentCat, assignments, recruiterAssignments, assignModeRecruiter } =
               latest.current;
             let html = "";
-            if (strategyMode && assignModeRecruiter) {
+            if (latest.current.paint) {
+              const h = latest.current.paint.tooltip(name);
+              if (!h) {
+                setTooltip((t) => (t.visible ? { ...t, visible: false } : t));
+                return;
+              }
+              html = h;
+            } else if (strategyMode && assignModeRecruiter) {
               const recs = recruiterAssignments[name] || [];
               const on = recs.includes(assignModeRecruiter);
               html =
@@ -176,6 +201,10 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
             const name = d.properties.name;
             const { strategyMode, currentCarrier, currentCat, setSelectedState, assignModeRecruiter, toggleRecruiterOnState } =
               latest.current;
+            if (latest.current.paint) {
+              latest.current.paint.onClick(name);
+              return;
+            }
             if (strategyMode && assignModeRecruiter) {
               toggleRecruiterOnState(name, assignModeRecruiter);
               return;
@@ -236,10 +265,19 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
       .style("stroke-width", (d) => mapStyle.getStyle(d.properties.name).strokeWidth)
       .attr("fill", (d) => mapStyle.getStyle(d.properties.name).fill)
       .attr("opacity", (d) => mapStyle.getStyle(d.properties.name).opacity);
+    if (paint) {
+      paths
+        .style("cursor", "pointer")
+        .style("stroke", (d) => (d.properties.name === paint.selected ? "#f5c451" : null))
+        .style("stroke-width", (d) => (d.properties.name === paint.selected ? 3 : null))
+        .attr("fill", (d) => paint.fill(d.properties.name))
+        .attr("opacity", 1);
+    }
 
     labelG.selectAll("text").remove();
     labelG.selectAll("g.stateLabelG").remove();
     const showLabels =
+      !paint &&
       !hideStateLabels && (mapStyle.legend.kind === "recruiter-filtered" || mapStyle.legend.kind === "recruiter-all");
     if (showLabels) {
       renderStateLabels(
@@ -251,7 +289,7 @@ export function ChoroplethMap({ zoomTo = null, showCities = false, pins, onPinCl
         mapStyle.getRecruiterLabel
       );
     }
-  }, [mapStyle, mapReady, recruiterAssignments, recruiterColor, hideStateLabels]);
+  }, [mapStyle, mapReady, recruiterAssignments, recruiterColor, hideStateLabels, paint]);
 
   // ---- Zoom to a state + city labels + account pins ----
   // Everything inside zoomG scales together; marker sizes and label fonts are

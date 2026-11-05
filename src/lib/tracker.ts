@@ -20,6 +20,7 @@ export interface TrackerData {
   rowGroup: Record<string, string>; // recruiter -> group name
   groupColors?: Record<string, string>; // group name -> color picked by the user
   rowColors?: Record<string, string>; // recruiter -> color of their # cell
+  rowOrder?: string[]; // recruiters top to bottom, as dragged by the user
   months: Record<string, Record<string, TrackerRow>>; // "YYYY-MM" -> recruiter -> row
 }
 

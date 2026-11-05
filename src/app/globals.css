@@ -374,3 +374,7 @@ table.payTable td.empty { color:var(--cpm-text-faint); }
 table.tracker td.stick.num.pickable { cursor:pointer; user-select:none; }
 table.tracker td.stick.num.pickable:hover { filter:brightness(1.2); }
 table.tracker td.stick.num.picked { box-shadow:inset 0 0 0 2px #fff, inset 0 0 0 4px #11131a; }
+table.tracker td.stick.num.pickable { cursor:grab; }
+table.tracker tr.dragSrc td { opacity:.45; }
+table.tracker tr.dropAbove td { box-shadow:inset 0 3px 0 var(--cpm-accent); }
+table.tracker tr.dropBelow td { box-shadow:inset 0 -3px 0 var(--cpm-accent); }

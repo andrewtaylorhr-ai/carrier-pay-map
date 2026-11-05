@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { Fragment, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
@@ -49,7 +49,18 @@ export function TrackerApp() {
   const today = ym === thisMonth() ? now.getDate() : null;
 
   // Active recruiters, plus anyone inactive who already has numbers this month.
-  const ordered = recruiters.filter((r) => getRecruiterStatus(r) === "active" || rows[r]);
+  // In the order the user dragged them; anyone new goes to the bottom in roster order.
+  const pos = (r: string) => {
+    const i = data.rowOrder?.indexOf(r) ?? -1;
+    return i < 0 ? Infinity : i;
+  };
+  const ordered = recruiters
+    .filter((r) => getRecruiterStatus(r) === "active" || rows[r])
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => pos(a.r) - pos(b.r) || a.i - b.i)
+    .map((x) => x.r);
+  const [dragging, setDragging] = useState<string[] | null>(null);
+  const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
   const rowColor = (r: string) => data.rowColors?.[r] ?? DEFAULT_ROW_COLOR;
 
   const updateRow = (name: string, fn: (r: TrackerRow) => TrackerRow) =>
@@ -134,12 +145,50 @@ export function TrackerApp() {
       });
       return { ...d, rowColors };
     });
+  // Drag a row by its # cell (all selected rows move together if it is one of them).
+  const rowDnD = (name: string) => ({
+    onDragOver: (e: DragEvent<HTMLTableRowElement>) => {
+      if (!dragging) return;
+      e.preventDefault();
+      const box = e.currentTarget.getBoundingClientRect();
+      const after = e.clientY > box.top + box.height / 2;
+      if (dropAt?.name !== name || dropAt.after !== after) setDropAt({ name, after });
+    },
+    onDrop: (e: DragEvent<HTMLTableRowElement>) => {
+      e.preventDefault();
+      if (dragging && dropAt && !dragging.includes(dropAt.name)) {
+        const rest = ordered.filter((r) => !dragging.includes(r));
+        const at = rest.indexOf(dropAt.name) + (dropAt.after ? 1 : 0);
+        const moved = ordered.filter((r) => dragging.includes(r));
+        setData((d) => ({ ...d, rowOrder: [...rest.slice(0, at), ...moved, ...rest.slice(at)] }));
+      }
+      setDragging(null);
+      setDropAt(null);
+    },
+    className: [
+      dragging?.includes(name) ? "dragSrc" : "",
+      dropAt?.name === name ? (dropAt.after ? "dropBelow" : "dropAbove") : "",
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined,
+  });
+
   const numCell = (name: string, i: number) => (
     <td
       className={`stick num pickable${picked.includes(name) ? " picked" : ""}`}
       style={{ background: rowColor(name) }}
       onClick={(e) => pick(name, e)}
-      title="Click to select this row for coloring (Shift = range, Ctrl = add)"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", name);
+        setDragging(picked.includes(name) ? picked : [name]);
+      }}
+      onDragEnd={() => {
+        setDragging(null);
+        setDropAt(null);
+      }}
+      title="Click to select for coloring (Shift = range, Ctrl = add) · drag to move the row"
     >
       {i + 1}
     </td>
@@ -240,7 +289,7 @@ export function TrackerApp() {
                     const r = rows[name];
                       let c = 0;
                       return (
-                        <tr key={name}>
+                        <tr key={name} {...rowDnD(name)}>
                           {numCell(name, ri)}
                           <td className="stick name">{name}</td>
                           <td className="stick c1">{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
@@ -307,7 +356,7 @@ export function TrackerApp() {
                     const r = rows[name];
                       const c = attendanceCounts(r);
                       return (
-                        <tr key={name}>
+                        <tr key={name} {...rowDnD(name)}>
                           {numCell(name, ri)}
                           <td className="stick name">{name}</td>
                           {days.map((d) => {
@@ -352,7 +401,7 @@ export function TrackerApp() {
         {tab === "subs" ? (
           <>
             Type submissions per day and hires per week — weekly and monthly totals, the TOTAL row and App-to-Hire % fill
-            in by themselves. Enter / arrow keys move between cells. Saved in this browser.
+            in by themselves. Enter / arrow keys move between cells. Click a # to color rows; drag a # up or down to move the row. Saved in this browser.
           </>
         ) : (
           <>

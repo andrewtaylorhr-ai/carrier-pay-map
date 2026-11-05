@@ -61,7 +61,7 @@ const OFFSHORE: Record<string, number> = {
   Maryland: 7,
   "District of Columbia": 8,
 };
-const OFFSHORE_X = 905;
+const OFFSHORE_X = 893;
 const OFFSHORE_TOP = 175;
 // Where a state's centroid is a poor spot for its label (map units).
 const NUDGE: Record<string, [number, number]> = {
@@ -301,10 +301,11 @@ export function ChoroplethMap({
     if (paint) {
       paths
         .style("cursor", "pointer")
-        .style("stroke", (d) => (d.properties.name === paint.selected ? "#f5c451" : null))
-        .style("stroke-width", (d) => (d.properties.name === paint.selected ? 3 : null))
+        .style("stroke", (d) => (d.properties.name === paint.selected ? "#f5c451" : "#000"))
+        .style("stroke-width", (d) => (d.properties.name === paint.selected ? 3 : 1.2))
         .attr("fill", (d) => paint.fill(d.properties.name))
         .attr("opacity", 1);
+      paths.filter((d) => d.properties.name === paint.selected).raise(); // keep its gold outline on top
     }
 
     labelG.selectAll("text").remove();

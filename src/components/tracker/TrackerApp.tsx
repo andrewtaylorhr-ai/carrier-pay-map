@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { CalendarCheck, ChevronLeft, ChevronRight, Download, Plus, Send, Users, X } from "lucide-react";
+import { Fragment, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import {
@@ -24,13 +24,8 @@ import {
   type TrackerRow,
 } from "@/lib/tracker";
 
-const GROUP_COLORS = ["#7c2d4f", "#a8577e", "#16a34a", "#ea8a0c", "#2563eb", "#7c3aed", "#0891b2"];
-const OTHER = "Other";
-// the user's pick, else a default by position (Other is always last)
-const colorOf = (data: TrackerData, name: string) => {
-  const i = name === OTHER ? data.groups.length : data.groups.indexOf(name);
-  return data.groupColors?.[name] ?? GROUP_COLORS[Math.max(0, i) % GROUP_COLORS.length];
-};
+const DEFAULT_ROW_COLOR = "#475569";
+const PALETTE = ["#7c2d4f", "#a8577e", "#dc2626", "#ea8a0c", "#eab308", "#16a34a", "#0891b2", "#2563eb", "#7c3aed", "#475569"];
 
 const thisMonth = () => {
   const d = new Date();
@@ -38,11 +33,13 @@ const thisMonth = () => {
 };
 
 export function TrackerApp() {
-  const { recruiters, getRecruiterStatus, addRecruiter } = useCarrierMap();
+  const { recruiters, getRecruiterStatus } = useCarrierMap();
   const [data, setData] = useLocalStorageState<TrackerData>("cdlPayMapTracker", EMPTY_TRACKER);
   const [ym, setYm] = useState(thisMonth);
   const [tab, setTab] = useState<"subs" | "att">("subs");
-  const [manage, setManage] = useState(false);
+  // rows picked by clicking their # cell (shift = range, ctrl = add/remove one)
+  const [picked, setPicked] = useState<string[]>([]);
+  const anchor = useRef<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const weeks = useMemo(() => monthWeeks(ym), [ym]);
@@ -52,12 +49,8 @@ export function TrackerApp() {
   const today = ym === thisMonth() ? now.getDate() : null;
 
   // Active recruiters, plus anyone inactive who already has numbers this month.
-  const shown = recruiters.filter((r) => getRecruiterStatus(r) === "active" || rows[r]);
-  const groupOf = (r: string) => (data.groups.includes(data.rowGroup[r]) ? data.rowGroup[r] : OTHER);
-  const groups = [...data.groups, OTHER]
-    .map((g) => ({ name: g, color: colorOf(data, g), members: shown.filter((r) => groupOf(r) === g) }))
-    .filter((g) => g.members.length);
-  const ordered = groups.flatMap((g) => g.members);
+  const ordered = recruiters.filter((r) => getRecruiterStatus(r) === "active" || rows[r]);
+  const rowColor = (r: string) => data.rowColors?.[r] ?? DEFAULT_ROW_COLOR;
 
   const updateRow = (name: string, fn: (r: TrackerRow) => TrackerRow) =>
     setData((d) => {
@@ -122,8 +115,35 @@ export function TrackerApp() {
   const grandSubs = colSum(totalSubs);
   const grandHires = colSum(totalHires);
 
-  const setGroupColor = (name: string, color: string) =>
-    setData((d) => ({ ...d, groupColors: { ...(d.groupColors || {}), [name]: color } }));
+  const pick = (name: string, e: MouseEvent) => {
+    if (e.shiftKey && anchor.current && ordered.includes(anchor.current)) {
+      const [a, b] = [ordered.indexOf(anchor.current), ordered.indexOf(name)].sort((x, y) => x - y);
+      setPicked(ordered.slice(a, b + 1));
+      return;
+    }
+    anchor.current = name;
+    if (e.ctrlKey || e.metaKey) setPicked((cur) => (cur.includes(name) ? cur.filter((x) => x !== name) : [...cur, name]));
+    else setPicked((cur) => (cur.length === 1 && cur[0] === name ? [] : [name]));
+  };
+  const colorPicked = (color: string | null) =>
+    setData((d) => {
+      const rowColors = { ...(d.rowColors || {}) };
+      picked.forEach((r) => {
+        if (color) rowColors[r] = color;
+        else delete rowColors[r];
+      });
+      return { ...d, rowColors };
+    });
+  const numCell = (name: string, i: number) => (
+    <td
+      className={`stick num pickable${picked.includes(name) ? " picked" : ""}`}
+      style={{ background: rowColor(name) }}
+      onClick={(e) => pick(name, e)}
+      title="Click to select this row for coloring (Shift = range, Ctrl = add)"
+    >
+      {i + 1}
+    </td>
+  );
 
   const markAllPresentToday = () => {
     if (!today) return;
@@ -158,20 +178,36 @@ export function TrackerApp() {
               Mark everyone present today
             </button>
           )}
-          <button type="button" className="ghostBtn" onClick={() => setManage((v) => !v)}>
-            <Users size={14} /> Rows & groups
-          </button>
           <button type="button" className="primaryBtn" onClick={() => exportTrackerToExcel(ym, ordered, rows)}>
             <Download size={14} /> Download Excel
           </button>
         </div>
       </div>
 
-      {manage && <ManageGroups data={data} setData={setData} setGroupColor={setGroupColor} shown={shown} groupOf={groupOf} addRecruiter={addRecruiter} onClose={() => setManage(false)} />}
+      {picked.length > 0 && (
+        <div className="colorBar">
+          <b>
+            {picked.length} row{picked.length === 1 ? "" : "s"} selected
+          </b>
+          <span className="text-[var(--cpm-text-faint)]">Color:</span>
+          {PALETTE.map((c) => (
+            <button key={c} type="button" className="paletteDot" style={{ background: c }} onClick={() => colorPicked(c)} aria-label={`Color ${c}`} />
+          ))}
+          <label className="colorSwatch" title="Any color" style={{ background: "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" }}>
+            <input type="color" value={rowColor(picked[0])} onChange={(e) => colorPicked(e.target.value)} aria-label="Pick any color" />
+          </label>
+          <button type="button" className="ghostBtn" onClick={() => colorPicked(null)}>
+            Reset
+          </button>
+          <button type="button" className="ghostBtn ml-auto" onClick={() => setPicked([])}>
+            <X size={14} /> Done
+          </button>
+        </div>
+      )}
 
       {!ordered.length ? (
         <div className="py-10 text-center text-[14px] text-[var(--cpm-text-dim)]">
-          No recruiters yet — add them under <b>Rows & groups</b>.
+          No recruiters yet — add them in <b>Team Overview</b>.
         </div>
       ) : (
         <div className="trackerWrap" ref={tableRef}>
@@ -200,29 +236,12 @@ export function TrackerApp() {
                 </tr>
               </thead>
               <tbody>
-                {groups.map((g) => (
-                  <Fragment key={g.name}>
-                    <tr className="groupRow">
-                      <td className="stick num" style={{ background: g.color }}>
-                        <ColorPick value={g.color} onChange={(c) => setGroupColor(g.name, c)} label={g.name} />
-                      </td>
-                      <td className="stick name" style={{ borderLeft: `3px solid ${g.color}` }}>
-                        {g.name}
-                      </td>
-                      <td className="stick c1" />
-                      <td className="stick c2" />
-                      <td className="stick c3" />
-                      <td colSpan={days.length + weeks.length * 2 + 2} />
-                    </tr>
-                    {g.members.map((name, i) => {
-                      const r = rows[name];
-                      const ri = ordered.indexOf(name);
+                {ordered.map((name, ri) => {
+                    const r = rows[name];
                       let c = 0;
                       return (
                         <tr key={name}>
-                          <td className="stick num" style={{ background: g.color }}>
-                            {i + 1}
-                          </td>
+                          {numCell(name, ri)}
                           <td className="stick name">{name}</td>
                           <td className="stick c1">{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
                           <td className="stick c2">{num(`${name} at DQP`, r?.atDqp, (v) => updateRow(name, (x) => ({ ...x, atDqp: v ?? undefined })), ri, c++)}</td>
@@ -243,8 +262,6 @@ export function TrackerApp() {
                         </tr>
                       );
                     })}
-                  </Fragment>
-                ))}
               </tbody>
               <tfoot>
                 <tr>
@@ -286,25 +303,12 @@ export function TrackerApp() {
                 </tr>
               </thead>
               <tbody>
-                {groups.map((g) => (
-                  <Fragment key={g.name}>
-                    <tr className="groupRow">
-                      <td className="stick num" style={{ background: g.color }}>
-                        <ColorPick value={g.color} onChange={(c) => setGroupColor(g.name, c)} label={g.name} />
-                      </td>
-                      <td className="stick name" style={{ borderLeft: `3px solid ${g.color}` }}>
-                        {g.name}
-                      </td>
-                      <td colSpan={days.length + 5} />
-                    </tr>
-                    {g.members.map((name, i) => {
-                      const r = rows[name];
+                {ordered.map((name, ri) => {
+                    const r = rows[name];
                       const c = attendanceCounts(r);
                       return (
                         <tr key={name}>
-                          <td className="stick num" style={{ background: g.color }}>
-                            {i + 1}
-                          </td>
+                          {numCell(name, ri)}
                           <td className="stick name">{name}</td>
                           {days.map((d) => {
                             const a = r?.att?.[d];
@@ -338,8 +342,6 @@ export function TrackerApp() {
                         </tr>
                       );
                     })}
-                  </Fragment>
-                ))}
               </tbody>
             </table>
           )}
@@ -366,128 +368,5 @@ export function TrackerApp() {
         )}
       </div>
     </div>
-  );
-}
-
-function ManageGroups({
-  data,
-  setData,
-  setGroupColor,
-  shown,
-  groupOf,
-  addRecruiter,
-  onClose,
-}: {
-  data: TrackerData;
-  setData: (fn: (d: TrackerData) => TrackerData) => void;
-  setGroupColor: (name: string, color: string) => void;
-  shown: string[];
-  groupOf: (r: string) => string;
-  addRecruiter: (name: string) => string | null;
-  onClose: () => void;
-}) {
-  const [newName, setNewName] = useState("");
-  const [err, setErr] = useState<string | null>(null);
-
-  const renameGroup = (i: number, name: string) =>
-    setData((d) => {
-      const old = d.groups[i];
-      const groups = d.groups.slice();
-      groups[i] = name;
-      const rowGroup = Object.fromEntries(Object.entries(d.rowGroup).map(([r, g]) => [r, g === old ? name : g]));
-      const groupColors = { ...(d.groupColors || {}) };
-      if (old in groupColors) {
-        groupColors[name] = groupColors[old];
-        delete groupColors[old];
-      }
-      return { ...d, groups, rowGroup, groupColors };
-    });
-  const removeGroup = (i: number) => setData((d) => ({ ...d, groups: d.groups.filter((_, j) => j !== i) }));
-  const addGroup = () =>
-    setData((d) => {
-      let n = d.groups.length + 1;
-      while (d.groups.includes(`Team ${n}`)) n++;
-      return { ...d, groups: [...d.groups, `Team ${n}`] };
-    });
-  const setGroup = (r: string, g: string) => setData((d) => ({ ...d, rowGroup: { ...d.rowGroup, [r]: g } }));
-
-  return (
-    <div className="trackerManage">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-[14px] font-semibold text-[var(--cpm-text)]">Rows & groups</div>
-        <button type="button" className="ghostBtn" onClick={onClose}>
-          <X size={14} /> Close
-        </button>
-      </div>
-      <div className="grid md:grid-cols-2 gap-5">
-        <div>
-          <div className="tmLabel">Groups (top to bottom)</div>
-          <div className="flex flex-col gap-1.5">
-            {data.groups.map((g, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <ColorPick value={colorOf(data, g)} onChange={(c) => setGroupColor(g, c)} label={g} swatch />
-                <input className="tmInput flex-1" value={g} onChange={(e) => renameGroup(i, e.target.value)} />
-                <button type="button" className="iconBtn" onClick={() => removeGroup(i)} title="Remove group (its recruiters move to Other)">
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-            <div className="flex items-center gap-2">
-              <ColorPick value={colorOf(data, OTHER)} onChange={(c) => setGroupColor(OTHER, c)} label={OTHER} swatch />
-              <span className="text-[13px] text-[var(--cpm-text-dim)] px-[9px]">Other (anyone not in a group)</span>
-            </div>
-            <button type="button" className="ghostBtn self-start" onClick={addGroup}>
-              <Plus size={14} /> Add group
-            </button>
-          </div>
-          <div className="tmLabel mt-4">Add a recruiter</div>
-          <form
-            className="flex items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const msg = addRecruiter(newName.trim());
-              setErr(msg);
-              if (!msg) setNewName("");
-            }}
-          >
-            <input className="tmInput flex-1" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Recruiter name" />
-            <button type="submit" className="primaryBtn" disabled={!newName.trim()}>
-              <Plus size={14} /> Add
-            </button>
-          </form>
-          {err && <div className="text-[12px] text-[var(--cpm-red)] mt-1">{err}</div>}
-        </div>
-        <div>
-          <div className="tmLabel">Which group is each recruiter in?</div>
-          <div className="flex flex-col gap-1 max-h-[320px] overflow-y-auto pr-1">
-            {shown.map((r) => (
-              <div key={r} className="flex items-center gap-2 text-[13px]">
-                <span className="flex-1 truncate text-[var(--cpm-text)]">{r}</span>
-                <select className="tmInput w-[150px]" value={groupOf(r)} onChange={(e) => setGroup(r, e.target.value)}>
-                  {[...data.groups, OTHER].map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
-          </div>
-          <div className="text-[11.5px] text-[var(--cpm-text-faint)] mt-2">
-            Former recruiters are hidden unless they have numbers in the month you&apos;re viewing. Mark someone as former in
-            Team Overview.
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// A color swatch that opens the browser's color picker.
-function ColorPick({ value, onChange, label, swatch }: { value: string; onChange: (c: string) => void; label: string; swatch?: boolean }) {
-  return (
-    <label className={swatch ? "colorSwatch" : "colorCell"} style={swatch ? { background: value } : undefined} title={`Pick a color for ${label}`}>
-      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label={`Color for ${label}`} />
-    </label>
   );
 }

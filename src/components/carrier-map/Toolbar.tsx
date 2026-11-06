@@ -3,8 +3,11 @@
 import { CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { BASE_PATH } from "@/lib/basePath";
+import type { ReactNode } from "react";
 
-export function Toolbar({ showViewToggle = true }: { showViewToggle?: boolean } = {}) {
+// One controls card: carrier logos (on light tiles so every logo reads the
+// same), then category / view / any extra groups (e.g. ColorModeBar) in a row.
+export function Toolbar({ showViewToggle = true, children }: { showViewToggle?: boolean; children?: ReactNode } = {}) {
   const { currentCarrier, setCarrier, currentCat, setCat, strategyMode, setStrategyMode, setSelectedState } = useCarrierMap();
 
   return (
@@ -23,17 +26,14 @@ export function Toolbar({ showViewToggle = true }: { showViewToggle?: boolean } 
                 aria-label={c.label}
                 onClick={() => setCarrier(id)}
                 className={active ? "active" : undefined}
-                style={{
-                  borderColor: c.color,
-                  background: active ? `${c.color}22` : "var(--cpm-panel-alt)",
-                  boxShadow: active ? `0 3px 10px ${c.color}55` : undefined,
-                }}
+                style={active ? { borderColor: c.color, boxShadow: `0 0 0 3px ${c.color}55` } : undefined}
               >
                 {c.logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={`${BASE_PATH}${c.logo}`} alt={c.label} className="carrierLogo" />
                 ) : (
-                  <span className="carrierLabel" style={{ color: c.color }}>
+                  <span className="carrierLabel">
+                    <i style={{ background: c.color }} />
                     {c.label}
                   </span>
                 )}
@@ -86,6 +86,7 @@ export function Toolbar({ showViewToggle = true }: { showViewToggle?: boolean } 
           </div>
         </div>
       )}
+      {children}
     </div>
   );
 }

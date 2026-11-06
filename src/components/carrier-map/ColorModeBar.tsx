@@ -7,8 +7,9 @@ export function ColorModeBar() {
   if (!strategyMode) return null;
 
   return (
-    <div id="colorModeBar">
-      <span>Color map by:</span>
+    <div className="toolbar-group">
+      <div className="toolbar-label">Color map by</div>
+      <div id="colorModeBar">
       <button type="button" className={colorMode === "carrier" ? "active" : undefined} onClick={() => setColorMode("carrier")}>
         Carrier
       </button>
@@ -22,6 +23,7 @@ export function ColorModeBar() {
       <button type="button" className={colorMode === "hires" ? "active" : undefined} onClick={() => setColorMode("hires")}>
         Hires
       </button>
+      </div>
     </div>
   );
 }

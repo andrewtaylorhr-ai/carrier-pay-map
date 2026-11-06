@@ -35,8 +35,9 @@ export default function OverviewPage() {
       <DashboardStats />
 
       <div className="mx-auto w-full max-w-[1400px] px-6 pt-4">
-        <Toolbar />
-        <ColorModeBar />
+        <Toolbar>
+          <ColorModeBar />
+        </Toolbar>
         <RecruiterPanel />
         <div className="flex flex-col lg:flex-row gap-3 items-start">
           <div className="flex-1 min-w-0">

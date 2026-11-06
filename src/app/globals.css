@@ -90,29 +90,23 @@ body {
 }
 
 /* --- Carrier Pay Map — ported verbatim from Multi_Carrier_Pay_Map.html, reskinned dark --- */
-#toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:22px; margin:18px 0 22px; }
-.toolbar-group { display:flex; flex-direction:column; gap:6px; }
-.toolbar-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--cpm-text-faint); margin-left:3px; }
+#toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:18px 28px; margin:16px 0 14px; padding:16px 18px; border-radius:12px; border:1px solid var(--cpm-border); background:var(--cpm-panel); }
+#toolbar > .toolbar-group:first-child { flex-basis:100%; }
+.toolbar-group { display:flex; flex-direction:column; gap:7px; }
+.toolbar-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--cpm-text-faint); margin-left:2px; }
 
 #carrierTabs { display:flex; gap:8px; flex-wrap:wrap; }
-#carrierTabs button { display:flex; align-items:center; justify-content:center; min-height:40px; padding:6px 16px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:600; border:1.5px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); transition:transform .12s ease, box-shadow .12s ease, background .12s ease; }
-#carrierTabs button:hover { transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,.45); }
-#carrierTabs button.active { border-width:2.5px; box-shadow:0 3px 10px rgba(0,0,0,.55); }
-#carrierTabs .carrierLogo { max-height:26px; max-width:110px; width:auto; height:auto; display:block; }
-#carrierTabs .carrierLabel { display:block; line-height:26px; font-size:14px; font-weight:800; letter-spacing:.2px; white-space:nowrap; }
+#carrierTabs button { display:flex; align-items:center; justify-content:center; width:128px; height:44px; padding:5px 10px; border-radius:10px; cursor:pointer; border:2px solid transparent; background:#f4f5f7; opacity:.85; transition:opacity .12s ease, box-shadow .12s ease, border-color .12s ease; }
+#carrierTabs button:hover { opacity:1; }
+#carrierTabs button.active { opacity:1; }
+#carrierTabs .carrierLogo { max-height:30px; max-width:104px; width:auto; height:auto; display:block; }
+#carrierTabs .carrierLabel { display:flex; align-items:center; gap:6px; line-height:26px; font-size:13.5px; font-weight:800; color:#1c2130; white-space:nowrap; }
+#carrierTabs .carrierLabel i { width:9px; height:9px; border-radius:50%; display:inline-block; }
 
-#catTabs { display:inline-flex; gap:2px; flex-wrap:wrap; background:var(--cpm-panel-alt); padding:4px; border-radius:999px; width:fit-content; }
-#catTabs button { padding:7px 16px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:500; border:none; background:transparent; color:var(--cpm-text-dim); transition:all .12s ease; }
-#catTabs button:hover { color:var(--cpm-accent-strong); }
-#catTabs button.active { background:var(--cpm-accent); color:#241800; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,.4); }
-
-#modeBar { display:inline-flex; align-items:center; gap:2px; background:var(--cpm-panel-alt); padding:4px; border-radius:999px; width:fit-content; }
-#modeBar button { padding:8px 18px; border-radius:999px; cursor:pointer; font-size:13px; font-weight:600; border:none; background:transparent; color:var(--cpm-text-dim); transition:all .12s ease; }
-#modeBar button.active { background:var(--cpm-red); color:#fff; box-shadow:0 2px 6px rgba(229,72,77,.4); }
-
-#colorModeBar { display:flex; align-items:center; gap:8px; margin:0 0 16px; font-size:12.5px; color:var(--cpm-text-dim); }
-#colorModeBar button { padding:4px 12px; border-radius:14px; cursor:pointer; font-size:12px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); color:var(--cpm-text); }
-#colorModeBar button.active { border-color:var(--cpm-accent); background:var(--cpm-accent); color:#241800; font-weight:600; }
+#catTabs, #modeBar, #colorModeBar { display:inline-flex; align-items:center; gap:2px; flex-wrap:wrap; background:var(--cpm-panel-alt); padding:3px; border-radius:9px; border:1px solid var(--cpm-border); width:fit-content; }
+#catTabs button, #modeBar button, #colorModeBar button { padding:6px 14px; border-radius:7px; cursor:pointer; font-size:12.5px; font-weight:600; border:none; background:transparent; color:var(--cpm-text-dim); transition:all .12s ease; }
+#catTabs button:hover, #modeBar button:hover, #colorModeBar button:hover { color:var(--cpm-text); }
+#catTabs button.active, #modeBar button.active, #colorModeBar button.active { background:var(--cpm-accent); color:var(--cpm-accent-ink); font-weight:700; box-shadow:0 1px 3px rgba(0,0,0,.35); }
 
 .stateLabelBg { fill:rgba(0,0,0,.65); }
 .stateLabelText { font-size:9.5px; font-weight:700; fill:#fff; text-anchor:middle; pointer-events:none; letter-spacing:.2px; }

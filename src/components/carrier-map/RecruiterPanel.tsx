@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
+import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { RECRUITER_TARGET } from "@/lib/recruiters";
 
-const COLLAPSED_COUNT = 3;
+const COLLAPSED_COUNT = 5;
 
 // Restyled from an inline "Name: count" chip row into a vertical one-row-
 // per-recruiter list (Tailwind + var(--cpm-*) tokens, matching the rest of
@@ -50,69 +50,140 @@ export function RecruiterPanel() {
   const hasMore = visibleRecruiters.length > COLLAPSED_COUNT;
   const shownRecruiters = expanded ? visibleRecruiters : visibleRecruiters.slice(0, COLLAPSED_COUNT);
 
+  const cell = "px-3 py-2.5 align-top";
   return (
-    <div id="recruiterPanel" className="mb-3 rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-3">
-      <div className="text-[11.5px] text-[var(--cpm-text-faint)] mb-2">
-        Click a recruiter to open their Strategy Plan + full report:
+    <div id="recruiterPanel" className="mb-3 rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]">
+      <div className="flex items-center gap-3 flex-wrap px-4 py-3 border-b border-[var(--cpm-border)]">
+        <div className="text-[14px] font-semibold text-[var(--cpm-text)]">
+          Recruiters <span className="text-[var(--cpm-text-faint)] font-normal">({visibleRecruiters.length})</span>
+        </div>
+        <div className="text-[12px] text-[var(--cpm-text-faint)]">Click a row to open their Strategy Plan and report</div>
+        <div className="ml-auto flex items-center gap-2">
+          <span
+            className={`text-[11.5px] font-semibold px-2 py-1 rounded-md border ${
+              unassignedCount
+                ? "bg-[var(--cpm-red-soft)] text-[#ff9a9d] border-[var(--cpm-red)]"
+                : "bg-[var(--cpm-green-soft)] text-[var(--cpm-green)] border-[var(--cpm-green)]"
+            }`}
+          >
+            {unassignedCount} {unassignedCount === 1 ? "state" : "states"} without a recruiter
+          </span>
+          {recruiterFilter && (
+            <button
+              type="button"
+              onClick={() => setRecruiterFilter("")}
+              className="text-[11.5px] font-semibold px-2 py-1 rounded-md border border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
+            >
+              ✕ Clear selection
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        {shownRecruiters.map((r) => {
-          const plan = getRecruiterPlan(r);
-          const states = Object.keys(recruiterAssignments)
-            .filter((s) => (recruiterAssignments[s] || []).includes(r))
-            .sort();
-          // carriers on this recruiter's states, plus any tagged in their Strategy Plan
-          const carriers = CARRIER_ORDER.filter(
-            (id) => plan.carriers.includes(id) || states.some((s) => (assignments[s] || []).includes(id))
-          );
-          const over = states.length > RECRUITER_TARGET;
-          const selected = recruiterFilter === r;
-          const inactive = getRecruiterStatus(r) === "inactive";
+      <div className="overflow-x-auto">
+        <table className="w-full text-[12.5px] border-collapse">
+          <thead>
+            <tr className="text-left text-[10.5px] uppercase tracking-wider text-[var(--cpm-text-faint)]">
+              <th className="px-3 py-2 font-semibold w-[190px]">Recruiter</th>
+              <th className="px-3 py-2 font-semibold w-[150px]">Monthly target</th>
+              <th className="px-3 py-2 font-semibold">States</th>
+              <th className="px-3 py-2 font-semibold">Carriers</th>
+              <th className="px-3 py-2 font-semibold text-right w-[90px]">Accounts</th>
+            </tr>
+          </thead>
+          <tbody>
+            {shownRecruiters.map((r) => {
+              const plan = getRecruiterPlan(r);
+              const states = Object.keys(recruiterAssignments)
+                .filter((s) => (recruiterAssignments[s] || []).includes(r))
+                .sort();
+              // carriers on this recruiter's states, plus any tagged in their Strategy Plan
+              const carriers = CARRIER_ORDER.filter(
+                (id) => plan.carriers.includes(id) || states.some((s) => (assignments[s] || []).includes(id))
+              );
+              const over = states.length > RECRUITER_TARGET;
+              const selected = recruiterFilter === r;
+              const inactive = getRecruiterStatus(r) === "inactive";
+              const team = getRecruiterTeam(r);
 
-          return (
-            <div
-              key={r}
-              onClick={() => setRecruiterFilter(selected ? "" : r)}
-              className={`rounded-lg border px-3 py-2 cursor-pointer transition-colors ${
-                selected
-                  ? "border-[var(--cpm-accent)] bg-[var(--cpm-panel-alt)]"
-                  : inactive
-                  ? "border-[var(--cpm-red)] bg-[var(--cpm-panel-alt)]"
-                  : "border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] hover:border-[var(--cpm-border-strong)]"
-              }`}
-            >
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/10" style={{ background: recruiterColor(r) }} />
-                <span className={`text-[13px] font-semibold ${inactive ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}>
-                  {r}
-                </span>
-                {inactive && (
-                  <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]">
-                    Former recruiter
-                  </span>
-                )}
-                <span className="text-[11.5px] text-[var(--cpm-text-dim)]">
-                  Target: {plan.targetSubmissions ?? "—"} subs / {plan.targetHires ?? "—"} hires
-                </span>
-                {over && (
-                  <span className="text-[10.5px] font-semibold px-1.5 py-0.5 rounded bg-[var(--cpm-red-soft)] text-[#ff9a9d] border border-[var(--cpm-red)]">
-                    Over target
-                  </span>
-                )}
-              </div>
-              <div className="mt-1 text-[11px] text-[var(--cpm-text-faint)]">
-                States assigned ({states.length}): {states.length ? states.join(", ") : "none yet"}
-              </div>
-              <div className="mt-0.5 text-[11px] text-[var(--cpm-text-faint)]">
-                Carriers ({carriers.length}): {carriers.length ? carriers.map((id) => CARRIERS[id].label).join(", ") : "none yet"}
-                {" · "}Accounts assigned: {(recruiterAccounts[r] || []).length}
-              </div>
-            </div>
-          );
-        })}
+              return (
+                <tr
+                  key={r}
+                  onClick={() => setRecruiterFilter(selected ? "" : r)}
+                  className={`cursor-pointer border-t border-[var(--cpm-border)] transition-colors ${
+                    selected ? "bg-[rgba(212,161,55,0.10)]" : "hover:bg-[var(--cpm-panel-alt)]"
+                  }`}
+                  style={selected ? { boxShadow: "inset 3px 0 0 var(--cpm-accent)" } : undefined}
+                >
+                  <td className={cell}>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: recruiterColor(r) }} />
+                      <span className={`font-semibold ${inactive ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}>{r}</span>
+                      {team && (
+                        <span className="text-[10px] font-semibold px-1.5 py-px rounded bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)]">
+                          {team === "uzbek" ? "UZ" : "PH"}
+                        </span>
+                      )}
+                    </div>
+                    {inactive && <div className="mt-1 text-[10.5px] font-semibold text-[#ff9a9d]">Former recruiter</div>}
+                  </td>
+                  <td className={`${cell} text-[var(--cpm-text-dim)] whitespace-nowrap`}>
+                    {plan.targetSubmissions || plan.targetHires ? (
+                      <>
+                        <b className="text-[var(--cpm-text)]">{plan.targetSubmissions ?? "—"}</b> subs ·{" "}
+                        <b className="text-[var(--cpm-text)]">{plan.targetHires ?? "—"}</b> hires
+                      </>
+                    ) : (
+                      <span className="text-[var(--cpm-text-faint)]">Not set</span>
+                    )}
+                  </td>
+                  <td className={cell}>
+                    {states.length ? (
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span
+                          className={`text-[11.5px] font-bold mr-1 tabular-nums ${over ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}
+                          title={over ? `Over the ${RECRUITER_TARGET}-state target` : undefined}
+                        >
+                          {states.length}
+                        </span>
+                        {states.map((s) => (
+                          <span
+                            key={s}
+                            title={s}
+                            className="text-[10.5px] font-semibold px-1.5 py-px rounded bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)]"
+                          >
+                            {STATE_CODE[s] ?? s}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[var(--cpm-text-faint)]">None yet</span>
+                    )}
+                  </td>
+                  <td className={cell}>
+                    {carriers.length ? (
+                      <div className="flex items-center gap-x-2.5 gap-y-1 flex-wrap">
+                        {carriers.map((id) => (
+                          <span key={id} className="flex items-center gap-1 text-[11.5px] text-[var(--cpm-text-dim)] whitespace-nowrap">
+                            <i className="w-2 h-2 rounded-full inline-block" style={{ background: CARRIERS[id].color }} />
+                            {CARRIERS[id].label}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[var(--cpm-text-faint)]">None yet</span>
+                    )}
+                  </td>
+                  <td className={`${cell} text-right font-semibold text-[var(--cpm-text)] tabular-nums`}>
+                    {(recruiterAccounts[r] || []).length.toLocaleString("en-US")}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         {visibleRecruiters.length === 0 && (
-          <span className="text-[11.5px] text-[var(--cpm-text-faint)] italic">No recruiters on this team yet.</span>
+          <div className="px-4 py-4 text-[12px] text-[var(--cpm-text-faint)] italic">No recruiters on this team yet.</div>
         )}
       </div>
 
@@ -120,24 +191,11 @@ export function RecruiterPanel() {
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="mt-1.5 text-[11.5px] font-semibold text-[var(--cpm-accent)] hover:text-[var(--cpm-accent-strong)]"
+          className="w-full border-t border-[var(--cpm-border)] py-2 text-[12px] font-semibold text-[var(--cpm-accent)] hover:text-[var(--cpm-accent-strong)] hover:bg-[var(--cpm-panel-alt)] rounded-b-xl"
         >
-          {expanded ? "▲ Show less" : `▼ Show all (${visibleRecruiters.length})`}
+          {expanded ? "Show less ▲" : `Show all ${visibleRecruiters.length} recruiters ▼`}
         </button>
       )}
-
-      <div className="mt-2 flex items-center gap-2 flex-wrap text-[11.5px] text-[var(--cpm-text-faint)]">
-        <span>Unassigned: {unassignedCount}</span>
-        {recruiterFilter && (
-          <button
-            type="button"
-            onClick={() => setRecruiterFilter("")}
-            className="text-[#ff9a9d] hover:underline"
-          >
-            ✕ Clear filter
-          </button>
-        )}
-      </div>
     </div>
   );
 }

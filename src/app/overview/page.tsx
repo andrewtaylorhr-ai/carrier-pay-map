@@ -1,11 +1,10 @@
 import { AssignedCarriersPanel } from "@/components/carrier-map/AssignedCarriersPanel";
-import { ColorModeBar } from "@/components/carrier-map/ColorModeBar";
+import { CoverageMap } from "@/components/carrier-map/CoverageMap";
 import { DetailCard } from "@/components/carrier-map/DetailCard";
 import { RecruiterAccountsPanel } from "@/components/carrier-map/RecruiterAccountsPanel";
 import { RecruiterPanel } from "@/components/carrier-map/RecruiterPanel";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
 import { RecruiterStrategyPlan } from "@/components/carrier-map/RecruiterStrategyPlan";
-import { StatePerformancePanel } from "@/components/carrier-map/StatePerformancePanel";
 import { StrategyTable } from "@/components/carrier-map/StrategyTable";
 import { Toolbar } from "@/components/carrier-map/Toolbar";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
@@ -35,9 +34,7 @@ export default function OverviewPage() {
       <DashboardStats />
 
       <div className="mx-auto w-full max-w-[1400px] px-6 pt-4">
-        <Toolbar>
-          <ColorModeBar />
-        </Toolbar>
+        <Toolbar />
         <RecruiterPanel />
         <div className="flex flex-col lg:flex-row gap-3 items-start">
           <div className="flex-1 min-w-0">
@@ -48,10 +45,10 @@ export default function OverviewPage() {
         <MonthlyTargetActualTable />
       </div>
 
-      <StatePerformancePanel />
+      <CoverageMap />
 
       <div className="mx-auto w-full max-w-[1400px] px-6 py-4">
-        <DetailCard />
+        <DetailCard strategyDetail={false} />
         <RecruiterAccountsPanel />
         <RecruiterReport />
         <StrategyTable />

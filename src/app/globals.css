@@ -374,3 +374,7 @@ table.tracker tr.dropAbove td { box-shadow:inset 0 3px 0 var(--cpm-accent); }
 table.tracker tr.dropBelow td { box-shadow:inset 0 -3px 0 var(--cpm-accent); }
 .selAllBtn { font-size:12px; font-weight:700; color:var(--cpm-accent); border:1px solid var(--cpm-border-strong); border-radius:7px; padding:3px 9px; cursor:pointer; white-space:nowrap; background:var(--cpm-panel-alt); }
 .selAllBtn:hover { border-color:var(--cpm-accent); }
+
+/* Team Overview coverage map (Leaflet) tooltips */
+.leaflet-tooltip.covTip { font: 12px/1.45 "Segoe UI", system-ui, sans-serif; color:#1c2130; border-radius:8px; border:none; box-shadow:0 4px 14px rgba(0,0,0,.25); padding:8px 10px; }
+.leaflet-container { font-family: "Segoe UI", system-ui, sans-serif; }

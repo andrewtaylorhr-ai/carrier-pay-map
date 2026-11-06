@@ -5,13 +5,16 @@ import { carrierSummaryLines, getStateRecord } from "@/lib/carriers/logic";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { AssignedBadge, RecruiterBadge } from "./badges";
 
-export function DetailCard() {
+// strategyDetail=false hides the Strategy-mode card (Team Overview shows its
+// own state breakdown under the coverage map instead).
+export function DetailCard({ strategyDetail = true }: { strategyDetail?: boolean } = {}) {
   const { strategyMode, selectedState, currentCarrier, currentCat, assignments, toggleCarrierOnState, recruiterAssignments, recruiterColor } =
     useCarrierMap();
 
   if (!selectedState) return null;
 
   if (strategyMode) {
+    if (!strategyDetail) return null;
     const selectedRecruiters = recruiterAssignments[selectedState] || [];
     const summariesHtml = CARRIER_ORDER.map((id) => {
       const lines = carrierSummaryLines(id, selectedState);

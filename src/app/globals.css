@@ -334,6 +334,11 @@ table.tracker .stick.c1, table.tracker .stick.c2, table.tracker .stick.c3 { widt
 table.tracker .stick.c1 { left:200px; }
 table.tracker .stick.c2 { left:256px; }
 table.tracker .stick.c3 { left:312px; box-shadow:2px 0 0 var(--cpm-border-strong); }
+/* Former recruiters (shown via "Show former recruiters"): last rows, in red. */
+table.tracker tr.formerRow td { background:rgba(229,72,77,.14); }
+table.tracker tr.formerRow td.stick:not(.num) { background:color-mix(in srgb, #e5484d 22%, var(--cpm-bg)); }
+table.tracker tr.formerRow td.stick.name { color:#ff8a8e; }
+table.tracker .formerTag { margin-left:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#ff8a8e; }
 table.tracker:has(.stick.c3) .stick.name { box-shadow:none; }
 table.tracker thead th.stick.hDqp { background:#2563eb; }
 table.tracker thead th.stick.hAtDqp { background:#ca8a04; }

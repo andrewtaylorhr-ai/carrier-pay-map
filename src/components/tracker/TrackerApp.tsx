@@ -25,6 +25,7 @@ import {
 } from "@/lib/tracker";
 
 const DEFAULT_ROW_COLOR = "#475569";
+const FORMER_ROW_COLOR = "#e5484d";
 const PALETTE = ["#7c2d4f", "#a8577e", "#dc2626", "#ea8a0c", "#eab308", "#16a34a", "#0891b2", "#2563eb", "#7c3aed", "#475569"];
 
 const thisMonth = () => {
@@ -51,6 +52,8 @@ export function TrackerApp() {
   // Active recruiters, plus (when "Show former" is on, shared with Team
   // Overview) anyone inactive who already has numbers this month.
   // In the order the user dragged them; anyone new goes to the bottom in roster order.
+  // Former recruiters always sit below everyone active, shown in red.
+  const isFormer = (r: string) => (getRecruiterStatus(r) === "inactive" ? 1 : 0);
   const pos = (r: string) => {
     const i = data.rowOrder?.indexOf(r) ?? -1;
     return i < 0 ? Infinity : i;
@@ -58,12 +61,12 @@ export function TrackerApp() {
   const ordered = recruiters
     .filter((r) => getRecruiterStatus(r) === "active" || (showFormer && rows[r]))
     .map((r, i) => ({ r, i }))
-    .sort((a, b) => pos(a.r) - pos(b.r) || a.i - b.i)
+    .sort((a, b) => isFormer(a.r) - isFormer(b.r) || pos(a.r) - pos(b.r) || a.i - b.i)
     .map((x) => x.r);
   const formerWithData = recruiters.filter((r) => getRecruiterStatus(r) === "inactive" && rows[r]).length;
   const [dragging, setDragging] = useState<string[] | null>(null);
   const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
-  const rowColor = (r: string) => data.rowColors?.[r] ?? DEFAULT_ROW_COLOR;
+  const rowColor = (r: string) => (isFormer(r) ? FORMER_ROW_COLOR : data.rowColors?.[r] ?? DEFAULT_ROW_COLOR);
   // numbering starts again at 1 wherever the row color changes (one block per team color)
   const blockNo = ordered.reduce<number[]>((acc, r, i) => {
     acc.push(i > 0 && rowColor(r) === rowColor(ordered[i - 1]) ? acc[i - 1] + 1 : 1);
@@ -173,6 +176,7 @@ export function TrackerApp() {
       setDropAt(null);
     },
     className: [
+      isFormer(name) ? "formerRow" : "",
       dragging?.includes(name) ? "dragSrc" : "",
       dropAt?.name === name ? (dropAt.after ? "dropBelow" : "dropAbove") : "",
     ]
@@ -303,7 +307,10 @@ export function TrackerApp() {
                       return (
                         <tr key={name} {...rowDnD(name)}>
                           {numCell(name, ri)}
-                          <td className="stick name">{name}</td>
+                          <td className="stick name">
+                            {name}
+                            {isFormer(name) ? <span className="formerTag">Former</span> : null}
+                          </td>
                           <td className="stick c1">{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
                           <td className="stick c2">{num(`${name} at DQP`, r?.atDqp, (v) => updateRow(name, (x) => ({ ...x, atDqp: v ?? undefined })), ri, c++)}</td>
                           <td className="stick c3 calc hire">{totalHires(r)}</td>
@@ -370,7 +377,10 @@ export function TrackerApp() {
                       return (
                         <tr key={name} {...rowDnD(name)}>
                           {numCell(name, ri)}
-                          <td className="stick name">{name}</td>
+                          <td className="stick name">
+                            {name}
+                            {isFormer(name) ? <span className="formerTag">Former</span> : null}
+                          </td>
                           {days.map((d) => {
                             const a = r?.att?.[d];
                             const step = (dir: number) => {

@@ -30,6 +30,7 @@ import { useRecruiterPlans } from "@/lib/hooks/useRecruiterPlans";
 import { useRecruiterStatus } from "@/lib/hooks/useRecruiterStatus";
 import { useRecruiterTeams } from "@/lib/hooks/useRecruiterTeams";
 import { buildRecruiterColorScale } from "@/lib/recruiters";
+import { type PersistedTrainees, type Trainee, todayISO } from "@/lib/trainees";
 
 export type TeamFilter = "all" | RecruiterTeam;
 
@@ -131,6 +132,16 @@ interface CarrierMapContextValue {
   // lists recruiter names, so "inactive sorted last" is consistent everywhere.
   compareRecruitersByStatus: (a: string, b: string) => number;
 
+  // persisted: new-recruiter pipeline managed on the Controller page
+  // (training -> quality control -> approved). Approving adds them to the
+  // roster; they count as "new" until their first hire is recorded.
+  trainees: PersistedTrainees;
+  addTrainee: (name: string, team: RecruiterTeam | null, start: string) => string | null;
+  updateTrainee: (name: string, patch: Partial<Trainee>) => void;
+  removeTrainee: (name: string) => void;
+  approveTrainee: (name: string) => string | null;
+  isNewRecruiter: (name: string) => boolean;
+
   // persisted: company-wide Monthly Report (leads/DQP/Indeed spend + weekly
   // submissions + per-carrier breakdown), keyed by "YYYY-MM". Independent of
   // recruiterPlans/recruiterActuals (per-recruiter) and of CarrierId (the
@@ -162,6 +173,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
 
   const [teamFilter, setTeamFilter] = useLocalStorageState<TeamFilter>("cpm_teamFilter", "all");
   const [showFormer, setShowFormer] = useLocalStorageState<boolean>("cpm_showFormer", false);
+  const [trainees, setTrainees] = useLocalStorageState<PersistedTrainees>("cdlPayMapTrainees", {});
 
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();
@@ -445,6 +457,56 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     [setRecruiterAssignments]
   );
 
+  const addTrainee = useCallback(
+    (name: string, team: RecruiterTeam | null, start: string): string | null => {
+      const trimmed = (name || "").trim();
+      if (!trimmed) return "Enter a name.";
+      const taken = (n: string) => n.toLowerCase() === trimmed.toLowerCase();
+      if (Object.keys(trainees).some(taken)) return "That person is already on the list.";
+      if (recruiters.some(taken)) return "That name is already a recruiter.";
+      setTrainees((prev) => ({ ...prev, [trimmed]: { team, start, stage: "training" } }));
+      return null;
+    },
+    [trainees, recruiters, setTrainees]
+  );
+
+  const updateTrainee = useCallback(
+    (name: string, patch: Partial<Trainee>) =>
+      setTrainees((prev) => (prev[name] ? { ...prev, [name]: { ...prev[name], ...patch } } : prev)),
+    [setTrainees]
+  );
+
+  const removeTrainee = useCallback(
+    (name: string) =>
+      setTrainees((prev) => {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }),
+    [setTrainees]
+  );
+
+  const approveTrainee = useCallback(
+    (name: string): string | null => {
+      const t = trainees[name];
+      if (!t) return "Not on the list.";
+      if (!recruiters.includes(name)) {
+        const problem = addRecruiter(name);
+        if (problem) return problem;
+      }
+      if (t.team) setRecruiterTeam(name, t.team);
+      updateTrainee(name, { stage: "approved", approvedAt: todayISO() });
+      return null;
+    },
+    [trainees, recruiters, addRecruiter, setRecruiterTeam, updateTrainee]
+  );
+
+  const isNewRecruiter = useCallback(
+    (name: string) => trainees[name]?.stage === "approved" && !trainees[name]?.firstHireAt,
+    [trainees]
+  );
+
   const value: CarrierMapContextValue = {
     currentCarrier,
     setCarrier,
@@ -489,6 +551,12 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     getRecruiterStatus,
     setRecruiterStatus,
     compareRecruitersByStatus,
+    trainees,
+    addTrainee,
+    updateTrainee,
+    removeTrainee,
+    approveTrainee,
+    isNewRecruiter,
     monthlyReports,
     getMonthlyReport,
     updateMonthlyReport,

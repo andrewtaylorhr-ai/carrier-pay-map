@@ -48,6 +48,7 @@ export function RecruiterManage() {
     recruiterAccounts,
     showFormer,
     setShowFormer,
+    isNewRecruiter,
   } = useCarrierMap();
   const [offboarding, setOffboarding] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -122,13 +123,16 @@ export function RecruiterManage() {
           const team = getRecruiterTeam(r) ?? "";
           const status = getRecruiterStatus(r);
           const inactive = status === "inactive";
+          const isNew = !inactive && isNewRecruiter(r);
           return (
             <span
               key={r}
               className={`w-full flex flex-wrap items-center gap-x-2 gap-y-1 pl-2.5 pr-1.5 py-1.5 rounded-lg text-[12.5px] font-medium bg-[var(--cpm-panel-alt)] border transition-colors ${
                 inactive
                   ? "border-[var(--cpm-red)] text-[#ff9a9d]"
-                  : "border-[var(--cpm-border)] text-[var(--cpm-text)] hover:border-[var(--cpm-border-strong)]"
+                  : isNew
+                    ? "border-[#0ea5e9] text-[#7dd3fc]"
+                    : "border-[var(--cpm-border)] text-[var(--cpm-text)] hover:border-[var(--cpm-border-strong)]"
               }`}
             >
               <span
@@ -141,6 +145,7 @@ export function RecruiterManage() {
               {inactive && (
                 <span className="text-[10px] font-semibold uppercase tracking-wide text-[#ff9a9d]">Former</span>
               )}
+              {isNew && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-px rounded border border-[#0ea5e9] text-[#38bdf8] bg-[#0ea5e9]/15" title="New recruiter: shown in blue until their first hire">New</span>}
               <button
                 type="button"
                 title={`Remove ${r} for good`}

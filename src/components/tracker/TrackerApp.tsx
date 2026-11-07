@@ -1,9 +1,10 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { NEW_RECRUITER_COLOR, todayISO } from "@/lib/trainees";
 import {
   ATTENDANCE_CYCLE,
   ATTENDANCE_LABEL,
@@ -34,7 +35,7 @@ const thisMonth = () => {
 };
 
 export function TrackerApp() {
-  const { recruiters, getRecruiterStatus, showFormer, setShowFormer } = useCarrierMap();
+  const { recruiters, getRecruiterStatus, showFormer, setShowFormer, trainees, isNewRecruiter, updateTrainee } = useCarrierMap();
   const [data, setData] = useLocalStorageState<TrackerData>("cdlPayMapTracker", EMPTY_TRACKER);
   const [ym, setYm] = useState(thisMonth);
   const [tab, setTab] = useState<"subs" | "att">("subs");
@@ -54,6 +55,14 @@ export function TrackerApp() {
   // In the order the user dragged them; anyone new goes to the bottom in roster order.
   // Former recruiters always sit below everyone active, shown in red.
   const isFormer = (r: string) => (getRecruiterStatus(r) === "inactive" ? 1 : 0);
+  const isNew = (r: string) => !isFormer(r) && isNewRecruiter(r);
+  // A new recruiter stops being "new" the first time a hire is entered for them.
+  useEffect(() => {
+    for (const [n, t] of Object.entries(trainees)) {
+      if (t.stage !== "approved" || t.firstHireAt) continue;
+      if (Object.values(data.months).some((m) => totalHires(m[n]) > 0)) updateTrainee(n, { firstHireAt: todayISO() });
+    }
+  }, [trainees, data.months, updateTrainee]);
   const pos = (r: string) => {
     const i = data.rowOrder?.indexOf(r) ?? -1;
     return i < 0 ? Infinity : i;
@@ -66,7 +75,7 @@ export function TrackerApp() {
   const formerWithData = recruiters.filter((r) => getRecruiterStatus(r) === "inactive" && rows[r]).length;
   const [dragging, setDragging] = useState<string[] | null>(null);
   const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
-  const rowColor = (r: string) => (isFormer(r) ? FORMER_ROW_COLOR : data.rowColors?.[r] ?? DEFAULT_ROW_COLOR);
+  const rowColor = (r: string) => (isFormer(r) ? FORMER_ROW_COLOR : isNew(r) ? NEW_RECRUITER_COLOR : data.rowColors?.[r] ?? DEFAULT_ROW_COLOR);
   // numbering starts again at 1 wherever the row color changes (one block per team color)
   const blockNo = ordered.reduce<number[]>((acc, r, i) => {
     acc.push(i > 0 && rowColor(r) === rowColor(ordered[i - 1]) ? acc[i - 1] + 1 : 1);
@@ -177,6 +186,7 @@ export function TrackerApp() {
     },
     className: [
       isFormer(name) ? "formerRow" : "",
+      isNew(name) ? "newRow" : "",
       dragging?.includes(name) ? "dragSrc" : "",
       dropAt?.name === name ? (dropAt.after ? "dropBelow" : "dropAbove") : "",
     ]
@@ -310,6 +320,7 @@ export function TrackerApp() {
                           <td className="stick name">
                             {name}
                             {isFormer(name) ? <span className="formerTag">Former</span> : null}
+                            {isNew(name) ? <span className="newTag">New</span> : null}
                           </td>
                           <td className="stick c1">{num(`${name} DQP`, r?.dqp, (v) => updateRow(name, (x) => ({ ...x, dqp: v ?? undefined })), ri, c++)}</td>
                           <td className="stick c2">{num(`${name} at DQP`, r?.atDqp, (v) => updateRow(name, (x) => ({ ...x, atDqp: v ?? undefined })), ri, c++)}</td>
@@ -380,6 +391,7 @@ export function TrackerApp() {
                           <td className="stick name">
                             {name}
                             {isFormer(name) ? <span className="formerTag">Former</span> : null}
+                            {isNew(name) ? <span className="newTag">New</span> : null}
                           </td>
                           {days.map((d) => {
                             const a = r?.att?.[d];

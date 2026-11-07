@@ -38,6 +38,7 @@ export function RecruiterPanel() {
     compareRecruitersByStatus,
     showFormer,
     setShowFormer,
+    isNewRecruiter,
   } = useCarrierMap();
   const [expanded, setExpanded] = useState(false);
   if (!strategyMode) return null;
@@ -118,6 +119,7 @@ export function RecruiterPanel() {
               const selected = recruiterFilter === r;
               const inactive = getRecruiterStatus(r) === "inactive";
               const team = getRecruiterTeam(r);
+              const isNew = !inactive && isNewRecruiter(r);
 
               return (
                 <tr
@@ -131,7 +133,8 @@ export function RecruiterPanel() {
                   <td className={cell}>
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: recruiterColor(r) }} />
-                      <span className={`font-semibold ${inactive ? "text-[#ff9a9d]" : "text-[var(--cpm-text)]"}`}>{r}</span>
+                      <span className={`font-semibold ${inactive ? "text-[#ff9a9d]" : isNew ? "text-[#7dd3fc]" : "text-[var(--cpm-text)]"}`}>{r}</span>
+                      {isNew && <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-px rounded border border-[#0ea5e9] text-[#38bdf8] bg-[#0ea5e9]/15" title="New recruiter: shown in blue until their first hire">New</span>}
                       {team && (
                         <span className="text-[10px] font-semibold px-1.5 py-px rounded bg-[var(--cpm-panel-alt)] text-[var(--cpm-text-dim)] border border-[var(--cpm-border)]">
                           {team === "uzbek" ? "UZ" : "PH"}

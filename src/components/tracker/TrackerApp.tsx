@@ -33,7 +33,7 @@ const thisMonth = () => {
 };
 
 export function TrackerApp() {
-  const { recruiters, getRecruiterStatus } = useCarrierMap();
+  const { recruiters, getRecruiterStatus, showFormer, setShowFormer } = useCarrierMap();
   const [data, setData] = useLocalStorageState<TrackerData>("cdlPayMapTracker", EMPTY_TRACKER);
   const [ym, setYm] = useState(thisMonth);
   const [tab, setTab] = useState<"subs" | "att">("subs");
@@ -48,17 +48,19 @@ export function TrackerApp() {
   const now = new Date();
   const today = ym === thisMonth() ? now.getDate() : null;
 
-  // Active recruiters, plus anyone inactive who already has numbers this month.
+  // Active recruiters, plus (when "Show former" is on, shared with Team
+  // Overview) anyone inactive who already has numbers this month.
   // In the order the user dragged them; anyone new goes to the bottom in roster order.
   const pos = (r: string) => {
     const i = data.rowOrder?.indexOf(r) ?? -1;
     return i < 0 ? Infinity : i;
   };
   const ordered = recruiters
-    .filter((r) => getRecruiterStatus(r) === "active" || rows[r])
+    .filter((r) => getRecruiterStatus(r) === "active" || (showFormer && rows[r]))
     .map((r, i) => ({ r, i }))
     .sort((a, b) => pos(a.r) - pos(b.r) || a.i - b.i)
     .map((x) => x.r);
+  const formerWithData = recruiters.filter((r) => getRecruiterStatus(r) === "inactive" && rows[r]).length;
   const [dragging, setDragging] = useState<string[] | null>(null);
   const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
   const rowColor = (r: string) => data.rowColors?.[r] ?? DEFAULT_ROW_COLOR;
@@ -227,6 +229,11 @@ export function TrackerApp() {
           </button>
         </div>
         <div className="ml-auto flex items-center gap-2">
+          {formerWithData > 0 && (
+            <button type="button" className="ghostBtn" onClick={() => setShowFormer(!showFormer)}>
+              {showFormer ? "Hide former recruiters" : `Show former recruiters (${formerWithData})`}
+            </button>
+          )}
           {tab === "att" && today && (
             <button type="button" className="ghostBtn" onClick={markAllPresentToday}>
               Mark everyone present today

@@ -36,6 +36,8 @@ export function RecruiterPanel() {
     getRecruiterPlan,
     getRecruiterStatus,
     compareRecruitersByStatus,
+    showFormer,
+    setShowFormer,
   } = useCarrierMap();
   const [expanded, setExpanded] = useState(false);
   if (!strategyMode) return null;
@@ -43,10 +45,12 @@ export function RecruiterPanel() {
   const unassignedCount =
     ALL_STATES.length - Object.keys(recruiterAssignments).filter((s) => recruiterAssignments[s]?.length).length;
 
-  const visibleRecruiters = recruiters
+  const teamRecruiters = recruiters
     .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
     .slice()
     .sort(compareRecruitersByStatus);
+  const formerCount = teamRecruiters.filter((r) => getRecruiterStatus(r) === "inactive").length;
+  const visibleRecruiters = showFormer ? teamRecruiters : teamRecruiters.filter((r) => getRecruiterStatus(r) !== "inactive");
   const hasMore = visibleRecruiters.length > COLLAPSED_COUNT;
   const shownRecruiters = expanded ? visibleRecruiters : visibleRecruiters.slice(0, COLLAPSED_COUNT);
 
@@ -59,6 +63,15 @@ export function RecruiterPanel() {
         </div>
         <div className="text-[12px] text-[var(--cpm-text-faint)]">Click a row to open their Strategy Plan and report</div>
         <div className="ml-auto flex items-center gap-2">
+          {formerCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowFormer(!showFormer)}
+              className="text-[11.5px] font-semibold px-2 py-1 rounded-md border border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
+            >
+              {showFormer ? "Hide former" : `Show former (${formerCount})`}
+            </button>
+          )}
           <span
             className={`text-[11.5px] font-semibold px-2 py-1 rounded-md border ${
               unassignedCount

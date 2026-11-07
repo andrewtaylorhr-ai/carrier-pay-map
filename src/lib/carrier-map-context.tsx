@@ -114,6 +114,10 @@ interface CarrierMapContextValue {
   // instead of always resetting to "all".
   teamFilter: TeamFilter;
   setTeamFilter: (f: TeamFilter) => void;
+  // persisted: whether former recruiters are listed in the sidebar and the
+  // Team Overview tables. Hidden by default; Reports always shows them.
+  showFormer: boolean;
+  setShowFormer: (v: boolean) => void;
 
   // persisted: active vs. former/inactive recruiter. Missing key means
   // active. Former recruiters stay in the roster (history/assignments/plan
@@ -157,6 +161,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
   const [assignModeRecruiter, setAssignModeRecruiter] = useState<string | null>(null);
 
   const [teamFilter, setTeamFilter] = useLocalStorageState<TeamFilter>("cpm_teamFilter", "all");
+  const [showFormer, setShowFormer] = useLocalStorageState<boolean>("cpm_showFormer", false);
 
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();
@@ -478,6 +483,8 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     setRecruiterTeam,
     teamFilter,
     setTeamFilter,
+    showFormer,
+    setShowFormer,
     recruiterStatus,
     getRecruiterStatus,
     setRecruiterStatus,

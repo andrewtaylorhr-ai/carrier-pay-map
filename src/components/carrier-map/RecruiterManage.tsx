@@ -46,6 +46,8 @@ export function RecruiterManage() {
     compareRecruitersByStatus,
     recruiterAssignments,
     recruiterAccounts,
+    showFormer,
+    setShowFormer,
   } = useCarrierMap();
   const [offboarding, setOffboarding] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -67,11 +69,12 @@ export function RecruiterManage() {
     setErr("");
   };
 
-  const visibleRecruiters = recruiters
+  const teamRecruiters = recruiters
     .filter((r) => teamFilter === "all" || getRecruiterTeam(r) === teamFilter)
     .slice()
     .sort(compareRecruitersByStatus);
-  const formerRecruiters = visibleRecruiters.filter((r) => getRecruiterStatus(r) === "inactive");
+  const formerRecruiters = teamRecruiters.filter((r) => getRecruiterStatus(r) === "inactive");
+  const visibleRecruiters = showFormer ? teamRecruiters : teamRecruiters.filter((r) => getRecruiterStatus(r) !== "inactive");
   // A former recruiter who still holds states or accounts (marked left before
   // hand-over existed) gets a "Hand over" button instead of losing that work.
   const stillHolds = (r: string) =>
@@ -193,6 +196,16 @@ export function RecruiterManage() {
       </div>
 
       {formerRecruiters.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowFormer(!showFormer)}
+          className="w-full mb-2 text-left text-[11.5px] font-semibold text-[var(--cpm-text-faint)] hover:text-[var(--cpm-text)]"
+        >
+          {showFormer ? "Hide former recruiters" : `Show ${formerRecruiters.length} former ${formerRecruiters.length === 1 ? "recruiter" : "recruiters"}`}
+        </button>
+      )}
+
+      {showFormer && formerRecruiters.length > 0 && (
         <button
           type="button"
           onClick={() => {

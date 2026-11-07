@@ -26,6 +26,7 @@ export function StrategyTable() {
     setRecruiterFilter,
     getRecruiterStatus,
     compareRecruitersByStatus,
+    showFormer,
   } = useCarrierMap();
   const [tab, setTab] = useState<Tab>("state");
   const [query, setQuery] = useState("");
@@ -57,7 +58,7 @@ export function StrategyTable() {
   const recruiterRows = useMemo(() => {
     const q = query.trim().toLowerCase();
     return recruiters
-      .filter((r) => !q || r.toLowerCase().includes(q))
+      .filter((r) => (showFormer || getRecruiterStatus(r) !== "inactive") && (!q || r.toLowerCase().includes(q)))
       .slice()
       .sort(compareRecruitersByStatus)
       .map((r) => {
@@ -67,7 +68,7 @@ export function StrategyTable() {
         return { r, st, carriers, accounts: accounts.length };
       })
       .filter((row) => !assignedOnly || row.st.length || row.accounts);
-  }, [query, assignedOnly, recruiters, recruiterAssignments, recruiterAccounts, assignments, compareRecruitersByStatus]);
+  }, [query, assignedOnly, recruiters, recruiterAssignments, recruiterAccounts, assignments, compareRecruitersByStatus, showFormer, getRecruiterStatus]);
 
   if (!strategyMode) return null;
 

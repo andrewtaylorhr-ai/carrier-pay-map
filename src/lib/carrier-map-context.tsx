@@ -70,6 +70,10 @@ interface CarrierMapContextValue {
   recruiters: string[];
   addRecruiter: (name: string) => string | null; // returns error message, or null on success
   removeRecruiter: (name: string) => void;
+  // Offboarding: marks `from` as a former recruiter and moves their states and
+  // ticked accounts to `to` (or leaves them unassigned when `to` is null).
+  // Plans, actuals and team stay with `from` so their history is kept.
+  handOverRecruiter: (from: string, to: string | null) => void;
   recruiterColor: (name: string) => string;
 
   // persisted: recruiter -> states assignments
@@ -374,6 +378,32 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     [getRecruiterStatus]
   );
 
+  const handOverRecruiter = useCallback(
+    (from: string, to: string | null) => {
+      setRecruiterAssignments((prev) => {
+        const next: PersistedRecruiterAssignments = {};
+        for (const [state, arr] of Object.entries(prev)) {
+          const had = arr.includes(from);
+          const filtered = arr.filter((r) => r !== from);
+          if (had && to && !filtered.includes(to)) filtered.push(to);
+          if (filtered.length) next[state] = filtered;
+        }
+        return next;
+      });
+      setRecruiterAccountsMap((prev) => {
+        if (!(from in prev)) return prev;
+        const next = { ...prev };
+        if (to) next[to] = [...new Set([...(prev[to] ?? []), ...prev[from]])];
+        delete next[from];
+        return next;
+      });
+      setRecruiterStatus(from, "inactive");
+      setRecruiterFilter((prev) => (prev === from ? "" : prev));
+      setAssignModeRecruiter((prev) => (prev === from ? null : prev));
+    },
+    [setRecruiterAssignments, setRecruiterAccountsMap, setRecruiterStatus]
+  );
+
   const getMonthlyReport = useCallback(
     // Merge (not just fall back) against EMPTY_MONTHLY_REPORT: reports saved
     // to localStorage before a schema field was added (e.g. stateBreakdown/
@@ -428,6 +458,7 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
     recruiters,
     addRecruiter,
     removeRecruiter,
+    handOverRecruiter,
     recruiterColor,
     recruiterAssignments,
     toggleRecruiterOnState,

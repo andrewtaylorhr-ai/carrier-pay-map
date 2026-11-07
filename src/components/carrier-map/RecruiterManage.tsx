@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
+import { HandOverDialog } from "./HandOverDialog";
 
 const TEAM_LABEL: Record<RecruiterTeam, string> = {
   uzbek: "Uzbek",
@@ -43,7 +44,10 @@ export function RecruiterManage() {
     getRecruiterStatus,
     setRecruiterStatus,
     compareRecruitersByStatus,
+    recruiterAssignments,
+    recruiterAccounts,
   } = useCarrierMap();
+  const [offboarding, setOffboarding] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [newTeam, setNewTeam] = useState<RecruiterTeam | "">("");
   const [err, setErr] = useState("");
@@ -68,6 +72,10 @@ export function RecruiterManage() {
     .slice()
     .sort(compareRecruitersByStatus);
   const formerRecruiters = visibleRecruiters.filter((r) => getRecruiterStatus(r) === "inactive");
+  // A former recruiter who still holds states or accounts (marked left before
+  // hand-over existed) gets a "Hand over" button instead of losing that work.
+  const stillHolds = (r: string) =>
+    (recruiterAccounts[r]?.length ?? 0) > 0 || Object.values(recruiterAssignments).some((arr) => arr.includes(r));
 
   return (
     <div>
@@ -146,7 +154,7 @@ export function RecruiterManage() {
               <button
                 type="button"
                 title={inactive ? `Mark ${r} active` : `Mark ${r} inactive (left/fired)`}
-                onClick={() => setRecruiterStatus(r, inactive ? "active" : "inactive")}
+                onClick={() => (inactive ? setRecruiterStatus(r, "active") : setOffboarding(r))}
                 className={`h-5 px-1.5 rounded border text-[10.5px] transition-colors ${
                   inactive
                     ? "border-[var(--cpm-red)] text-[#ff9a9d] hover:bg-[var(--cpm-red)] hover:text-white"
@@ -155,6 +163,16 @@ export function RecruiterManage() {
               >
                 {inactive ? "Reactivate" : "Mark left"}
               </button>
+              {inactive && stillHolds(r) && (
+                <button
+                  type="button"
+                  title={`Hand over ${r}'s states and accounts`}
+                  onClick={() => setOffboarding(r)}
+                  className="h-5 px-1.5 whitespace-nowrap rounded border border-[var(--cpm-accent)] text-[10.5px] text-[var(--cpm-accent-strong)] hover:bg-[var(--cpm-accent)] hover:text-[#241800] transition-colors"
+                >
+                  Hand over
+                </button>
+              )}
               <select
                 value={team}
                 onChange={(e) => setRecruiterTeam(r, (e.target.value || null) as RecruiterTeam | null)}
@@ -222,6 +240,7 @@ ${formerRecruiters.join(", ")}`)) return;
         </button>
         {err && <span className="text-[11.5px] text-[var(--cpm-red)] w-full">{err}</span>}
       </div>
+      {offboarding && <HandOverDialog from={offboarding} onClose={() => setOffboarding(null)} />}
     </div>
   );
 }

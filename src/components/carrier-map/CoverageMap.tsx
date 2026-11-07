@@ -52,6 +52,7 @@ export function CoverageMap() {
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    recruiterStatus,
   } = useCarrierMap();
 
   const [mode, setMode] = useState<Mode>("coverage");
@@ -60,9 +61,20 @@ export function CoverageMap() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"open" | "az">("open");
 
+  // Former recruiters don't work accounts any more, so whatever they still
+  // hold shows as not assigned until it's handed over.
+  const activeAssignments = useMemo(() => {
+    const next: typeof recruiterAssignments = {};
+    for (const [state, arr] of Object.entries(recruiterAssignments)) {
+      const active = arr.filter((r) => recruiterStatus[r] !== "inactive");
+      if (active.length) next[state] = active;
+    }
+    return next;
+  }, [recruiterAssignments, recruiterStatus]);
+
   const coverage = useMemo(
-    () => buildCoverage(assignments, recruiterAssignments, recruiterAccounts, carriers),
-    [assignments, recruiterAssignments, recruiterAccounts, carriers]
+    () => buildCoverage(assignments, activeAssignments, recruiterAccounts, carriers),
+    [assignments, activeAssignments, recruiterAccounts, carriers]
   );
 
   const totals = useMemo(() => {

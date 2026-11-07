@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, FileBarChart, LayoutDashboard, Map, Route, Send, Truck } from "lucide-react";
+import { ClipboardList, FileBarChart, GraduationCap, LayoutDashboard, Map, Route, Send, Truck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 import { ReportsMonthNav } from "@/components/reports/ReportsMonthNav";
@@ -21,6 +21,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Daily Tracker", icon: ClipboardList, href: "/tracker" },
   { label: "Submissions", icon: Send, href: "/activity" },
   { label: "Reports", icon: FileBarChart, href: "/reports" },
+  { label: "Training", icon: GraduationCap, href: "/training" },
 ];
 
 export function Sidebar() {

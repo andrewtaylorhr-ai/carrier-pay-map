@@ -7,8 +7,8 @@ import { RECRUITER_TARGET } from "@/lib/recruiters";
 const NOTES_MAX = 500;
 
 // The editable "Strategy Plan" for whichever recruiter is currently selected
-// in RecruiterPanel (reuses that same click-to-filter selection instead of
-// adding a second way to pick a recruiter). State assignment happens by
+// (the shared recruiter filter, set from the Strategy Builder or the
+// strategy table). State assignment happens by
 // putting the map itself into "assign mode" — click a recruiter's plan
 // open, hit "Assign states on map", then click through their territory
 // directly on the choropleth.

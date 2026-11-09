@@ -24,8 +24,8 @@ const TEAM_FLAG_SRC: Record<RecruiterTeam, string> = {
 // bright-green button / candy-pill-chip look. Same underlying data and
 // handlers as before (recruiters / addRecruiter / removeRecruiter), plus a
 // new outsourced-team filter (All / Uzbek / Philippines) and a per-recruiter
-// team picker. The filter only affects this chip list (and the matching
-// chip list in RecruiterPanel) — map, states, and reports are unaffected.
+// team picker. The filter only affects this chip list — map, states, and
+// reports are unaffected.
 //
 // Rendered inline inside the Sidebar (below the nav links, Dashboard route
 // only) — not a standalone card, so it has no outer border/background of

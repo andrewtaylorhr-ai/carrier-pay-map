@@ -2,7 +2,6 @@ import { AssignedCarriersPanel } from "@/components/carrier-map/AssignedCarriers
 import { CoverageMap } from "@/components/carrier-map/CoverageMap";
 import { DetailCard } from "@/components/carrier-map/DetailCard";
 import { RecruiterAccountsPanel } from "@/components/carrier-map/RecruiterAccountsPanel";
-import { RecruiterPanel } from "@/components/carrier-map/RecruiterPanel";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
 import { RecruiterStrategyPlan } from "@/components/carrier-map/RecruiterStrategyPlan";
 import { StrategyTable } from "@/components/carrier-map/StrategyTable";
@@ -35,7 +34,6 @@ export default function OverviewPage() {
 
       <div className="mx-auto w-full max-w-[1400px] px-6 pt-4">
         <Toolbar />
-        <RecruiterPanel />
         <div className="flex flex-col lg:flex-row gap-3 items-start">
           <div className="flex-1 min-w-0">
             <RecruiterStrategyPlan />

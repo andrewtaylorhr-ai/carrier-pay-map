@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ClipboardList, FileBarChart, GraduationCap, GripVertical, LayoutDashboard, Map, Route, Send, Truck, UserCheck } from "lucide-react";
+import { Building2, ClipboardList, FileBarChart, GraduationCap, GripVertical, LayoutDashboard, Map, Route, Send, Truck, UserCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
@@ -25,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Reports", icon: FileBarChart, href: "/reports" },
   { label: "Training", icon: GraduationCap, href: "/training" },
   { label: "Controller", icon: UserCheck, href: "/controller" },
+  { label: "Agencies", icon: Building2, href: "/agencies" },
 ];
 
 export function Sidebar() {

@@ -11,6 +11,8 @@ export type Fleet = {
   payText: string;
   hometime: string;
   notes: string;
+  openings?: number | null; // drivers needed right now, when the carrier lists it
+  bonus?: string; // sign-on bonus
 };
 
 export type AgencyCarrier = {

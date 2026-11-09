@@ -111,15 +111,15 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
       },
       tooltip: (s) => {
         const p = pay[s];
-        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No ${carrier.label} fleet hires here</div>`;
+        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No ${carrier.label} account hires here</div>`;
         return (
           `<div style="font-weight:700;margin-bottom:2px">${s}</div>` +
           `<div>${payRange(p)}</div>` +
-          `<div style="color:#9aa0ad">${p.fleets.length} fleet${p.fleets.length === 1 ? "" : "s"}: ${p.fleets
+          `<div style="color:#9aa0ad">${p.fleets.length} account${p.fleets.length === 1 ? "" : "s"}: ${p.fleets
             .slice(0, 4)
             .map((f) => f.name)
             .join(", ")}${p.fleets.length > 4 ? "…" : ""}</div>` +
-          `<div style="margin-top:3px;color:#7ab8f5">Click for the fleets below the map</div>`
+          `<div style="margin-top:3px;color:#7ab8f5">Click for the accounts below the map</div>`
         );
       },
       onClick: (s) => setSelected(pay[s] ? s : null),
@@ -127,6 +127,7 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
   }, [pay, selected, carrier, maxPay, topLow]);
 
   const sel = selected ? pay[selected] : null;
+  const openings = fleets.reduce((n, f) => n + (f.openings ?? 0), 0);
 
   return (
     <div className="flex flex-col gap-3">
@@ -134,15 +135,20 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
         <div className="segTabs">
           {["", ...carrier.cats].map((c) => (
             <button key={c || "all"} type="button" className={cat === c ? "active" : undefined} onClick={() => setCat(c)}>
-              {c || "All fleets"} <span className="opacity-60">{c ? carrier.fleets.filter((f) => f.cat === c).length : carrier.fleets.length}</span>
+              {c || "All"} <span className="opacity-60">{c ? carrier.fleets.filter((f) => f.cat === c).length : carrier.fleets.length}</span>
             </button>
           ))}
         </div>
         <div className="offerTotal">
-          <b>{fleets.length}</b> fleets · <b>{states.length}</b> states
+          <b>{fleets.length}</b> {fleets.length === 1 ? "account" : "accounts"} · <b>{states.length}</b> states
+          {openings > 0 && (
+            <>
+              {" "}· <b>{openings}</b> openings
+            </>
+          )}
           {maxPay != null && minPay != null && (
             <>
-              {" "}· est. <b>{usd(minPay)}</b> – <b>{usd(maxPay)}</b>/wk
+              {" "}· pay <b>{usd(minPay)}</b> – <b>{usd(maxPay)}</b>/wk
             </>
           )}
         </div>
@@ -166,7 +172,7 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
           <ChoroplethMap paint={paint} />
         </div>
         <div className="flex items-center justify-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-          <span>Number = highest estimated weekly pay (or per mile, for team fleets)</span>
+          <span>Number = highest weekly pay in the state (per mile where no weekly pay is given)</span>
           <span className="flex items-center gap-1.5">
             lower
             <span
@@ -183,7 +189,7 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
 
       <div className="wizCard min-w-0 !min-h-0">
         {!sel || !selected ? (
-          <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-4 text-center">Click a state on the map to see its {carrier.label} fleets here.</div>
+          <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-4 text-center">Click a state on the map to see its {carrier.label} accounts here.</div>
         ) : (
           <>
             <div className="flex items-baseline justify-between gap-2 mb-3">
@@ -191,7 +197,7 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
                 {selected} <span className="text-[13px] font-semibold text-[var(--cpm-text-dim)]">· {payRange(sel)}</span>
               </div>
               <div className="text-[12px] text-[var(--cpm-text-faint)]">
-                {sel.fleets.length} fleet{sel.fleets.length === 1 ? "" : "s"}
+                {sel.fleets.length} account{sel.fleets.length === 1 ? "" : "s"}
               </div>
             </div>
             <div className="grid gap-3 lg:grid-cols-2 items-start">
@@ -216,6 +222,23 @@ function FleetCard({ f, state }: { f: Fleet; state: string }) {
       <div className="text-[13px] font-semibold" style={{ color: f.payText.startsWith("Pay not") ? "#ff9a9d" : "var(--cpm-green)" }}>
         {f.payText}
       </div>
+      {(f.openings != null || f.bonus) && (
+        <div className="text-[12.5px] text-[var(--cpm-text)]">
+          {f.openings != null && (
+            <>
+              <span className="text-[var(--cpm-text-faint)]">Openings: </span>
+              <b>{f.openings}</b>
+            </>
+          )}
+          {f.openings != null && f.bonus && " · "}
+          {f.bonus && (
+            <>
+              <span className="text-[var(--cpm-text-faint)]">Sign-on: </span>
+              {f.bonus}
+            </>
+          )}
+        </div>
+      )}
       <div className="text-[12.5px] text-[var(--cpm-text)]">
         <span className="text-[var(--cpm-text-faint)]">Home time: </span>
         {f.hometime}

@@ -309,7 +309,7 @@ function Progress({
             : step.late
               ? `${step.late} ${step.late === 1 ? "day" : "days"} late · was due ${formatDay(step.due)}`
               : `Day ${step.day} of ${step.days} · due ${formatDay(step.due)}`}
-          <span className="text-[var(--cpm-text-faint)]"> · checklist {programProgress(t, view === "qc" ? "qc" : "training").pct}%</span>
+          <span className="text-[var(--cpm-text-faint)]"> · lessons {programProgress(t).done}/{programProgress(t).total}</span>
         </div>
       </div>
     );

@@ -6,7 +6,8 @@ import { Check, Trash2, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
-import { QC_GOOD_CALLS, QUIZ_PASS, TRAINING_PROGRAM, doneIds, goodCalls, programProgress } from "@/lib/training-program";
+import { ACADEMY_URL, QC_GOOD_CALLS, goodCalls, programProgress } from "@/lib/training-program";
+import { AcademyList } from "./AcademyList";
 import { NEW_RECRUITER_COLOR, type Trainee, formatDay, stepStatus, todayISO } from "@/lib/trainees";
 
 const STAGE: Record<Trainee["stage"], { label: string; color: string }> = {
@@ -49,9 +50,9 @@ const stepText = (t: Trainee, today: string) => {
   return `Day ${s.day} of ${s.days} · due ${formatDay(s.due)}`;
 };
 
-// The manager's side of training: pick a new recruiter, tick off what they've
-// done, record their quiz and the calls you listened to in QC, then move them on.
-export function TraineeManager({ onRunQuiz }: { onRunQuiz: (name: string) => void }) {
+// The manager's side of training: pick a new recruiter, tick off the Academy
+// lessons they've finished, log the calls you listened to in QC, then move them on.
+export function TraineeManager() {
   const { trainees, updateTrainee, approveTrainee } = useCarrierMap();
   const today = todayISO();
   const [selected, setSelected] = useLocalStorageState<string>("cpm_trainingSelected", "");
@@ -111,7 +112,9 @@ export function TraineeManager({ onRunQuiz }: { onRunQuiz: (name: string) => voi
                       <div className="flex-1">
                         <Bar pct={p.pct} color="var(--cpm-green)" />
                       </div>
-                      <span className="text-[10.5px] tabular-nums text-[var(--cpm-text-faint)]">{p.pct}%</span>
+                      <span className="text-[10.5px] tabular-nums text-[var(--cpm-text-faint)]">
+                        {p.done}/{p.total}
+                      </span>
                     </div>
                   </button>
                 </li>
@@ -141,7 +144,6 @@ export function TraineeManager({ onRunQuiz }: { onRunQuiz: (name: string) => voi
             const problem = approveTrainee(current[0]);
             if (problem) alert(problem);
           }}
-          onRunQuiz={() => onRunQuiz(current[0])}
         />
       ) : (
         <div className={`${card} px-4 py-8 text-center text-[12.5px] text-[var(--cpm-text-faint)]`}>Pick someone on the left.</div>
@@ -156,21 +158,17 @@ function TraineeFile({
   today,
   update,
   approve,
-  onRunQuiz,
 }: {
   name: string;
   t: Trainee;
   today: string;
   update: (patch: Partial<Trainee>) => void;
   approve: () => void;
-  onRunQuiz: () => void;
 }) {
-  const done = doneIds(t);
-  const trainingP = programProgress(t, "training");
-  const qcP = programProgress(t, "qc");
+  const done = new Set(t.checklist ?? []);
+  const p = programProgress(t);
   const good = goodCalls(t);
   const s = stepStatus(t, today);
-  const [score, setScore] = useState("");
   const [callDate, setCallDate] = useState(today);
   const [callGood, setCallGood] = useState(true);
   const [callNote, setCallNote] = useState("");
@@ -179,12 +177,6 @@ function TraineeFile({
     const list = t.checklist ?? [];
     update({ checklist: list.includes(id) ? list.filter((x) => x !== id) : [...list, id] });
   };
-  const saveScore = () => {
-    const n = Math.round(Number(score));
-    if (!score.trim() || Number.isNaN(n) || n < 0 || n > 100) return;
-    update({ quizScore: Math.max(n, t.quizScore ?? 0) });
-    setScore("");
-  };
   const addCall = () => {
     update({ calls: [...(t.calls ?? []), { date: callDate || today, good: callGood, note: callNote.trim() || undefined }] });
     setCallNote("");
@@ -192,13 +184,13 @@ function TraineeFile({
   };
 
   const startQc = () => {
-    const left = trainingP.total - trainingP.done;
-    if (left && !confirm(`${name} still has ${left} training ${left === 1 ? "item" : "items"} not ticked. Start quality control anyway?`)) return;
+    const left = p.total - p.done;
+    if (left && !confirm(`${name} still has ${left} Academy ${left === 1 ? "lesson" : "lessons"} not ticked. Start quality control anyway?`)) return;
     update({ stage: "qc", qcStart: today });
   };
   const doApprove = () => {
     const missing = [
-      qcP.done < qcP.total && `${qcP.total - qcP.done} QC ${qcP.total - qcP.done === 1 ? "item" : "items"} not ticked`,
+      p.done < p.total && `${p.total - p.done} Academy ${p.total - p.done === 1 ? "lesson" : "lessons"} not ticked`,
       good < QC_GOOD_CALLS && `only ${good} of ${QC_GOOD_CALLS} good calls logged`,
     ].filter(Boolean);
     if (missing.length && !confirm(`${name}: ${missing.join(", ")}. Approve anyway?`)) return;
@@ -249,93 +241,30 @@ function TraineeFile({
         </div>
       </div>
 
-      <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-        <Mini label="Training items" value={`${trainingP.done}/${trainingP.total}`} pct={trainingP.pct} color="#f59e0b" />
-        <Mini label="QC items" value={`${qcP.done}/${qcP.total}`} pct={qcP.pct} color="#a855f7" />
-        <Mini
-          label="Quiz"
-          value={t.quizScore != null ? `${t.quizScore}%` : "Not taken"}
-          pct={t.quizScore ?? 0}
-          color={(t.quizScore ?? 0) >= QUIZ_PASS ? "var(--cpm-green)" : "#e5484d"}
-        />
+      <div className="grid gap-3 grid-cols-3">
+        <Mini label="Academy lessons" value={`${p.done}/${p.total}`} pct={p.pct} color="#f59e0b" />
+        <Mini label="Sections done" value={`${p.sections}/${p.sectionTotal}`} pct={(p.sections / p.sectionTotal) * 100} color="#a855f7" />
         <Mini label="Good QC calls" value={`${good}/${QC_GOOD_CALLS}`} pct={Math.min(100, (good / QC_GOOD_CALLS) * 100)} color="var(--cpm-green)" />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        {TRAINING_PROGRAM.map((sec) => {
-          const n = sec.items.filter((i) => done.has(i.id)).length;
-          const later = sec.stage === "qc" && t.stage === "training";
-          return (
-            <section key={sec.title} className={`${card} ${later ? "opacity-60" : ""}`}>
-              <h3 className="flex items-center text-[13.5px] font-bold text-[var(--cpm-text)] px-4 py-2.5 border-b border-[var(--cpm-border)]">
-                {sec.title}
-                <span className={`ml-auto text-[11.5px] font-semibold ${n === sec.items.length ? "text-[var(--cpm-green)]" : "text-[var(--cpm-text-faint)]"}`}>
-                  {n === sec.items.length ? "Done ✓" : later ? "After training" : `${n}/${sec.items.length}`}
-                </span>
-              </h3>
-              <ul className="px-2 py-2">
-                {sec.items.map((item) => {
-                  const checked = done.has(item.id);
-                  const auto = item.id === "d3-quiz";
-                  return (
-                    <li key={item.id}>
-                      <label className={`flex gap-2.5 px-2 py-1.5 rounded-md ${auto ? "cursor-default" : "cursor-pointer hover:bg-[var(--cpm-panel-alt)]"}`}>
-                        <input type="checkbox" checked={checked} disabled={auto} onChange={() => toggle(item.id)} className="mt-0.5 accent-[var(--cpm-green)]" />
-                        <span className="text-[12.5px]">
-                          <span className={checked ? "text-[var(--cpm-text-faint)] line-through" : "text-[var(--cpm-text)]"}>{item.text}</span>
-                          {item.hint && <span className="block text-[11.5px] text-[var(--cpm-text-faint)]">{item.hint}</span>}
-                        </span>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
-        })}
+      <div className="flex items-center gap-2">
+        <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Academy lessons</h3>
+        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Tick each lesson {name.split(" ")[0]} has finished.</span>
+        <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="ml-auto text-[11.5px] text-[var(--cpm-accent)] hover:underline">
+          Open the Academy in Notion
+        </a>
       </div>
+      <AcademyList done={done} onToggle={toggle} />
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <section className={`${card} px-4 py-3`}>
-          <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Quiz</h3>
-          <p className="text-[12px] text-[var(--cpm-text-faint)] mb-2.5">
-            Pass mark {QUIZ_PASS}%. {t.quizScore != null ? `Best so far: ${t.quizScore}%.` : "No score yet."}
-          </p>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button type="button" className={btnMain} onClick={onRunQuiz}>
-              Run the quiz with {name.split(" ")[0]}
-            </button>
-            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">or enter a score</span>
-            <input
-              className={`${input} w-[70px]`}
-              inputMode="numeric"
-              placeholder="%"
-              value={score}
-              onChange={(e) => setScore(e.target.value.replace(/[^\d]/g, ""))}
-              onKeyDown={(e) => e.key === "Enter" && saveScore()}
-              aria-label="Quiz score"
-            />
-            <button type="button" className={btnGhost} onClick={saveScore}>
-              Save
-            </button>
-            {t.quizScore != null && (
-              <button type="button" className={btnGhost} onClick={() => confirm("Clear the quiz score?") && update({ quizScore: undefined })}>
-                Clear
-              </button>
-            )}
-          </div>
-        </section>
-
-        <section className={`${card} px-4 py-3`}>
-          <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>
-          <textarea
-            value={t.note ?? ""}
-            onChange={(e) => update({ note: e.target.value || undefined })}
-            placeholder="Strengths, things to work on, anything to remember…"
-            className="w-full min-h-[74px] px-2.5 py-2 rounded-lg border border-[var(--cpm-border-strong)] bg-[var(--cpm-panel-alt)] text-[12.5px] text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)] resize-y"
-          />
-        </section>
-      </div>
+      <section className={`${card} px-4 py-3`}>
+        <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>
+        <textarea
+          value={t.note ?? ""}
+          onChange={(e) => update({ note: e.target.value || undefined })}
+          placeholder="Strengths, things to work on, anything to remember…"
+          className="w-full min-h-[64px] px-2.5 py-2 rounded-lg border border-[var(--cpm-border-strong)] bg-[var(--cpm-panel-alt)] text-[12.5px] text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)] resize-y"
+        />
+      </section>
 
       <section className={card}>
         <div className="flex items-center px-4 py-2.5 border-b border-[var(--cpm-border)]">

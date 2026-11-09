@@ -16,8 +16,7 @@ export interface Trainee {
   droppedAt?: string;
   note?: string;
   // Filled in by the manager on the Training page.
-  checklist?: string[]; // ids of TRAINING_PROGRAM items done
-  quizScore?: number; // best quiz %, out of 100
+  checklist?: string[]; // ids of Academy lessons done
   calls?: QcCall[]; // calls listened to during quality control
 }
 

@@ -27,10 +27,11 @@ export function statePay(state: string, cat?: string, only?: CarrierId): Carrier
         p.weekMin = lo(p.weekMin, a.payLow);
         p.weekMax = hi(p.weekMax, a.payHigh ?? a.payLow);
       }
-      const cpm = /\$(\d*\.\d+) CPM/.exec(a.payText)?.[1];
+      // "$0.55 CPM" or a range, "$0.67–$0.71 CPM"
+      const cpm = /\$(\d*\.\d+)(?:\s*[–-]\s*\$(\d*\.\d+))? CPM/.exec(a.payText);
       if (cpm) {
-        p.cpmMin = lo(p.cpmMin, Number(cpm));
-        p.cpmMax = hi(p.cpmMax, Number(cpm));
+        p.cpmMin = lo(p.cpmMin, Number(cpm[1]));
+        p.cpmMax = hi(p.cpmMax, Number(cpm[2] ?? cpm[1]));
       }
       if (carrier === "usx" && a.cat === "OTR Solo Company") {
         const region = USX_STATE_REGION[state];

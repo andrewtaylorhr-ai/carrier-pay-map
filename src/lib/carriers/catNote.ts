@@ -1,6 +1,7 @@
 // Ported verbatim from renderCatNote() in the original HTML — these caveat
 // banners must not be dropped or reworded (domicile/account-radius warnings
 // carriers explicitly asked recruiters to read before quoting a driver).
+import { BARR_NUNN_NOTE } from "./barr-nunn";
 import type { CarrierId } from "./types";
 
 export function getCatNote(carrierId: CarrierId, cat: string): string | null {
@@ -25,5 +26,6 @@ export function getCatNote(carrierId: CarrierId, cat: string): string | null {
   if (carrierId === "cre") {
     return 'CR England data is account/radius-based (e.g. "within 50 miles of X, City, ST") — only the literal state named in the source is tagged, not neighboring states the radius may bleed into. Tabs group the 56 currently-open accounts by home-time cadence. About a third of accounts have no confirmed avg/top10 pay figure ("pay not confirmed" — usually per-load or CPM-only pay) — click a state and open an account for details before quoting a driver. Source workbook had many duplicate/legacy account sheets; figures shown reflect the sheet judged most current for each account (alt figures noted where found).';
   }
+  if (carrierId === "barr") return BARR_NUNN_NOTE;
   return null;
 }

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, Plus, Trash2, Truck, X } from "lucide-react";
-import { AGENCY_CARRIERS } from "@/lib/agency-carriers";
+import { Plus, Trash2, X } from "lucide-react";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { AGENCIES_KEY, AGENCY_STATUS, ALL_CARRIER_IDS, COUNTRIES, type Agency, type AgencyStatus, carrierLook, newAgency } from "@/lib/agencies";
-import { AgencyCarrierView } from "./AgencyCarrierView";
+import { AgencyCarrierMap } from "./AgencyCarrierMap";
 
 const card = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]";
 const input =
@@ -27,30 +26,8 @@ function CarrierDot({ id }: { id: string }) {
   return <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: carrierLook(id).color }} />;
 }
 
-// Tabs: the agencies themselves, then one per agency-only carrier (its fleets,
-// hiring states and pay, which aren't on the pay map).
-export function AgenciesApp() {
-  const [tab, setTab] = useLocalStorageState<string>("cpm_agenciesTab", "agencies");
-  const carrier = AGENCY_CARRIERS.find((c) => c.id === tab);
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="segTabs self-start">
-        <button type="button" className={!carrier ? "active" : undefined} onClick={() => setTab("agencies")}>
-          <Building2 size={14} /> Agencies
-        </button>
-        {AGENCY_CARRIERS.map((c) => (
-          <button key={c.id} type="button" className={carrier?.id === c.id ? "active" : undefined} onClick={() => setTab(c.id)}>
-            <Truck size={14} /> {c.label}
-          </button>
-        ))}
-      </div>
-      {carrier ? <AgencyCarrierView carrier={carrier} /> : <AgencyList />}
-    </div>
-  );
-}
-
 // Outside recruiting agencies: who they are and which carriers they recruit for.
-function AgencyList() {
+export function AgenciesApp() {
   const [agencies, setAgencies] = useLocalStorageState<Agency[]>(AGENCIES_KEY, []);
   const [selected, setSelected] = useLocalStorageState<string>("cpm_agencySelected", "");
   const [name, setName] = useState("");
@@ -173,6 +150,8 @@ function AgencyList() {
           </div>
         )}
       </div>
+
+      <AgencyCarrierMap agencies={agencies} />
     </div>
   );
 }

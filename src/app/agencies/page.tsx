@@ -5,7 +5,7 @@ export default function AgenciesPage() {
     <main className="w-full px-6 py-6 min-w-0">
       <h1 className="text-xl font-semibold mb-1">Agencies</h1>
       <p className="text-[13px] text-[var(--cpm-text-dim)] mb-4">
-        Outside recruiting agencies that find drivers for us, next to our Uzbek and Philippines teams. Add each agency and pick the carriers they recruit for. Carriers only the agencies work (like Barr-Nunn) have their own tab with fleets, hiring states and pay.
+        Outside recruiting agencies that find drivers for us, next to our Uzbek and Philippines teams. Add each agency and pick the carriers they recruit for. The map below shows the carriers only the agencies work (like Barr-Nunn): pay by state, click a state for its fleets.
       </p>
       <AgenciesApp />
     </main>

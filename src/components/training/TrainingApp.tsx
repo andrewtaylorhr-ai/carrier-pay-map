@@ -1,11 +1,13 @@
 "use client";
 
-import { ClipboardCheck, GraduationCap, Users } from "lucide-react";
+import { ClipboardCheck, FileDown, GraduationCap, KeyRound, Users } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { downloadAnswerKeyDoc, downloadTestDoc } from "@/lib/academy-test-docs";
 import { ACADEMY_URL, REQUIRED_LESSONS } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
 import { AcademyTest } from "./AcademyTest";
+import { PaperGrader } from "./PaperGrader";
 import { TraineeManager } from "./TraineeManager";
 
 const TABS = [
@@ -26,6 +28,8 @@ export function TrainingApp() {
   const active = TABS.some((t) => t.id === tab) ? tab : "trainees";
   const takers = Object.keys(trainees).filter((n) => trainees[n].stage === "training" || trainees[n].stage === "qc" || n === taker);
   const testFor = trainees[taker] ? taker : "";
+  const [mode, setMode] = useLocalStorageState<"online" | "paper">("cpm_testMode", "online");
+  const saveScore = (pct: number) => testFor && updateTrainee(testFor, { testScore: Math.max(pct, trainees[testFor].testScore ?? 0) });
 
   return (
     <div className="flex flex-col gap-4">
@@ -57,10 +61,27 @@ export function TrainingApp() {
       )}
       {active === "test" && (
         <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[12.5px] text-[var(--cpm-text-dim)]">Word files:</span>
+            <button type="button" className="ghostBtn" onClick={downloadTestDoc}>
+              <FileDown size={14} /> Download test (for recruiters)
+            </button>
+            <button type="button" className="ghostBtn" onClick={downloadAnswerKeyDoc}>
+              <KeyRound size={14} /> Download answer key (for you)
+            </button>
+          </div>
+          <div className="segTabs self-start">
+            <button type="button" className={mode === "online" ? "active" : undefined} onClick={() => setMode("online")}>
+              Take it here
+            </button>
+            <button type="button" className={mode === "paper" ? "active" : undefined} onClick={() => setMode("paper")}>
+              Grade a paper test
+            </button>
+          </div>
           <label className="flex items-center gap-2 text-[12.5px] text-[var(--cpm-text-dim)]">
-            Who is taking the test?
+            {mode === "paper" ? "Whose test is it?" : "Who is taking the test?"}
             <select className={select} value={testFor} onChange={(e) => setTaker(e.target.value)}>
-              <option value="">Nobody (practice)</option>
+              <option value="">{mode === "paper" ? "Pick a trainee" : "Nobody (practice)"}</option>
               {takers.map((n) => (
                 <option key={n} value={n}>
                   {n}
@@ -68,12 +89,11 @@ export function TrainingApp() {
               ))}
             </select>
           </label>
-          <AcademyTest
-            key={testFor}
-            taker={testFor || undefined}
-            best={testFor ? (trainees[testFor].testScore ?? null) : null}
-            onFinish={(pct) => testFor && updateTrainee(testFor, { testScore: Math.max(pct, trainees[testFor].testScore ?? 0) })}
-          />
+          {mode === "paper" ? (
+            <PaperGrader key={testFor} taker={testFor || undefined} onSave={saveScore} />
+          ) : (
+            <AcademyTest key={testFor} taker={testFor || undefined} best={testFor ? (trainees[testFor].testScore ?? null) : null} onFinish={saveScore} />
+          )}
         </div>
       )}
     </div>

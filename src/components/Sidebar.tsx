@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, FileBarChart, GraduationCap, LayoutDashboard, Map, Route, Send, Truck, UserCheck } from "lucide-react";
+import { useState } from "react";
+import { ClipboardList, FileBarChart, GraduationCap, GripVertical, LayoutDashboard, Map, Route, Send, Truck, UserCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 import { ReportsMonthNav } from "@/components/reports/ReportsMonthNav";
 
@@ -30,6 +32,28 @@ export function Sidebar() {
   const onDashboard = pathname?.startsWith("/overview") ?? false;
   const onReports = pathname?.startsWith("/reports") ?? false;
 
+  // Menu order is drag-and-drop, saved per browser. Pages added later that
+  // aren't in the saved order go at the end.
+  const [order, setOrder] = useLocalStorageState<string[]>("cpm_navOrder", []);
+  const [dragging, setDragging] = useState<string | null>(null);
+  const [dropAt, setDropAt] = useState<number | null>(null);
+  const items = [
+    ...order.map((l) => NAV_ITEMS.find((n) => n.label === l)).filter((n): n is NavItem => !!n),
+    ...NAV_ITEMS.filter((n) => !order.includes(n.label)),
+  ];
+  const customOrder = items.some((n, i) => n.label !== NAV_ITEMS[i].label);
+  const endDrag = () => {
+    setDragging(null);
+    setDropAt(null);
+  };
+  const moveItem = (label: string, to: number) => {
+    const labels = items.map((n) => n.label);
+    const from = labels.indexOf(label);
+    labels.splice(from, 1);
+    labels.splice(from < to ? to - 1 : to, 0, label);
+    setOrder(labels);
+  };
+
   return (
     <aside className="w-[280px] shrink-0 sticky top-0 h-screen border-r border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] flex flex-col overflow-hidden">
       <div className="flex items-center gap-2 px-4 h-16 border-b border-[var(--cpm-border)] shrink-0">
@@ -46,9 +70,35 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex flex-col gap-0.5 px-2.5 py-3 shrink-0">
-        {NAV_ITEMS.map((item) => {
+      <nav className="flex flex-col gap-0.5 px-2.5 py-3 shrink-0" onDragOver={(e) => dragging && e.preventDefault()}>
+        {items.map((item, i) => {
           const Icon = item.icon;
+          const dropLine =
+            dragging && dropAt != null && dragging !== item.label && (dropAt === i || (dropAt === i + 1 && i === items.length - 1))
+              ? dropAt === i
+                ? "shadow-[inset_0_2px_0_var(--cpm-accent)]"
+                : "shadow-[inset_0_-2px_0_var(--cpm-accent)]"
+              : "";
+          const dragProps = {
+            draggable: true,
+            onDragStart: (e: React.DragEvent) => {
+              e.dataTransfer.effectAllowed = "move";
+              e.dataTransfer.setData("text/plain", item.label);
+              setDragging(item.label);
+            },
+            onDragOver: (e: React.DragEvent) => {
+              if (!dragging) return;
+              e.preventDefault();
+              const r = e.currentTarget.getBoundingClientRect();
+              setDropAt(e.clientY < r.top + r.height / 2 ? i : i + 1);
+            },
+            onDrop: (e: React.DragEvent) => {
+              e.preventDefault();
+              if (dragging && dropAt != null) moveItem(dragging, dropAt);
+              endDrag();
+            },
+            onDragEnd: endDrag,
+          };
           if (item.disabled) {
             return (
               <span
@@ -66,17 +116,31 @@ export function Sidebar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`flex items-center gap-2.5 px-3 h-9 rounded-lg text-[13px] font-semibold transition-colors ${
+              {...dragProps}
+              title="Drag to move"
+              className={`group flex items-center gap-2.5 px-3 h-9 rounded-lg text-[13px] font-semibold transition-colors ${dropLine} ${
+                dragging === item.label ? "opacity-40" : ""
+              } ${
                 active
                   ? "bg-[var(--cpm-accent)] text-[#241800]"
                   : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)] hover:bg-[var(--cpm-panel)]"
               }`}
             >
               <Icon size={16} strokeWidth={2.25} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              <GripVertical size={14} className="opacity-0 group-hover:opacity-60 cursor-grab shrink-0" />
             </Link>
           );
         })}
+        {customOrder && (
+          <button
+            type="button"
+            onClick={() => setOrder([])}
+            className="self-start mt-1 px-3 text-[11px] text-[var(--cpm-text-faint)] hover:text-[var(--cpm-text)] hover:underline"
+          >
+            Reset menu order
+          </button>
+        )}
       </nav>
 
       {/* Recruiters management, merged directly into the sidebar strip

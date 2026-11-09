@@ -6,8 +6,8 @@ import { Check, Trash2, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
-import { ACADEMY_URL, QC_GOOD_CALLS, goodCalls, programProgress } from "@/lib/training-program";
-import { AcademyList } from "./AcademyList";
+import { ACADEMY_URL, DAILY_CHECKS, QC_GOOD_CALLS, behindCount, goodCalls, planDayOf, programProgress } from "@/lib/training-program";
+import { DayPlan } from "./DayPlan";
 import { NEW_RECRUITER_COLOR, type Trainee, formatDay, stepStatus, todayISO } from "@/lib/trainees";
 
 const STAGE: Record<Trainee["stage"], { label: string; color: string }> = {
@@ -169,6 +169,9 @@ function TraineeFile({
   const p = programProgress(t);
   const good = goodCalls(t);
   const s = stepStatus(t, today);
+  const day = planDayOf(t, s?.day ?? null, !!s?.notStarted);
+  const behind = t.stage === "training" ? behindCount(t, day) : 0;
+  const checks = DAILY_CHECKS.filter((id) => done.has(id)).length;
   const [callDate, setCallDate] = useState(today);
   const [callGood, setCallGood] = useState(true);
   const [callNote, setCallNote] = useState("");
@@ -185,7 +188,11 @@ function TraineeFile({
 
   const startQc = () => {
     const left = p.total - p.done;
-    if (left && !confirm(`${name} still has ${left} Academy ${left === 1 ? "lesson" : "lessons"} not ticked. Start quality control anyway?`)) return;
+    const missing = [
+      left && `${left} Academy ${left === 1 ? "lesson" : "lessons"} not ticked`,
+      !done.has("check-ready") && `the "Ready for calls" check isn't ticked`,
+    ].filter(Boolean);
+    if (missing.length && !confirm(`${name}: ${missing.join(", ")}. Start quality control anyway?`)) return;
     update({ stage: "qc", qcStart: today });
   };
   const doApprove = () => {
@@ -243,18 +250,23 @@ function TraineeFile({
 
       <div className="grid gap-3 grid-cols-3">
         <Mini label="Academy lessons" value={`${p.done}/${p.total}`} pct={p.pct} color="#f59e0b" />
-        <Mini label="Sections done" value={`${p.sections}/${p.sectionTotal}`} pct={(p.sections / p.sectionTotal) * 100} color="#a855f7" />
+        <Mini label="Daily checks" value={`${checks}/${DAILY_CHECKS.length}`} pct={(checks / DAILY_CHECKS.length) * 100} color="#a855f7" />
         <Mini label="Good QC calls" value={`${good}/${QC_GOOD_CALLS}`} pct={Math.min(100, (good / QC_GOOD_CALLS) * 100)} color="var(--cpm-green)" />
       </div>
 
+      {behind > 0 && (
+        <div className="rounded-lg border border-[#e5484d] bg-[var(--cpm-red-soft)] px-3 py-2 text-[12.5px] text-[#ff9a9d]">
+          Day {day}: {behind} {behind === 1 ? "item" : "items"} from earlier days not done yet.
+        </div>
+      )}
       <div className="flex items-center gap-2">
-        <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Academy lessons</h3>
-        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Tick each lesson {name.split(" ")[0]} has finished.</span>
+        <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">3-day plan</h3>
+        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Tick each lesson and task {name.split(" ")[0]} finishes, then do the end-of-day check.</span>
         <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="ml-auto text-[11.5px] text-[var(--cpm-accent)] hover:underline">
           Open the Academy in Notion
         </a>
       </div>
-      <AcademyList done={done} onToggle={toggle} />
+      <DayPlan done={done} onToggle={toggle} today={day} />
 
       <section className={`${card} px-4 py-3`}>
         <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>

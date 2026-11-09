@@ -159,3 +159,81 @@ export function programProgress(t: Trainee) {
 }
 
 export const goodCalls = (t: Trainee) => (t.calls ?? []).filter((c) => c.good).length;
+
+// ---- 3-day plan: every required lesson is placed on one day, plus practice
+// tasks and an end-of-day check you do with the trainee. Day 3 ends with the
+// "ready for calls" check, after which they start quality control.
+
+export type PlanItem = { id: string; title: string; lesson?: boolean };
+export type PlanPart = { label: string; items: PlanItem[] };
+export type PlanDay = { day: number; title: string; parts: PlanPart[]; check: PlanItem };
+
+const lessonById = new Map(ACADEMY.flatMap((s) => s.lessons).map((l) => [l.id, l]));
+const sectionItems = (title: string, skip: string[] = []): PlanItem[] =>
+  (ACADEMY.find((s) => s.title === title)?.lessons ?? []).filter((l) => !skip.includes(l.id)).map((l) => ({ ...l, lesson: true }));
+const lessonItem = (id: string): PlanItem => ({ ...lessonById.get(id)!, lesson: true });
+const task = (id: string, title: string): PlanItem => ({ id, title });
+
+const GLOSSARY = "03cbe53c5c8b828690ff810f52f154a9";
+
+export const THREE_DAY_PLAN: PlanDay[] = [
+  {
+    day: 1,
+    title: "Understand the business and the driver",
+    parts: [
+      {
+        label: "Morning · Who we are and the right mindset",
+        items: [...sectionItems("Introduction"), ...sectionItems("1) Moral Preparation"), ...sectionItems("2) General Fundamentals")],
+      },
+      {
+        label: "Afternoon · The driver's world",
+        items: [lessonItem(GLOSSARY), ...sectionItems("5) Fundamentals of Safety of Trucking Industry"), ...sectionItems("10) Documents", [GLOSSARY])],
+      },
+    ],
+    check: task("check-d1", "End-of-day check: explains our recruitment process, Clearinghouse and SAP, and W2 vs 1099 in their own words"),
+  },
+  {
+    day: 2,
+    title: "Know what we offer and who qualifies",
+    parts: [
+      { label: "Morning · Carriers and offers", items: sectionItems("3) Carrier and Offers") },
+      { label: "Afternoon · Pre-qualifying and presenting the job", items: [...sectionItems("6) Pre-qualification"), ...sectionItems("8) Job Offer")] },
+    ],
+    check: task("check-d2", "End-of-day check: given a sample driver, picks the right carrier, says if they qualify and why, and pitches the offer"),
+  },
+  {
+    day: 3,
+    title: "Make the call",
+    parts: [
+      { label: "Morning · Calls and applications", items: [...sectionItems("7) Interview and HR Skills"), ...sectionItems("9) Application")] },
+      { label: "Midday · Leads and follow-up", items: [...sectionItems("4) Job Posting and Working with Leads"), ...sectionItems("11) Follow up! Follow up! Follow up!")] },
+      {
+        label: "Afternoon · Practice",
+        items: [
+          task("task-live-calls", "Listened to live calls from an experienced recruiter (about 1 hour, with notes)"),
+          task("task-roleplay-easy", "Role-play 1: an easy driver who qualifies, using the Call Script"),
+          task("task-roleplay-dq", "Role-play 2: a driver who doesn't qualify"),
+          task("task-roleplay-objections", "Role-play 3: a driver with objections"),
+        ],
+      },
+    ],
+    check: task("check-ready", "Ready for calls: passed the role-plays, can start quality control"),
+  },
+];
+
+export const dayItems = (d: PlanDay) => [...d.parts.flatMap((p) => p.items), d.check];
+export const DAILY_CHECKS = THREE_DAY_PLAN.map((d) => d.check.id);
+
+// Which plan day the trainee is on today: 1–3 during training (3 if late),
+// past the plan (4) once they're in QC or beyond, 0 before they start.
+export function planDayOf(t: Trainee, trainingDay: number | null, notStarted: boolean) {
+  if (t.stage !== "training") return t.stage === "dropped" ? 0 : 4;
+  if (notStarted) return 0;
+  return Math.min(Math.max(trainingDay ?? 1, 1), 3);
+}
+
+// Items from days before `day` that still aren't ticked.
+export function behindCount(t: Trainee, day: number) {
+  const done = new Set(t.checklist ?? []);
+  return THREE_DAY_PLAN.filter((d) => d.day < day).flatMap(dayItems).filter((i) => !done.has(i.id)).length;
+}

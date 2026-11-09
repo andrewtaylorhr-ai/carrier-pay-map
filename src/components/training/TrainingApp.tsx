@@ -4,6 +4,7 @@ import { GraduationCap, Users } from "lucide-react";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { ACADEMY_URL, REQUIRED_LESSONS } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
+import { DayPlan } from "./DayPlan";
 import { TraineeManager } from "./TraineeManager";
 
 const TABS = [
@@ -16,6 +17,7 @@ type TabId = (typeof TABS)[number]["id"];
 export function TrainingApp() {
   const [tab, setTab] = useLocalStorageState<TabId>("cpm_trainingTab", "trainees");
   const active = TABS.some((t) => t.id === tab) ? tab : "trainees";
+  const [view, setView] = useLocalStorageState<"days" | "sections">("cpm_academyView", "days");
 
   return (
     <div className="flex flex-col gap-4">
@@ -30,12 +32,20 @@ export function TrainingApp() {
       {active === "academy" && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 flex-wrap text-[12.5px] text-[var(--cpm-text-dim)]">
+            <div className="segTabs">
+              <button type="button" className={view === "days" ? "active" : undefined} onClick={() => setView("days")}>
+                3-day plan
+              </button>
+              <button type="button" className={view === "sections" ? "active" : undefined} onClick={() => setView("sections")}>
+                By section
+              </button>
+            </div>
             Class A Recruiting Academy · {REQUIRED_LESSONS} lessons. Each one opens in Notion.
             <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="text-[var(--cpm-accent)] font-semibold hover:underline">
               Open the full Academy
             </a>
           </div>
-          <AcademyList />
+          {view === "days" ? <DayPlan /> : <AcademyList />}
         </div>
       )}
     </div>

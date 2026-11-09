@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { QUIZ_PASS } from "@/lib/training-program";
 
 type Q = { q: string; options: string[]; answer: number; why: string };
 
@@ -95,12 +95,13 @@ const QUESTIONS: Q[] = [
   },
 ];
 
-const PASS = 0.8;
+const PASS = QUIZ_PASS / 100;
 
-export function TrainingQuiz() {
+// Run it with a trainee (sitting together or on a shared screen); their best
+// score is saved on their training file.
+export function TrainingQuiz({ taker, best, onFinish }: { taker?: string; best?: number | null; onFinish?: (pct: number) => void }) {
   const [answers, setAnswers] = useState<(number | null)[]>(() => QUESTIONS.map(() => null));
   const [submitted, setSubmitted] = useState(false);
-  const [best, setBest] = useLocalStorageState<number | null>("cpm_trainingQuizBest", null);
 
   const score = answers.filter((a, i) => a === QUESTIONS[i].answer).length;
   const pct = Math.round((score / QUESTIONS.length) * 100);
@@ -109,7 +110,7 @@ export function TrainingQuiz() {
 
   const submit = () => {
     setSubmitted(true);
-    if (best == null || pct > best) setBest(pct);
+    onFinish?.(pct);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const retry = () => {
@@ -122,10 +123,11 @@ export function TrainingQuiz() {
     <div className="max-w-[820px]">
       <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] px-4 py-3 mb-3 flex items-center gap-4 flex-wrap">
         <div>
-          <div className="text-[15px] font-bold text-[var(--cpm-text)]">Recruiter quiz</div>
+          <div className="text-[15px] font-bold text-[var(--cpm-text)]">Recruiter quiz{taker ? ` · ${taker}` : ""}</div>
           <div className="text-[12px] text-[var(--cpm-text-faint)]">
             {QUESTIONS.length} questions · pass with {PASS * 100}% or more
-            {best != null && ` · your best: ${best}%`}
+            {best != null && ` · best so far: ${best}%`}
+            {!taker && " · practice run, score not saved"}
           </div>
         </div>
         {submitted && (

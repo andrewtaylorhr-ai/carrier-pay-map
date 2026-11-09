@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { EMPTY_TRACKER, totalHires, type TrackerData } from "@/lib/tracker";
+import { programProgress } from "@/lib/training-program";
 import {
   NEW_RECRUITER_COLOR,
   QC_DAYS,
@@ -191,7 +193,19 @@ export function ControllerApp() {
                 {rows.map(({ name: n, t, view, step }) => (
                   <tr key={n} className="border-t border-[var(--cpm-border)] align-middle">
                     <td className="px-4 py-2.5">
-                      <div className="font-semibold text-[var(--cpm-text)]">{n}</div>
+                      <Link
+                        href="/training"
+                        title="Open training file"
+                        onClick={() => {
+                          try {
+                            localStorage.setItem("cpm_trainingSelected", JSON.stringify(n));
+                            localStorage.setItem("cpm_trainingTab", JSON.stringify("trainees"));
+                          } catch {}
+                        }}
+                        className="font-semibold text-[var(--cpm-text)] hover:text-[var(--cpm-accent)] hover:underline"
+                      >
+                        {n}
+                      </Link>
                       <div className="text-[11px] text-[var(--cpm-text-faint)]">{t.team ? TEAM_LABEL[t.team] : "No team"}</div>
                     </td>
                     <td className="px-3 py-2.5">
@@ -295,6 +309,7 @@ function Progress({
             : step.late
               ? `${step.late} ${step.late === 1 ? "day" : "days"} late · was due ${formatDay(step.due)}`
               : `Day ${step.day} of ${step.days} · due ${formatDay(step.due)}`}
+          <span className="text-[var(--cpm-text-faint)]"> · checklist {programProgress(t, view === "qc" ? "qc" : "training").pct}%</span>
         </div>
       </div>
     );

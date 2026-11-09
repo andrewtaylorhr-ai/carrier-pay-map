@@ -15,6 +15,16 @@ export interface Trainee {
   firstHireAt?: string; // set once they hire their first driver
   droppedAt?: string;
   note?: string;
+  // Filled in by the manager on the Training page.
+  checklist?: string[]; // ids of TRAINING_PROGRAM items done
+  quizScore?: number; // best quiz %, out of 100
+  calls?: QcCall[]; // calls listened to during quality control
+}
+
+export interface QcCall {
+  date: string;
+  good: boolean;
+  note?: string;
 }
 
 export type PersistedTrainees = Record<string, Trainee>;

@@ -44,61 +44,79 @@ const payRange = (p: StatePay) =>
     .filter(Boolean)
     .join(" · ") || "pay not listed";
 
-// Pay map for the carriers only our agencies work (Barr-Nunn…): each state
-// shows the top estimated weekly pay, click it for the fleets hiring there.
-export function AgencyCarrierMap({ agencies }: { agencies: Agency[] }) {
-  const [carrierId, setCarrierId] = useState(AGENCY_CARRIERS[0]?.id ?? "");
-  const carrier = AGENCY_CARRIERS.find((c) => c.id === carrierId) ?? AGENCY_CARRIERS[0];
-  if (!carrier) return null;
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 flex-wrap">
-        <h2 className="text-[16px] font-bold text-[var(--cpm-text)] mr-2">Agency carriers map</h2>
-        {AGENCY_CARRIERS.map((c) => {
-          const active = c.id === carrier.id;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              className={`carrierToggle${active ? " on" : ""}`}
-              style={active ? { borderColor: c.color, color: c.color, background: `${c.color}1f` } : undefined}
-              onClick={() => setCarrierId(c.id)}
-              aria-pressed={active}
-            >
-              <span className="dot" style={{ background: active ? c.color : "transparent", borderColor: c.color }} />
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
-      <CarrierMap key={carrier.id} carrier={carrier} agencies={agencies} />
-    </div>
-  );
+// One account, with the carrier it belongs to.
+type Item = Fleet & { carrier: AgencyCarrier };
+
+// Accounts grouped into Local / Regional / OTR / Jockey when several
+// carriers are shown (each carrier names its categories its own way).
+const POSITIONS = ["Local", "Regional", "OTR", "Jockey"];
+const positionOf = (i: Item) => i.carrier.position?.[i.cat] ?? i.cat;
+
+// toggle one carrier; never leaves the pick empty
+function toggleIn(cur: string[], id: string): string[] {
+  if (cur.includes(id)) return cur.length > 1 ? cur.filter((x) => x !== id) : cur;
+  return AGENCY_CARRIERS.map((c) => c.id).filter((x) => x === id || cur.includes(x));
 }
 
-function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: Agency[] }) {
+// Pay map for the carriers only our agencies work (Barr-Nunn, Day & Ross…):
+// pick one or more; each state shows the top weekly pay (colored by the
+// carrier paying it when several are picked), click it for the accounts.
+export function AgencyCarrierMap({ agencies }: { agencies: Agency[] }) {
+  const allIds = AGENCY_CARRIERS.map((c) => c.id);
+  const [ids, setIds] = useState<string[]>(allIds);
   const [cat, setCat] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
-  const fleets = useMemo(() => carrier.fleets.filter((f) => !cat || f.cat === cat), [carrier, cat]);
-  const working = agencies.filter((a) => a.status !== "stopped" && a.carriers.includes(carrier.id));
+
+  const picked = useMemo(() => AGENCY_CARRIERS.filter((c) => ids.includes(c.id)), [ids]);
+  const all = picked.length === AGENCY_CARRIERS.length;
+  const single = picked.length === 1 ? picked[0] : null;
+  const items = useMemo<Item[]>(() => picked.flatMap((c) => c.fleets.map((f) => ({ ...f, carrier: c }))), [picked]);
+  // one carrier: its own categories; several: Local / Regional / OTR / Jockey
+  const groupOf = useMemo(() => (single ? (i: Item) => i.cat : positionOf), [single]);
+  const groups = single ? single.cats : POSITIONS.filter((p) => items.some((i) => positionOf(i) === p));
+  const group = groups.includes(cat) ? cat : "";
+  const fleets = useMemo(() => items.filter((i) => !group || groupOf(i) === group), [items, group, groupOf]);
+
+  const pick = (next: string[]) => {
+    setIds(next);
+    setCat("");
+  };
 
   const pay = useMemo(() => Object.fromEntries(ALL_STATES.map((s) => [s, statePay(fleets, s)])) as Record<string, StatePay | null>, [fleets]);
+  // the carrier with the highest weekly pay in each state
+  const top = useMemo(() => {
+    const out: Record<string, AgencyCarrier | null> = {};
+    ALL_STATES.forEach((s) => {
+      const list = fleets.filter((f) => f.states.includes(s));
+      const best = list.reduce<Item | null>((b, f) => (f.payHigh != null && (b?.payHigh == null || f.payHigh > b.payHigh) ? f : b), null);
+      out[s] = (best ?? list[0])?.carrier ?? null;
+    });
+    return out;
+  }, [fleets]);
   const states = ALL_STATES.filter((s) => pay[s]);
   const weekly = states.map((s) => pay[s]!.weekMax).filter((v): v is number => v != null);
   const maxPay = weekly.length ? Math.max(...weekly) : null;
   const topLow = weekly.length ? Math.min(...weekly) : 0;
   const lowest = states.map((s) => pay[s]!.weekMin).filter((v): v is number => v != null);
   const minPay = lowest.length ? Math.min(...lowest) : null;
+  const tint = single?.color ?? "#14b8a6";
 
   const paint = useMemo<MapPaint>(() => {
-    const shade = interpolateRgb(LOW_FILL, carrier.color);
+    const shade = interpolateRgb(LOW_FILL, tint);
     const span = (maxPay ?? 0) - topLow;
     return {
       selected,
       fill: (s) => {
         const p = pay[s];
         if (!p) return NO_DATA_FILL;
+        // several carriers: color = the carrier paying the most there (dimmer
+        // when no account there lists weekly pay)
+        if (!single) {
+          const c = top[s]?.color;
+          if (!c) return NO_DATA_FILL;
+          return p.weekMax == null ? interpolateRgb(LOW_FILL, c)(0.45) : c;
+        }
         if (p.weekMax == null || !span) return shade(0.45);
         return shade(0.3 + (0.7 * (p.weekMax - topLow)) / span);
       },
@@ -111,31 +129,66 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
       },
       tooltip: (s) => {
         const p = pay[s];
-        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No ${carrier.label} account hires here</div>`;
+        if (!p) return `<div style="font-weight:600">${s}</div><div style="color:#9aa0ad">No account hires here for this pick</div>`;
+        const byCarrier = picked
+          .map((c) => [c, p.fleets.filter((f) => (f as Item).carrier.id === c.id).length] as const)
+          .filter(([, n]) => n)
+          .map(([c, n]) => `<b style="color:${c.color}">${c.label}</b> ${n}`)
+          .join(" · ");
+        const t = top[s];
         return (
           `<div style="font-weight:700;margin-bottom:2px">${s}</div>` +
           `<div>${payRange(p)}</div>` +
-          `<div style="color:#9aa0ad">${p.fleets.length} account${p.fleets.length === 1 ? "" : "s"}: ${p.fleets
-            .slice(0, 4)
-            .map((f) => f.name)
-            .join(", ")}${p.fleets.length > 4 ? "…" : ""}</div>` +
+          (!single && t ? `<div>Top pay: <b style="color:${t.color}">${t.label}</b></div>` : "") +
+          `<div style="color:#9aa0ad">${p.fleets.length} account${p.fleets.length === 1 ? "" : "s"} · ${byCarrier}</div>` +
           `<div style="margin-top:3px;color:#7ab8f5">Click for the accounts below the map</div>`
         );
       },
       onClick: (s) => setSelected(pay[s] ? s : null),
     };
-  }, [pay, selected, carrier, maxPay, topLow]);
+  }, [pay, top, picked, selected, tint, single, maxPay, topLow]);
 
   const sel = selected ? pay[selected] : null;
   const openings = fleets.reduce((n, f) => n + (f.openings ?? 0), 0);
+  const winners = picked.filter((c) => states.some((s) => top[s]?.id === c.id));
 
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2 flex-wrap">
+        <h2 className="text-[16px] font-bold text-[var(--cpm-text)] mr-2">Agency carriers map</h2>
+        <button
+          type="button"
+          className={`carrierToggle${all ? " on" : ""}`}
+          style={all ? { borderColor: "var(--cpm-accent)", color: "var(--cpm-accent)" } : undefined}
+          onClick={() => pick(allIds)}
+        >
+          All
+        </button>
+        {AGENCY_CARRIERS.map((c) => {
+          const active = ids.includes(c.id);
+          return (
+            <button
+              key={c.id}
+              type="button"
+              className={`carrierToggle${active ? " on" : ""}`}
+              style={active ? { borderColor: c.color, color: c.color, background: `${c.color}1f` } : undefined}
+              // from "All", a click picks just this carrier
+              onClick={() => pick(all ? [c.id] : toggleIn(ids, c.id))}
+              aria-pressed={active}
+            >
+              <span className="dot" style={{ background: active ? c.color : "transparent", borderColor: c.color }} />
+              {c.label}
+            </button>
+          );
+        })}
+        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Click to pick one; click more to add them. &quot;All&quot; shows every carrier.</span>
+      </div>
+
       <div className="flex items-center gap-3 flex-wrap">
         <div className="segTabs">
-          {["", ...carrier.cats].map((c) => (
-            <button key={c || "all"} type="button" className={cat === c ? "active" : undefined} onClick={() => setCat(c)}>
-              {c || "All"} <span className="opacity-60">{c ? carrier.fleets.filter((f) => f.cat === c).length : carrier.fleets.length}</span>
+          {["", ...groups].map((c) => (
+            <button key={c || "all"} type="button" className={group === c ? "active" : undefined} onClick={() => setCat(c)}>
+              {c || "All"} <span className="opacity-60">{c ? items.filter((i) => groupOf(i) === c).length : items.length}</span>
             </button>
           ))}
         </div>
@@ -152,35 +205,61 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
             </>
           )}
         </div>
-        <span className="text-[12px] text-[var(--cpm-text-dim)]">
-          Agencies working it: {working.length ? working.map((a) => a.name).join(", ") : <span className="text-[var(--cpm-text-faint)]">none yet</span>}
-        </span>
         <button type="button" className="ghostBtn ml-auto" onClick={() => setShowInfo((v) => !v)}>
-          {showInfo ? "Hide" : "Show"} {carrier.label} info
+          {showInfo ? "Hide" : "Show"} carrier info
         </button>
       </div>
 
-      {showInfo && (
-        <div
-          className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] px-4 py-3 text-[12.5px] leading-relaxed text-[var(--cpm-text-dim)] [&_b]:text-[var(--cpm-text)]"
-          dangerouslySetInnerHTML={{ __html: carrier.note }}
-        />
-      )}
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-[var(--cpm-text-dim)]">
+        {picked.map((c) => {
+          const working = agencies.filter((a) => a.status !== "stopped" && a.carriers.includes(c.id));
+          return (
+            <span key={c.id}>
+              <b style={{ color: c.color }}>{c.label}</b> agencies:{" "}
+              {working.length ? working.map((a) => a.name).join(", ") : <span className="text-[var(--cpm-text-faint)]">none yet</span>}
+            </span>
+          );
+        })}
+      </div>
+
+      {showInfo &&
+        picked.map((c) => (
+          <div
+            key={c.id}
+            className="rounded-xl border bg-[var(--cpm-panel-alt)] px-4 py-3 text-[12.5px] leading-relaxed text-[var(--cpm-text-dim)] [&_b]:text-[var(--cpm-text)]"
+            style={{ borderColor: `${c.color}66` }}
+            dangerouslySetInnerHTML={{ __html: c.note }}
+          />
+        ))}
 
       <div className="wizCard">
         <div className="max-w-[960px] mx-auto">
           <ChoroplethMap paint={paint} />
         </div>
         <div className="flex items-center justify-center gap-3 flex-wrap mt-2 text-[12px] text-[var(--cpm-text-dim)]">
-          <span>Number = highest weekly pay in the state (per mile where no weekly pay is given)</span>
-          <span className="flex items-center gap-1.5">
-            lower
-            <span
-              className="w-[90px] h-[9px] rounded inline-block"
-              style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, carrier.color)(0.3)}, ${carrier.color})` }}
-            />
-            higher
-          </span>
+          {single ? (
+            <>
+              <span>Number = highest weekly pay in the state (per mile where no weekly pay is given)</span>
+              <span className="flex items-center gap-1.5">
+                lower
+                <span
+                  className="w-[90px] h-[9px] rounded inline-block"
+                  style={{ background: `linear-gradient(90deg, ${interpolateRgb(LOW_FILL, tint)(0.3)}, ${tint})` }}
+                />
+                higher
+              </span>
+            </>
+          ) : (
+            <>
+              <span>Number = highest weekly pay in the state · color = carrier paying it:</span>
+              {winners.map((c) => (
+                <span key={c.id} className="flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-sm inline-block" style={{ background: c.color }} />
+                  {c.label}
+                </span>
+              ))}
+            </>
+          )}
           <span className="flex items-center gap-1">
             <span className="w-3 h-3 rounded-sm inline-block" style={{ background: NO_DATA_FILL, border: "1px solid #555" }} /> not hiring
           </span>
@@ -189,7 +268,7 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
 
       <div className="wizCard min-w-0 !min-h-0">
         {!sel || !selected ? (
-          <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-4 text-center">Click a state on the map to see its {carrier.label} accounts here.</div>
+          <div className="text-[13.5px] text-[var(--cpm-text-dim)] py-4 text-center">Click a state on the map to see its accounts here.</div>
         ) : (
           <>
             <div className="flex items-baseline justify-between gap-2 mb-3">
@@ -201,9 +280,12 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
               </div>
             </div>
             <div className="grid gap-3 lg:grid-cols-2 items-start">
-              {sel.fleets.map((f) => (
-                <FleetCard key={f.id} f={f} state={selected} />
-              ))}
+              {(sel.fleets as Item[])
+                .slice()
+                .sort((a, b) => (b.payHigh ?? 0) - (a.payHigh ?? 0))
+                .map((f) => (
+                  <FleetCard key={f.id} f={f} state={selected} />
+                ))}
             </div>
           </>
         )}
@@ -212,10 +294,16 @@ function CarrierMap({ carrier, agencies }: { carrier: AgencyCarrier; agencies: A
   );
 }
 
-function FleetCard({ f, state }: { f: Fleet; state: string }) {
+function FleetCard({ f, state }: { f: Item; state: string }) {
   return (
-    <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] px-4 py-3 flex flex-col gap-1.5">
-      <div className="flex items-center gap-2">
+    <div
+      className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] px-4 py-3 flex flex-col gap-1.5"
+      style={{ borderLeft: `3px solid ${f.carrier.color}` }}
+    >
+      <div className="text-[11px] font-bold" style={{ color: f.carrier.color }}>
+        {f.carrier.label}
+      </div>
+      <div className="flex items-center gap-2 -mt-1">
         <span className="text-[14px] font-bold text-[var(--cpm-text)]">{f.name}</span>
         <span className="ml-auto catTag">{f.cat}</span>
       </div>

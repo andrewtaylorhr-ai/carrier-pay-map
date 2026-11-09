@@ -20,6 +20,9 @@ export type AgencyCarrier = {
   label: string;
   color: string;
   cats: string[];
+  // category -> Local / Regional / OTR / Jockey, for the map when several
+  // carriers are shown (categories that already are one need no entry)
+  position?: Record<string, string>;
   experience: string;
   note: string; // HTML, our own text
   fleets: Fleet[];

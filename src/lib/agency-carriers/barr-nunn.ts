@@ -322,6 +322,7 @@ export const BARR_NUNN: AgencyCarrier = {
   label: "Barr-Nunn",
   color: "#ec4899",
   cats: ["Regional", "11 North", "OTR 18", "OTR 21"],
+  position: { "11 North": "Regional", "OTR 18": "OTR", "OTR 21": "OTR" },
   experience: "8 months+ (pay table starts at 8–29 months)",
   note: NOTE,
   fleets: FLEETS,

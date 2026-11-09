@@ -6,8 +6,9 @@ import { Check, Trash2, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
-import { ACADEMY_URL, DAILY_CHECKS, QC_GOOD_CALLS, behindCount, goodCalls, planDayOf, programProgress } from "@/lib/training-program";
-import { DayPlan } from "./DayPlan";
+import { TEST_PASS } from "@/lib/academy-test";
+import { ACADEMY_URL, PRACTICE, QC_GOOD_CALLS, READY_CHECK, goodCalls, programProgress, type PlanItem } from "@/lib/training-program";
+import { AcademyList } from "./AcademyList";
 import { NEW_RECRUITER_COLOR, type Trainee, formatDay, stepStatus, todayISO } from "@/lib/trainees";
 
 const STAGE: Record<Trainee["stage"], { label: string; color: string }> = {
@@ -51,8 +52,9 @@ const stepText = (t: Trainee, today: string) => {
 };
 
 // The manager's side of training: pick a new recruiter, tick off the Academy
-// lessons they've finished, log the calls you listened to in QC, then move them on.
-export function TraineeManager() {
+// lessons (day 1), run the Academy test, tick off practice (days 2–3), log the
+// calls you listened to in QC, then move them on.
+export function TraineeManager({ onRunTest }: { onRunTest: (name: string) => void }) {
   const { trainees, updateTrainee, approveTrainee } = useCarrierMap();
   const today = todayISO();
   const [selected, setSelected] = useLocalStorageState<string>("cpm_trainingSelected", "");
@@ -144,6 +146,7 @@ export function TraineeManager() {
             const problem = approveTrainee(current[0]);
             if (problem) alert(problem);
           }}
+          onRunTest={() => onRunTest(current[0])}
         />
       ) : (
         <div className={`${card} px-4 py-8 text-center text-[12.5px] text-[var(--cpm-text-faint)]`}>Pick someone on the left.</div>
@@ -158,20 +161,23 @@ function TraineeFile({
   today,
   update,
   approve,
+  onRunTest,
 }: {
   name: string;
   t: Trainee;
   today: string;
   update: (patch: Partial<Trainee>) => void;
   approve: () => void;
+  onRunTest: () => void;
 }) {
   const done = new Set(t.checklist ?? []);
   const p = programProgress(t);
   const good = goodCalls(t);
   const s = stepStatus(t, today);
-  const day = planDayOf(t, s?.day ?? null, !!s?.notStarted);
-  const behind = t.stage === "training" ? behindCount(t, day) : 0;
-  const checks = DAILY_CHECKS.filter((id) => done.has(id)).length;
+  const testPassed = (t.testScore ?? 0) >= TEST_PASS;
+  // The Academy is day 1: from day 2 on, unfinished lessons are flagged.
+  const academyLate = t.stage === "training" && !!s && !s.notStarted && (s.day >= 2 || s.late > 0) && p.done < p.total;
+  const practiceDone = PRACTICE.filter((i) => done.has(i.id)).length;
   const [callDate, setCallDate] = useState(today);
   const [callGood, setCallGood] = useState(true);
   const [callNote, setCallNote] = useState("");
@@ -190,7 +196,8 @@ function TraineeFile({
     const left = p.total - p.done;
     const missing = [
       left && `${left} Academy ${left === 1 ? "lesson" : "lessons"} not ticked`,
-      !done.has("check-ready") && `the "Ready for calls" check isn't ticked`,
+      !testPassed && (t.testScore == null ? "the Academy test isn't taken" : `the Academy test isn't passed (${t.testScore}%)`),
+      !done.has(READY_CHECK.id) && `the "Ready for calls" check isn't ticked`,
     ].filter(Boolean);
     if (missing.length && !confirm(`${name}: ${missing.join(", ")}. Start quality control anyway?`)) return;
     update({ stage: "qc", qcStart: today });
@@ -250,23 +257,63 @@ function TraineeFile({
 
       <div className="grid gap-3 grid-cols-3">
         <Mini label="Academy lessons" value={`${p.done}/${p.total}`} pct={p.pct} color="#f59e0b" />
-        <Mini label="Daily checks" value={`${checks}/${DAILY_CHECKS.length}`} pct={(checks / DAILY_CHECKS.length) * 100} color="#a855f7" />
+        <Mini
+          label="Academy test"
+          value={t.testScore != null ? `${t.testScore}%` : "Not taken"}
+          pct={t.testScore ?? 0}
+          color={testPassed ? "var(--cpm-green)" : "#e5484d"}
+        />
         <Mini label="Good QC calls" value={`${good}/${QC_GOOD_CALLS}`} pct={Math.min(100, (good / QC_GOOD_CALLS) * 100)} color="var(--cpm-green)" />
       </div>
 
-      {behind > 0 && (
-        <div className="rounded-lg border border-[#e5484d] bg-[var(--cpm-red-soft)] px-3 py-2 text-[12.5px] text-[#ff9a9d]">
-          Day {day}: {behind} {behind === 1 ? "item" : "items"} from earlier days not done yet.
-        </div>
-      )}
-      <div className="flex items-center gap-2">
-        <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">3-day plan</h3>
-        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Tick each lesson and task {name.split(" ")[0]} finishes, then do the end-of-day check.</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Step 1 · Academy (day 1)</h3>
+        <span className="text-[11.5px] text-[var(--cpm-text-faint)]">The whole Academy is done on the first day. Tick each lesson as it&apos;s finished.</span>
         <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="ml-auto text-[11.5px] text-[var(--cpm-accent)] hover:underline">
           Open the Academy in Notion
         </a>
       </div>
-      <DayPlan done={done} onToggle={toggle} today={day} />
+      {academyLate && (
+        <div className="rounded-lg border border-[#e5484d] bg-[var(--cpm-red-soft)] px-3 py-2 text-[12.5px] text-[#ff9a9d]">
+          The Academy should be finished on day 1. {p.total - p.done} {p.total - p.done === 1 ? "lesson is" : "lessons are"} still not done.
+        </div>
+      )}
+      <AcademyList done={done} onToggle={toggle} />
+
+      <section className={`${card} px-4 py-3 flex items-center gap-3 flex-wrap`}>
+        <div>
+          <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Step 2 · Academy test</h3>
+          <div className="text-[12px] text-[var(--cpm-text-faint)]">
+            Questions from the Academy lessons, pass with {TEST_PASS}%.{" "}
+            {t.testScore == null ? "Not taken yet." : testPassed ? `Passed with ${t.testScore}%.` : `Best so far ${t.testScore}%, not passed yet.`}
+          </div>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          <button type="button" className={btnMain} onClick={onRunTest}>
+            {t.testScore == null ? "Start the test" : "Take the test again"} with {name.split(" ")[0]}
+          </button>
+          {t.testScore != null && (
+            <button type="button" className={btnGhost} onClick={() => confirm("Clear the test score?") && update({ testScore: undefined })}>
+              Clear score
+            </button>
+          )}
+        </div>
+      </section>
+
+      <section className={card}>
+        <h3 className="flex items-center px-4 py-2.5 border-b border-[var(--cpm-border)] text-[14px] font-bold text-[var(--cpm-text)]">
+          Step 3 · Days 2–3 · Practice
+          <span className={`ml-auto text-[11.5px] font-semibold ${practiceDone === PRACTICE.length ? "text-[var(--cpm-green)]" : "text-[var(--cpm-text-faint)]"}`}>
+            {practiceDone}/{PRACTICE.length}
+          </span>
+        </h3>
+        <ul className="px-2 py-2">
+          {PRACTICE.map((i) => (
+            <TickRow key={i.id} item={i} checked={done.has(i.id)} onToggle={() => toggle(i.id)} />
+          ))}
+          <TickRow item={READY_CHECK} checked={done.has(READY_CHECK.id)} onToggle={() => toggle(READY_CHECK.id)} strong />
+        </ul>
+      </section>
 
       <section className={`${card} px-4 py-3`}>
         <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>
@@ -332,6 +379,17 @@ function TraineeFile({
         )}
       </section>
     </div>
+  );
+}
+
+function TickRow({ item, checked, onToggle, strong }: { item: PlanItem; checked: boolean; onToggle: () => void; strong?: boolean }) {
+  return (
+    <li>
+      <label className={`flex gap-2.5 px-2 py-1.5 rounded-md cursor-pointer hover:bg-[var(--cpm-panel-alt)] ${strong ? "bg-[var(--cpm-panel-alt)] mt-1" : ""}`}>
+        <input type="checkbox" checked={checked} onChange={onToggle} className="mt-0.5 accent-[var(--cpm-green)]" />
+        <span className={`text-[12.5px] ${strong ? "font-semibold" : ""} ${checked ? "text-[var(--cpm-text-faint)] line-through" : "text-[var(--cpm-text)]"}`}>{item.title}</span>
+      </label>
+    </li>
   );
 }
 

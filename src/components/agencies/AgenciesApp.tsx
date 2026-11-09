@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
-import { CARRIERS, CARRIER_ORDER } from "@/lib/carriers/data";
-import type { CarrierId } from "@/lib/carriers/types";
+import { Building2, Plus, Trash2, Truck, X } from "lucide-react";
+import { AGENCY_CARRIERS } from "@/lib/agency-carriers";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
-import { AGENCIES_KEY, AGENCY_STATUS, COUNTRIES, type Agency, type AgencyStatus, newAgency } from "@/lib/agencies";
+import { AGENCIES_KEY, AGENCY_STATUS, ALL_CARRIER_IDS, COUNTRIES, type Agency, type AgencyStatus, carrierLook, newAgency } from "@/lib/agencies";
+import { AgencyCarrierView } from "./AgencyCarrierView";
 
 const card = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]";
 const input =
@@ -23,12 +23,34 @@ function StatusPill({ status }: { status: AgencyStatus }) {
   );
 }
 
-function CarrierDot({ id }: { id: CarrierId }) {
-  return <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: CARRIERS[id].color }} />;
+function CarrierDot({ id }: { id: string }) {
+  return <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: carrierLook(id).color }} />;
+}
+
+// Tabs: the agencies themselves, then one per agency-only carrier (its fleets,
+// hiring states and pay, which aren't on the pay map).
+export function AgenciesApp() {
+  const [tab, setTab] = useLocalStorageState<string>("cpm_agenciesTab", "agencies");
+  const carrier = AGENCY_CARRIERS.find((c) => c.id === tab);
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="segTabs self-start">
+        <button type="button" className={!carrier ? "active" : undefined} onClick={() => setTab("agencies")}>
+          <Building2 size={14} /> Agencies
+        </button>
+        {AGENCY_CARRIERS.map((c) => (
+          <button key={c.id} type="button" className={carrier?.id === c.id ? "active" : undefined} onClick={() => setTab(c.id)}>
+            <Truck size={14} /> {c.label}
+          </button>
+        ))}
+      </div>
+      {carrier ? <AgencyCarrierView carrier={carrier} /> : <AgencyList />}
+    </div>
+  );
 }
 
 // Outside recruiting agencies: who they are and which carriers they recruit for.
-export function AgenciesApp() {
+function AgencyList() {
   const [agencies, setAgencies] = useLocalStorageState<Agency[]>(AGENCIES_KEY, []);
   const [selected, setSelected] = useLocalStorageState<string>("cpm_agencySelected", "");
   const [name, setName] = useState("");
@@ -59,13 +81,13 @@ export function AgenciesApp() {
           <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Active and paused agencies</span>
         </div>
         <div className="grid gap-px bg-[var(--cpm-border)] sm:grid-cols-2 lg:grid-cols-4">
-          {CARRIER_ORDER.map((id) => {
+          {ALL_CARRIER_IDS.map((id) => {
             const on = working.filter((a) => a.carriers.includes(id));
             return (
               <div key={id} className="bg-[var(--cpm-panel)] px-3 py-2.5">
                 <div className="flex items-center gap-2 mb-1">
                   <CarrierDot id={id} />
-                  <span className="text-[13px] font-semibold text-[var(--cpm-text)]">{CARRIERS[id].label}</span>
+                  <span className="text-[13px] font-semibold text-[var(--cpm-text)]">{carrierLook(id).label}</span>
                   <span className="ml-auto text-[11px] tabular-nums text-[var(--cpm-text-faint)]">{on.length}</span>
                 </div>
                 <div className="text-[12px] text-[var(--cpm-text-dim)]">
@@ -157,7 +179,7 @@ export function AgenciesApp() {
 
 function AgencyFile({ a, update, remove }: { a: Agency; update: (patch: Partial<Agency>) => void; remove: () => void }) {
   const [other, setOther] = useState("");
-  const toggle = (id: CarrierId) => update({ carriers: a.carriers.includes(id) ? a.carriers.filter((c) => c !== id) : [...a.carriers, id] });
+  const toggle = (id: string) => update({ carriers: a.carriers.includes(id) ? a.carriers.filter((c) => c !== id) : [...a.carriers, id] });
   const addOther = () => {
     const n = other.trim();
     if (!n || a.otherCarriers.some((c) => c.toLowerCase() === n.toLowerCase())) return setOther("");
@@ -192,9 +214,9 @@ function AgencyFile({ a, update, remove }: { a: Agency; update: (patch: Partial<
           <span className="ml-auto text-[11.5px] text-[var(--cpm-text-faint)]">Click to turn on or off</span>
         </div>
         <div className="px-4 py-3 flex flex-wrap gap-2">
-          {CARRIER_ORDER.map((id) => {
+          {ALL_CARRIER_IDS.map((id) => {
             const on = a.carriers.includes(id);
-            const color = CARRIERS[id].color;
+            const { label: name, color } = carrierLook(id);
             return (
               <button
                 key={id}
@@ -206,7 +228,7 @@ function AgencyFile({ a, update, remove }: { a: Agency; update: (patch: Partial<
                 style={on ? { borderColor: color, background: `${color}26` } : undefined}
               >
                 <CarrierDot id={id} />
-                {CARRIERS[id].label}
+                {name}
                 {on && <span style={{ color }}>✓</span>}
               </button>
             );

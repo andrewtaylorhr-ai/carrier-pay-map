@@ -18,7 +18,6 @@ const BY_CATEGORY: Partial<Record<CarrierId, Record<string, Position>>> = {
     "Dedicated Daily/Frequently/Team": "Dedicated",
   },
   transam: { "Hiring Area": "OTR" },
-  barr: { "11 North": "Regional", "OTR 18": "OTR", "OTR 21": "OTR" },
   cre: { "Home Daily / Local": "Local", "Home Weekly": "Regional", "Multi-Week OTR (Bi-Weekly+)": "OTR" },
 };
 

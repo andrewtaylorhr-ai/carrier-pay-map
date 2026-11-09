@@ -3,7 +3,7 @@
 // loosely typed (e.g. `cats: string[]`) — this is a solo-user internal tool,
 // not a shared library, so there's no value in over-formalizing.
 
-export type CarrierId = "swift" | "usx" | "jbh" | "hub" | "pam" | "transam" | "cre" | "barr";
+export type CarrierId = "swift" | "usx" | "jbh" | "hub" | "pam" | "transam" | "cre";
 
 export interface CarrierMeta {
   label: string;

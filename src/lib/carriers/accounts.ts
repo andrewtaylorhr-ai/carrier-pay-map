@@ -2,14 +2,12 @@
 // Strategy Builder assigns to recruiters, and what the pay map aggregates
 // per state. Swift / J.B. Hunt / Hub Group / USX are generated from the
 // carriers' own files (scripts/build-accounts.mjs); PAM / TransAm / CR
-// England are adapted here from their original data shapes; Barr-Nunn is
-// hand-entered in barr-nunn.ts.
+// England are adapted here from their original data shapes.
 import accountCitiesJson from "./generated/account-cities.json";
 import accountsHubJson from "./generated/accounts-hub.json";
 import accountsJbhJson from "./generated/accounts-jbh.json";
 import accountsSwiftJson from "./generated/accounts-swift.json";
 import accountsUsxJson from "./generated/accounts-usx.json";
-import { BARR_NUNN_ACCOUNTS } from "./barr-nunn";
 import { CARRIER_ORDER, CRE_ACCOUNTS, CRE_CADENCE_LABEL, PAM_DOMICILES, PAM_TIER_CPM, TRANSAM_HIRE_STATES } from "./data";
 import type { Account, AccountCity, CarrierId } from "./types";
 
@@ -92,7 +90,6 @@ const BY_CARRIER: Record<CarrierId, Account[]> = {
   pam: withCities(PAM_ACCOUNTS),
   transam: withCities(TRANSAM_ACCOUNTS),
   cre: withCities(CRE_ACCOUNTS_ADAPTED),
-  barr: withCities(BARR_NUNN_ACCOUNTS),
 };
 
 export const ALL_ACCOUNTS: Account[] = CARRIER_ORDER.flatMap((id) => BY_CARRIER[id]);

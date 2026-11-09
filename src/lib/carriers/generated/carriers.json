@@ -70,16 +70,5 @@
       "Local",
       "Regional"
     ]
-  },
-  "barr": {
-    "label": "Barr-Nunn",
-    "color": "#ec4899",
-    "logo": "",
-    "cats": [
-      "Regional",
-      "11 North",
-      "OTR 18",
-      "OTR 21"
-    ]
   }
 }

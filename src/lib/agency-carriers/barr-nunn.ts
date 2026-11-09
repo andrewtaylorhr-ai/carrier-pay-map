@@ -1,13 +1,11 @@
-// Barr-Nunn, hand-entered from "BN Information 09302026.xlsx" (one sheet per
-// fleet, plus Misc Info / Orientation / Equipment / Pet Policy). Each fleet is
-// one account. Hiring states come from each fleet's hiring-area map picture
+// Barr-Nunn, a carrier our agencies recruit for (not on the pay map),
+// hand-entered from "BN Information 09302026.xlsx" (one sheet per fleet, plus
+// Misc Info / Orientation / Equipment / Pet Policy). Hiring states come from each fleet's hiring-area map picture
 // (and its state list where the sheet gives one). Barr-Nunn pays per mile, so
 // weekly pay is an estimate: starting CPM × the average weekly miles on the
 // Misc Info sheet (Regional 1,900–2,200, OTR 2,000–2,400). Team fleets show
 // their CPM (and gross, where the sheet gives it) as text only.
-import type { Account } from "./types";
-
-type Fleet = Omit<Account, "cities" | "carrier" | "approval" | "experience" | "sob">;
+import type { AgencyCarrier, Fleet } from "./types";
 
 const MILES = { regional: [1900, 2200], otr: [2000, 2400] } as const;
 const round10 = (n: number) => Math.round(n / 10) * 10;
@@ -20,7 +18,7 @@ function soloPay(lo: number, hi: number, miles: readonly [number, number]) {
   return {
     payLow: wLo,
     payHigh: wHi,
-    payText: `$${lo.toFixed(2)}–$${hi.toFixed(2)} CPM to start · est. ${usd(wLo)}–${usd(wHi)}/wk (${miles[0].toLocaleString()}–${miles[1].toLocaleString()} mi/wk)`,
+    payText: `$${lo.toFixed(2)}–$${hi.toFixed(2)} CPM to start · est. ${usd(wLo)}–${usd(wHi)}/wk (${miles[0].toLocaleString("en-US")}–${miles[1].toLocaleString("en-US")} mi/wk)`,
   };
 }
 
@@ -310,19 +308,21 @@ const FLEETS: Fleet[] = [
   },
 ];
 
-export const BARR_NUNN_ACCOUNTS: Omit<Account, "cities">[] = FLEETS.map((f) => ({
-  ...f,
-  carrier: "barr",
-  approval: "",
-  experience: "8 months+ (pay table starts at 8–29 months)",
-  sob: "Transition bonus + $300 orientation pay on the 1st check",
-}));
-
 // Company-wide facts from the Misc Info, Orientation, Equipment and Pet
 // Policy sheets, shown as the note above the map.
-export const BARR_NUNN_NOTE = `<b>Barr-Nunn</b> pays per mile, so weekly pay is an <b>estimate</b>: starting CPM × average miles (Regional 1,900–2,200, OTR 2,000–2,400, Teams 4,000–5,500 a week). Hiring states come from each fleet's map picture in the sheet, so a state can be only partly covered: check the driver's address before quoting.
+const NOTE = `<b>Barr-Nunn</b> pays per mile, so weekly pay is an <b>estimate</b>: starting CPM × average miles (Regional 1,900–2,200, OTR 2,000–2,400, Teams 4,000–5,500 a week). Hiring states come from each fleet's map picture in the sheet, so a state can be only partly covered: check the driver's address before quoting.
 <br><b>Must know:</b> about 40% of loads run overnight (10pm–5am); a driver who can't drive at night isn't a fit. All trucks are automatic (auto restriction OK). Paid weekly on Fridays, on all miles, loaded and empty.
 <br><b>Pay extras:</b> hazmat +3¢ solo / +4¢ team on hazmat loads · detention $15/hr after 1 hr · breakdown $100 first day, $160 each day after · extra stops $75 solo, $50 each team · layover $140 solo after 34 hrs, $75 each team after 17 hrs · no holiday pay.
 <br><b>Bonuses:</b> CSA bonus with a paid day off every 90 days (solo $700, hazmat $875; team $825, hazmat $1,025) · on-road safety bonus $650 every 90 days · transition bonus on the 1st check ($2,450 up to $4,625 solo, $3,575 or $3,775 per team driver; OTR 11 fleets get the highest) · $300 orientation pay.
 <br><b>Benefits:</b> health insurance from the 1st of the month after 60 days (weekly: single $66, family $179; dental $3.75–$10.50). Riders 10 years or older, 1 at a time. Teams only: 1 dog up to 40 lbs, at least 1 year old, $1,000 deposit ($500 back), taken out at $125 a week.
 <br><b>Orientation:</b> starts Mondays in Columbus OH, Manchester PA (York) or Charlotte NC. Travel, a private hotel room and lunch are paid. <b>Terminals / drop yards:</b> Charlotte NC, Manchester PA, Columbus OH, Granger IA. <b>Trucks:</b> mostly 2022–2026 Freightliner Cascadias, 65 mph, fridge, TV, microwave, inverter, free Sirius XM. Freight is mostly e-commerce (Walmart, Home Depot).`;
+
+export const BARR_NUNN: AgencyCarrier = {
+  id: "barr",
+  label: "Barr-Nunn",
+  color: "#ec4899",
+  cats: ["Regional", "11 North", "OTR 18", "OTR 21"],
+  experience: "8 months+ (pay table starts at 8–29 months)",
+  note: NOTE,
+  fleets: FLEETS,
+};

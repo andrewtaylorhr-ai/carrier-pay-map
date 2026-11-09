@@ -7,7 +7,8 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { TEST_PASS } from "@/lib/academy-test";
-import { ACADEMY_URL, PRACTICE, QC_GOOD_CALLS, READY_CHECK, goodCalls, programProgress, type PlanItem } from "@/lib/training-program";
+import { DAY_PLANS, READY_CHECK, dayTasks } from "@/lib/practice-days";
+import { ACADEMY_URL, QC_GOOD_CALLS, goodCalls, programProgress, type PlanItem } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
 import { NEW_RECRUITER_COLOR, type Trainee, formatDay, stepStatus, todayISO } from "@/lib/trainees";
 
@@ -52,9 +53,10 @@ const stepText = (t: Trainee, today: string) => {
 };
 
 // The manager's side of training: pick a new recruiter, tick off the Academy
-// lessons (day 1), run the Academy test, tick off practice (days 2–3), log the
+// lessons (day 1), run the Academy test, tick off day 2 (practice) and day 3
+// (first live calls), log the
 // calls you listened to in QC, then move them on.
-export function TraineeManager({ onRunTest }: { onRunTest: (name: string) => void }) {
+export function TraineeManager({ onRunTest, onOpenGuide }: { onRunTest: (name: string) => void; onOpenGuide: () => void }) {
   const { trainees, updateTrainee, approveTrainee } = useCarrierMap();
   const today = todayISO();
   const [selected, setSelected] = useLocalStorageState<string>("cpm_trainingSelected", "");
@@ -147,6 +149,7 @@ export function TraineeManager({ onRunTest }: { onRunTest: (name: string) => voi
             if (problem) alert(problem);
           }}
           onRunTest={() => onRunTest(current[0])}
+          onOpenGuide={onOpenGuide}
         />
       ) : (
         <div className={`${card} px-4 py-8 text-center text-[12.5px] text-[var(--cpm-text-faint)]`}>Pick someone on the left.</div>
@@ -162,6 +165,7 @@ function TraineeFile({
   update,
   approve,
   onRunTest,
+  onOpenGuide,
 }: {
   name: string;
   t: Trainee;
@@ -169,6 +173,7 @@ function TraineeFile({
   update: (patch: Partial<Trainee>) => void;
   approve: () => void;
   onRunTest: () => void;
+  onOpenGuide: () => void;
 }) {
   const done = new Set(t.checklist ?? []);
   const p = programProgress(t);
@@ -177,7 +182,7 @@ function TraineeFile({
   const testPassed = (t.testScore ?? 0) >= TEST_PASS;
   // The Academy is day 1: from day 2 on, unfinished lessons are flagged.
   const academyLate = t.stage === "training" && !!s && !s.notStarted && (s.day >= 2 || s.late > 0) && p.done < p.total;
-  const practiceDone = PRACTICE.filter((i) => done.has(i.id)).length;
+  const trainingDay = t.stage === "training" && s && !s.notStarted ? s.day : 0;
   const [callDate, setCallDate] = useState(today);
   const [callGood, setCallGood] = useState(true);
   const [callNote, setCallNote] = useState("");
@@ -194,8 +199,10 @@ function TraineeFile({
 
   const startQc = () => {
     const left = p.total - p.done;
+    const practiceLeft = DAY_PLANS.flatMap(dayTasks).filter((i) => !done.has(i.id)).length;
     const missing = [
       left && `${left} Academy ${left === 1 ? "lesson" : "lessons"} not ticked`,
+      practiceLeft && `${practiceLeft} day 2–3 ${practiceLeft === 1 ? "step" : "steps"} not ticked`,
       !testPassed && (t.testScore == null ? "the Academy test isn't taken" : `the Academy test isn't passed (${t.testScore}%)`),
       !done.has(READY_CHECK.id) && `the "Ready for calls" check isn't ticked`,
     ].filter(Boolean);
@@ -300,20 +307,41 @@ function TraineeFile({
         </div>
       </section>
 
-      <section className={card}>
-        <h3 className="flex items-center px-4 py-2.5 border-b border-[var(--cpm-border)] text-[14px] font-bold text-[var(--cpm-text)]">
-          Step 3 · Days 2–3 · Practice
-          <span className={`ml-auto text-[11.5px] font-semibold ${practiceDone === PRACTICE.length ? "text-[var(--cpm-green)]" : "text-[var(--cpm-text-faint)]"}`}>
-            {practiceDone}/{PRACTICE.length}
-          </span>
-        </h3>
-        <ul className="px-2 py-2">
-          {PRACTICE.map((i) => (
-            <TickRow key={i.id} item={i} checked={done.has(i.id)} onToggle={() => toggle(i.id)} />
-          ))}
-          <TickRow item={READY_CHECK} checked={done.has(READY_CHECK.id)} onToggle={() => toggle(READY_CHECK.id)} strong />
-        </ul>
-      </section>
+      {DAY_PLANS.map((plan, pi) => {
+        const tasks = dayTasks(plan);
+        const n = tasks.filter((i) => done.has(i.id)).length;
+        return (
+          <section key={plan.day} className={card}>
+            <h3 className="flex items-center gap-2 flex-wrap px-4 py-2.5 border-b border-[var(--cpm-border)] text-[14px] font-bold text-[var(--cpm-text)]">
+              Step {pi + 3} · {plan.title}
+              {trainingDay === plan.day && (
+                <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border border-[var(--cpm-accent)] text-[var(--cpm-accent)]">Today</span>
+              )}
+              <button type="button" onClick={onOpenGuide} className="text-[11.5px] font-normal text-[var(--cpm-accent)] hover:underline">
+                How to run it
+              </button>
+              <span className={`ml-auto text-[11.5px] font-semibold ${n === tasks.length ? "text-[var(--cpm-green)]" : "text-[var(--cpm-text-faint)]"}`}>
+                {n}/{tasks.length}
+              </span>
+            </h3>
+            <ul className="px-2 py-2">
+              {plan.blocks.map((b) => (
+                <li key={b.title}>
+                  <div className="px-2 pt-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-[var(--cpm-text-faint)]">
+                    {b.time} · {b.title}
+                  </div>
+                  <ul>
+                    {b.tasks.map((i) => (
+                      <TickRow key={i.id} item={i} checked={done.has(i.id)} onToggle={() => toggle(i.id)} />
+                    ))}
+                  </ul>
+                </li>
+              ))}
+              {plan.day === 3 && <TickRow item={READY_CHECK} checked={done.has(READY_CHECK.id)} onToggle={() => toggle(READY_CHECK.id)} strong />}
+            </ul>
+          </section>
+        );
+      })}
 
       <section className={`${card} px-4 py-3`}>
         <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>

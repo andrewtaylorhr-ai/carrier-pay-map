@@ -160,15 +160,6 @@ export function programProgress(t: Trainee) {
 
 export const goodCalls = (t: Trainee) => (t.calls ?? []).filter((c) => c.good).length;
 
-// ---- After the Academy (day 1) and its test, days 2–3 are practice. The
-// "Ready for calls" check is the last step before quality control.
+// Days 2–3 (practice, first live calls) are in practice-days.ts.
 
 export type PlanItem = { id: string; title: string };
-
-export const PRACTICE: PlanItem[] = [
-  { id: "task-live-calls", title: "Listened to live calls from an experienced recruiter (with notes)" },
-  { id: "task-roleplay-easy", title: "Role-play 1: an easy driver who qualifies, using the Call Script" },
-  { id: "task-roleplay-dq", title: "Role-play 2: a driver who doesn't qualify" },
-  { id: "task-roleplay-objections", title: "Role-play 3: a driver with objections" },
-];
-export const READY_CHECK: PlanItem = { id: "check-ready", title: "Ready for calls: passed the role-plays, can start quality control" };

@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardCheck, FileDown, GraduationCap, KeyRound, Users } from "lucide-react";
+import { ClipboardCheck, FileDown, GraduationCap, KeyRound, PhoneCall, Users } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { downloadAnswerKeyDoc, downloadTestDoc } from "@/lib/academy-test-docs";
@@ -8,12 +8,14 @@ import { ACADEMY_URL, REQUIRED_LESSONS } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
 import { AcademyTest } from "./AcademyTest";
 import { PaperGrader } from "./PaperGrader";
+import { PracticeGuide } from "./PracticeGuide";
 import { TraineeManager } from "./TraineeManager";
 
 const TABS = [
   { id: "trainees", label: "Trainees", icon: Users },
   { id: "academy", label: "Academy", icon: GraduationCap },
   { id: "test", label: "Academy test", icon: ClipboardCheck },
+  { id: "practice", label: "Days 2–3", icon: PhoneCall },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -46,6 +48,7 @@ export function TrainingApp() {
             setTaker(name);
             setTab("test");
           }}
+          onOpenGuide={() => setTab("practice")}
         />
       )}
       {active === "academy" && (
@@ -59,6 +62,7 @@ export function TrainingApp() {
           <AcademyList />
         </div>
       )}
+      {active === "practice" && <PracticeGuide />}
       {active === "test" && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 flex-wrap">

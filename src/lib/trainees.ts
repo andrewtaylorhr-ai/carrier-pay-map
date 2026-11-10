@@ -2,6 +2,7 @@
 // training (3 working days) -> quality control on calls (3 working days)
 // -> approved (added to the recruiter roster, shown as "New" until their
 // first hire) -> graduated. Working days are Mon–Sat, like the Daily Tracker.
+import type { Certificate } from "@/lib/certificate";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 
 export type TraineeStage = "training" | "qc" | "approved" | "dropped";
@@ -17,7 +18,11 @@ export interface Trainee {
   note?: string;
   // Filled in by the manager on the Training page.
   checklist?: string[]; // ids of Academy lessons and practice tasks done
-  testScore?: number; // best Academy test %, out of 100
+  testScore?: number; // best final exam %, out of 100
+  testAttempts?: number; // final exam attempts used
+  quizScores?: Record<string, number>; // knowledge check id -> best %
+  scenarioWhy?: string[]; // their explanations on the practical scenarios
+  certificate?: Certificate;
   calls?: QcCall[]; // calls listened to during quality control
 }
 

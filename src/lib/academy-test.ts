@@ -4,8 +4,6 @@
 
 export type TestQuestion = { q: string; options: string[]; answer: number; why: string; lesson: string };
 
-export const TEST_PASS = 80; // % needed to pass
-
 export const ACADEMY_TEST: TestQuestion[] = [
   // Introduction
   {
@@ -319,6 +317,97 @@ export const ACADEMY_TEST: TestQuestion[] = [
     why: "Speed + consistency = more hires. Not following up is the #1 complaint.",
     lesson: "Indeed Leads",
   },
+  // Carrier qualification scenarios
+  {
+    q: "A driver's only OTR experience is 60 days in the last year, not counting training. They want TransAm. What do you do?",
+    options: [
+      "Submit them to TransAm anyway",
+      "Round it up to 90 days on the application",
+      "Explain TransAm needs 90 days in the last year, and look for another carrier that fits",
+      "End the call",
+    ],
+    answer: 2,
+    why: "TransAm needs at least 90 days OTR in the last year, not counting training. Never change a driver's experience.",
+    lesson: "Trans AM",
+  },
+  {
+    q: "A driver has 6 MVR points in the last 3 years on PAM's point system. Can PAM hire them?",
+    options: ["Yes, up to 10 points is fine", "No, more than 5 points in 3 years is not eligible", "Yes, if they have 1 year of experience", "Points don't matter at PAM"],
+    answer: 1,
+    why: "An applicant with more than 5 points within the last 3 years is not eligible at PAM.",
+    lesson: "PAM Transportation",
+  },
+  {
+    q: "A driver has 3 moving violations in the last 3 years, and all 3 were in the last 12 months. Does the driver fit US Xpress?",
+    options: ["Yes, 3 in 3 years is allowed", "Yes, if they have 3 months of experience", "No, US Xpress allows no more than 2 in the last 12 months", "No, US Xpress allows none"],
+    answer: 2,
+    why: "US Xpress allows no more than 3 in 3 years and no more than 2 in the last 12 months.",
+    lesson: "US Xpress (Local, Regional, OTR)",
+  },
+  // Communication
+  {
+    q: "You sense hesitation or run into trouble during the application. What does the Call Script tell you to do?",
+    options: ["Hang up and try next week", "Bring in the lead recruiter", "Finish the application without the driver", "Ignore it and keep going"],
+    answer: 1,
+    why: "Ask them to hold for a moment and bring in the lead recruiter, so the driver feels supported.",
+    lesson: "Call Script",
+  },
+  {
+    q: "A driver hesitates about the job you offered. What is a good first question?",
+    options: ["Why are you wasting my time?", "Can you share any concerns you have about this opportunity?", "Do you want the job or not?", "Who else are you talking to?"],
+    answer: 1,
+    why: "Ask about the concern first, then give a solution that fits.",
+    lesson: "Convincing / Consulting",
+  },
+  // Application submission
+  {
+    q: "Which of these goes in the Carrier Notes when you submit a Swift driver?",
+    options: [
+      "Only the driver's name",
+      "Home time, schedule, account, exact pay quoted and the app confirmation number",
+      "The driver's favorite routes",
+      "Nothing, the application is enough",
+    ],
+    answer: 1,
+    why: "Carrier Notes list exactly what was sold to the driver and the confirmation number.",
+    lesson: "Swift",
+  },
+  {
+    q: "After you complete the application, when does the Call Script say you will follow up?",
+    options: ["Within 48 hours", "In two weeks", "Only if the driver calls", "After orientation"],
+    answer: 0,
+    why: "Close the call with a clear next step: you will follow up within 48 hours.",
+    lesson: "Call Script",
+  },
+  // True or false
+  {
+    q: "True or false: truck driving school counts as experience for US Xpress.",
+    options: ["True", "False"],
+    answer: 1,
+    why: "US Xpress: truck driving school or training doesn't count as experience.",
+    lesson: "US Xpress (Local, Regional, OTR)",
+  },
+  {
+    q: "True or false: on TransAm's pay chart, a driver's experience counts from their last preventable accident.",
+    options: ["True", "False"],
+    answer: 0,
+    why: "A driver with 5 years of experience whose last preventable accident was 2 years ago is a 2-year driver on the chart.",
+    lesson: "Trans AM",
+  },
+  {
+    q: "True or false: in the Call Script, you pre-qualify the driver before you present the job.",
+    options: ["True", "False"],
+    answer: 0,
+    why: "Pre-qualification comes first, so you only present a job the driver can get.",
+    lesson: "Call Script",
+  },
+  {
+    q: "True or false: submitting the application is the end of your work on that driver.",
+    options: ["True", "False"],
+    answer: 1,
+    why: "Submitting isn't the finish line. Keep following up until they're hired or say no.",
+    lesson: "Follow Up calls",
+  },
 ];
 
 // ---- Paper version (Word download). The answer options are shuffled once
@@ -340,6 +429,7 @@ export const PAPER_TEST = (() => {
   const rand = seeded(20261109);
   return ACADEMY_TEST.map((q) => {
     const order = q.options.map((_, i) => i);
+    if (q.options.length === 2) return q; // true / false stays in that order
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
       [order[i], order[j]] = [order[j], order[i]];

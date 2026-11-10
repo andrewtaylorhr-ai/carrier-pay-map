@@ -1,17 +1,17 @@
 // The two Word files for the Academy test: the test to hand to recruiters
 // (no answers) and the answer key for the manager.
-import { PAPER_TEST, TEST_PASS, letter } from "@/lib/academy-test";
+import { PAPER_TEST, letter } from "@/lib/academy-test";
 import { type DocBlock, downloadDocx } from "@/lib/docx";
 
 const TITLE = "Class A Recruiting Academy · Test";
 
-export function downloadTestDoc() {
+export function downloadTestDoc(passMark: number) {
   const blocks: DocBlock[] = [
     { kind: "title", text: TITLE },
     { kind: "para", text: "Name: ______________________________          Date: ______________", spaceAfter: 120 },
     {
       kind: "para",
-      text: `${PAPER_TEST.length} questions from the Academy lessons. Circle or write ONE letter (A, B, C or D) for each question. You pass with ${TEST_PASS}% or more.`,
+      text: `${PAPER_TEST.length} questions from the Academy lessons. Circle or write ONE letter for each question. You pass with ${passMark}% or more.`,
       italic: true,
       spaceAfter: 240,
     },
@@ -33,7 +33,7 @@ export function downloadTestDoc() {
   downloadDocx("Academy Test.docx", blocks);
 }
 
-export function downloadAnswerKeyDoc() {
+export function downloadAnswerKeyDoc(passMark: number) {
   const blocks: DocBlock[] = [
     { kind: "title", text: `${TITLE} · ANSWER KEY` },
     { kind: "para", text: "For the manager only. Do not share with recruiters.", bold: true, color: "C0392B", spaceAfter: 160 },
@@ -50,7 +50,7 @@ export function downloadAnswerKeyDoc() {
   }
   blocks.push({
     kind: "para",
-    text: `Pass mark: ${TEST_PASS}% = ${Math.ceil((PAPER_TEST.length * TEST_PASS) / 100)} of ${PAPER_TEST.length} correct.`,
+    text: `Pass mark: ${passMark}% = ${Math.ceil((PAPER_TEST.length * passMark) / 100)} of ${PAPER_TEST.length} correct.`,
     italic: true,
     spaceAfter: 240,
   });

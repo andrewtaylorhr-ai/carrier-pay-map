@@ -6,7 +6,8 @@ import { Check, Trash2, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
-import { TEST_PASS } from "@/lib/academy-test";
+import { newCertificate, printCertificate } from "@/lib/certificate";
+import { KNOWLEDGE_CHECKS, type TrainingSettings } from "@/lib/training-content";
 import { DAY_PLANS, READY_CHECK, dayTasks } from "@/lib/practice-days";
 import { ACADEMY_URL, QC_GOOD_CALLS, goodCalls, programProgress, type PlanItem } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
@@ -52,11 +53,17 @@ const stepText = (t: Trainee, today: string) => {
   return `Day ${s.day} of ${s.days} · due ${formatDay(s.due)}`;
 };
 
+// Average of a trainee's knowledge check scores, null before the first one.
+const quizAverage = (t: Trainee) => {
+  const scores = KNOWLEDGE_CHECKS.map((c) => t.quizScores?.[c.id]).filter((v): v is number => v != null);
+  return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+};
+
 // The manager's side of training: pick a new recruiter, tick off the Academy
 // lessons (day 1), run the Academy test, tick off day 2 (practice) and day 3
 // (first live calls), log the
 // calls you listened to in QC, then move them on.
-export function TraineeManager({ onRunTest, onOpenGuide }: { onRunTest: (name: string) => void; onOpenGuide: () => void }) {
+export function TraineeManager({ onRunTest, onOpenGuide, settings }: { onRunTest: (name: string) => void; onOpenGuide: () => void; settings: TrainingSettings }) {
   const { trainees, updateTrainee, approveTrainee } = useCarrierMap();
   const today = todayISO();
   const [selected, setSelected] = useLocalStorageState<string>("cpm_trainingSelected", "");
@@ -80,6 +87,34 @@ export function TraineeManager({ onRunTest, onOpenGuide }: { onRunTest: (name: s
   }
 
   return (
+    <div className="flex flex-col gap-4">
+      <div className={`${card} overflow-x-auto`}>
+        <table className="payTable">
+          <thead>
+            <tr>
+              <th>Recruiter</th>
+              <th>Lessons</th>
+              <th>Quiz average</th>
+              <th>Final exam</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {people.map(([n, t]) => {
+              const quiz = quizAverage(t);
+              return (
+                <tr key={n} className="cursor-pointer" onClick={() => setSelected(n)}>
+                  <td className="font-semibold">{n}</td>
+                  <td>{programProgress(t).pct}%</td>
+                  <td>{quiz != null ? `${quiz}%` : "—"}</td>
+                  <td>{t.testScore == null ? "Not taken" : t.testScore >= settings.passMark ? `Passed ${t.testScore}%` : `Not passed ${t.testScore}%`}</td>
+                  <td>{t.certificate ? "Certified" : STAGE[t.stage].label}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     <div className="grid gap-4 lg:grid-cols-[290px_1fr] items-start">
       <div className={`${card} overflow-hidden`}>
         <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--cpm-border)]">
@@ -150,10 +185,12 @@ export function TraineeManager({ onRunTest, onOpenGuide }: { onRunTest: (name: s
           }}
           onRunTest={() => onRunTest(current[0])}
           onOpenGuide={onOpenGuide}
+          settings={settings}
         />
       ) : (
         <div className={`${card} px-4 py-8 text-center text-[12.5px] text-[var(--cpm-text-faint)]`}>Pick someone on the left.</div>
       )}
+    </div>
     </div>
   );
 }
@@ -166,6 +203,7 @@ function TraineeFile({
   approve,
   onRunTest,
   onOpenGuide,
+  settings,
 }: {
   name: string;
   t: Trainee;
@@ -174,12 +212,15 @@ function TraineeFile({
   approve: () => void;
   onRunTest: () => void;
   onOpenGuide: () => void;
+  settings: TrainingSettings;
 }) {
   const done = new Set(t.checklist ?? []);
   const p = programProgress(t);
   const good = goodCalls(t);
   const s = stepStatus(t, today);
-  const testPassed = (t.testScore ?? 0) >= TEST_PASS;
+  const testPassed = (t.testScore ?? 0) >= settings.passMark;
+  const quiz = quizAverage(t);
+  const canCertify = p.done === p.total && testPassed;
   // The Academy is day 1: from day 2 on, unfinished lessons are flagged.
   const academyLate = t.stage === "training" && !!s && !s.notStarted && (s.day >= 2 || s.late > 0) && p.done < p.total;
   const trainingDay = t.stage === "training" && s && !s.notStarted ? s.day : 0;
@@ -262,7 +303,7 @@ function TraineeFile({
         </div>
       </div>
 
-      <div className="grid gap-3 grid-cols-3">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         <Mini label="Academy lessons" value={`${p.done}/${p.total}`} pct={p.pct} color="#f59e0b" />
         <Mini
           label="Academy test"
@@ -270,6 +311,7 @@ function TraineeFile({
           pct={t.testScore ?? 0}
           color={testPassed ? "var(--cpm-green)" : "#e5484d"}
         />
+        <Mini label="Quiz average" value={quiz != null ? `${quiz}%` : "None yet"} pct={quiz ?? 0} color="#0ea5e9" />
         <Mini label="Good QC calls" value={`${good}/${QC_GOOD_CALLS}`} pct={Math.min(100, (good / QC_GOOD_CALLS) * 100)} color="var(--cpm-green)" />
       </div>
 
@@ -291,7 +333,7 @@ function TraineeFile({
         <div>
           <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Step 2 · Academy test</h3>
           <div className="text-[12px] text-[var(--cpm-text-faint)]">
-            Questions from the Academy lessons, pass with {TEST_PASS}%.{" "}
+            Questions from the Academy lessons, pass with {settings.passMark}%.{" "}
             {t.testScore == null ? "Not taken yet." : testPassed ? `Passed with ${t.testScore}%.` : `Best so far ${t.testScore}%, not passed yet.`}
           </div>
         </div>
@@ -300,8 +342,13 @@ function TraineeFile({
             {t.testScore == null ? "Start the test" : "Take the test again"} with {name.split(" ")[0]}
           </button>
           {t.testScore != null && (
-            <button type="button" className={btnGhost} onClick={() => confirm("Clear the test score?") && update({ testScore: undefined })}>
+            <button type="button" className={btnGhost} onClick={() => confirm("Clear the test score?") && update({ testScore: undefined, testAttempts: undefined })}>
               Clear score
+            </button>
+          )}
+          {settings.maxAttempts > 0 && (t.testAttempts ?? 0) > 0 && (
+            <button type="button" className={btnGhost} onClick={() => confirm(`Reset ${name}'s test attempts?`) && update({ testAttempts: undefined })}>
+              Reset attempts ({t.testAttempts}/{settings.maxAttempts})
             </button>
           )}
         </div>
@@ -342,6 +389,35 @@ function TraineeFile({
           </section>
         );
       })}
+
+      <section className={`${card} px-4 py-3 flex items-center gap-3 flex-wrap`}>
+        <div>
+          <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Certificate</h3>
+          <div className="text-[12px] text-[var(--cpm-text-faint)]">
+            {t.certificate
+              ? `Issued ${formatDay(t.certificate.date)} · ${t.certificate.id} · score ${t.certificate.score}%`
+              : canCertify
+                ? "All lessons done and the final exam passed."
+                : "Needs all Academy lessons ticked and the final exam passed."}
+          </div>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          {t.certificate ? (
+            <>
+              <button type="button" className={btnMain} onClick={() => printCertificate(name, t.certificate!, settings.signer)}>
+                Download PDF
+              </button>
+              <button type="button" className={btnGhost} onClick={() => confirm("Remove this certificate?") && update({ certificate: undefined })}>
+                Remove
+              </button>
+            </>
+          ) : (
+            <button type="button" className={btnMain} disabled={!canCertify} style={canCertify ? undefined : { opacity: 0.5, cursor: "not-allowed" }} onClick={() => update({ certificate: newCertificate(today, t.testScore ?? 0) })}>
+              Issue certificate
+            </button>
+          )}
+        </div>
+      </section>
 
       <section className={`${card} px-4 py-3`}>
         <h3 className="text-[13.5px] font-bold text-[var(--cpm-text)] mb-1">Notes</h3>

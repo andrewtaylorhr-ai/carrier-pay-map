@@ -1,12 +1,16 @@
 "use client";
 
-import { ClipboardCheck, FileDown, GraduationCap, KeyRound, PhoneCall, Users } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, FileDown, GraduationCap, KeyRound, ListChecks, Phone, PhoneCall, Users } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { downloadAnswerKeyDoc, downloadTestDoc } from "@/lib/academy-test-docs";
+import { DEFAULT_SETTINGS, SETTINGS_KEY, type TrainingSettings } from "@/lib/training-content";
 import { ACADEMY_URL, REQUIRED_LESSONS } from "@/lib/training-program";
 import { AcademyList } from "./AcademyList";
 import { AcademyTest } from "./AcademyTest";
+import { CallGuide } from "./CallGuide";
+import { CarrierRules } from "./CarrierRules";
+import { KnowledgeChecks } from "./KnowledgeChecks";
 import { PaperGrader } from "./PaperGrader";
 import { PracticeGuide } from "./PracticeGuide";
 import { TraineeManager } from "./TraineeManager";
@@ -14,8 +18,11 @@ import { TraineeManager } from "./TraineeManager";
 const TABS = [
   { id: "trainees", label: "Trainees", icon: Users },
   { id: "academy", label: "Academy", icon: GraduationCap },
+  { id: "checks", label: "Knowledge checks", icon: BookOpenCheck },
   { id: "test", label: "Academy test", icon: ClipboardCheck },
   { id: "practice", label: "Days 2–3", icon: PhoneCall },
+  { id: "call", label: "Call guide", icon: Phone },
+  { id: "rules", label: "Carrier rules", icon: ListChecks },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -31,11 +38,18 @@ export function TrainingApp() {
   const takers = Object.keys(trainees).filter((n) => trainees[n].stage === "training" || trainees[n].stage === "qc" || n === taker);
   const testFor = trainees[taker] ? taker : "";
   const [mode, setMode] = useLocalStorageState<"online" | "paper">("cpm_testMode", "online");
-  const saveScore = (pct: number) => testFor && updateTrainee(testFor, { testScore: Math.max(pct, trainees[testFor].testScore ?? 0) });
+  const [settings, setSettings] = useLocalStorageState<TrainingSettings>(SETTINGS_KEY, DEFAULT_SETTINGS);
+  const setSetting = (patch: Partial<TrainingSettings>) => setSettings((s) => ({ ...s, ...patch }));
+  const used = testFor ? (trainees[testFor].testAttempts ?? 0) : 0;
+  const locked = !!testFor && settings.maxAttempts > 0 && used >= settings.maxAttempts;
+  const saveScore = (pct: number) => {
+    if (!testFor) return;
+    updateTrainee(testFor, { testScore: Math.max(pct, trainees[testFor].testScore ?? 0), testAttempts: used + 1 });
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="segTabs self-start">
+      <div className="segTabs self-start flex-wrap">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" className={active === id ? "active" : undefined} onClick={() => setTab(id)}>
             <Icon size={14} /> {label}
@@ -49,6 +63,7 @@ export function TrainingApp() {
             setTab("test");
           }}
           onOpenGuide={() => setTab("practice")}
+          settings={settings}
         />
       )}
       {active === "academy" && (
@@ -63,16 +78,51 @@ export function TrainingApp() {
         </div>
       )}
       {active === "practice" && <PracticeGuide />}
+      {active === "checks" && <KnowledgeChecks taker={taker} takers={takers} setTaker={setTaker} />}
+      {active === "call" && <CallGuide />}
+      {active === "rules" && <CarrierRules />}
       {active === "test" && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[12.5px] text-[var(--cpm-text-dim)]">Word files:</span>
-            <button type="button" className="ghostBtn" onClick={downloadTestDoc}>
+            <button type="button" className="ghostBtn" onClick={() => downloadTestDoc(settings.passMark)}>
               <FileDown size={14} /> Download test (for recruiters)
             </button>
-            <button type="button" className="ghostBtn" onClick={downloadAnswerKeyDoc}>
+            <button type="button" className="ghostBtn" onClick={() => downloadAnswerKeyDoc(settings.passMark)}>
               <KeyRound size={14} /> Download answer key (for you)
             </button>
+          </div>
+          <div className="flex items-center gap-4 flex-wrap text-[12.5px] text-[var(--cpm-text-dim)]">
+            <label className="flex items-center gap-2">
+              Pass mark %
+              <input
+                type="number"
+                min={1}
+                max={100}
+                className={`${select} w-[70px]`}
+                value={settings.passMark}
+                onChange={(e) => setSetting({ passMark: Math.min(100, Math.max(1, Number(e.target.value) || 1)) })}
+              />
+            </label>
+            <label className="flex items-center gap-2">
+              Attempts allowed (0 = no limit)
+              <input
+                type="number"
+                min={0}
+                className={`${select} w-[70px]`}
+                value={settings.maxAttempts}
+                onChange={(e) => setSetting({ maxAttempts: Math.max(0, Number(e.target.value) || 0) })}
+              />
+            </label>
+            <label className="flex items-center gap-2">
+              Name on certificates
+              <input className={`${select} w-[170px]`} placeholder="Leave empty to sign by hand" value={settings.signer} onChange={(e) => setSetting({ signer: e.target.value })} />
+            </label>
+            {testFor && settings.maxAttempts > 0 && (
+              <span className="text-[var(--cpm-text-faint)]">
+                {testFor}: {used} of {settings.maxAttempts} used
+              </span>
+            )}
           </div>
           <div className="segTabs self-start">
             <button type="button" className={mode === "online" ? "active" : undefined} onClick={() => setMode("online")}>
@@ -94,9 +144,9 @@ export function TrainingApp() {
             </select>
           </label>
           {mode === "paper" ? (
-            <PaperGrader key={testFor} taker={testFor || undefined} onSave={saveScore} />
+            <PaperGrader key={testFor} taker={testFor || undefined} passMark={settings.passMark} locked={locked} onSave={saveScore} />
           ) : (
-            <AcademyTest key={testFor} taker={testFor || undefined} best={testFor ? (trainees[testFor].testScore ?? null) : null} onFinish={saveScore} />
+            <AcademyTest key={testFor} taker={testFor || undefined} best={testFor ? (trainees[testFor].testScore ?? null) : null} passMark={settings.passMark} locked={locked} onFinish={saveScore} />
           )}
         </div>
       )}

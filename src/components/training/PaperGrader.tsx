@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { PAPER_TEST, TEST_PASS, letter } from "@/lib/academy-test";
+import { PAPER_TEST, letter } from "@/lib/academy-test";
 
 // Grade a filled-in Word test: click the letter the trainee wrote for each
 // question, then save. Questions are in the same order as the Word file.
-export function PaperGrader({ taker, onSave }: { taker?: string; onSave: (pct: number) => void }) {
+export function PaperGrader({ taker, passMark, locked, onSave }: { taker?: string; passMark: number; locked?: boolean; onSave: (pct: number) => void }) {
   const [picked, setPicked] = useState<(number | null)[]>(() => PAPER_TEST.map(() => null));
   const [saved, setSaved] = useState<number | null>(null);
   const total = PAPER_TEST.length;
@@ -24,7 +24,7 @@ export function PaperGrader({ taker, onSave }: { taker?: string; onSave: (pct: n
         <div>
           <div className="text-[15px] font-bold text-[var(--cpm-text)]">Grade a paper test{taker ? ` · ${taker}` : ""}</div>
           <div className="text-[12px] text-[var(--cpm-text-faint)]">
-            Click the letter they wrote for each question. Same order as the Word file. Pass with {TEST_PASS}%.
+            Click the letter they wrote for each question. Same order as the Word file. Pass with {passMark}%.{locked && saved == null ? " No attempts left: reset them on their training file." : ""}
           </div>
         </div>
         <div className="ml-auto flex items-center gap-2">
@@ -34,7 +34,7 @@ export function PaperGrader({ taker, onSave }: { taker?: string; onSave: (pct: n
           <button
             type="button"
             onClick={save}
-            disabled={!taker || filled < total}
+            disabled={!taker || filled < total || locked}
             title={!taker ? "Pick who took the test first" : undefined}
             className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -46,13 +46,13 @@ export function PaperGrader({ taker, onSave }: { taker?: string; onSave: (pct: n
       {saved != null && (
         <div
           className={`rounded-xl border px-4 py-3 text-[13px] ${
-            saved >= TEST_PASS
+            saved >= passMark
               ? "bg-[var(--cpm-green-soft)] text-[var(--cpm-green)] border-[var(--cpm-green)]"
               : "bg-[var(--cpm-red-soft)] text-[#ff9a9d] border-[var(--cpm-red)]"
           }`}
         >
           <span className="font-bold">
-            {score}/{total} · {saved}% · {saved >= TEST_PASS ? "Passed ✓" : "Not passed"}
+            {score}/{total} · {saved}% · {saved >= passMark ? "Passed ✓" : "Not passed"}
           </span>
           {score < total && (
             <span className="text-[var(--cpm-text-dim)]">

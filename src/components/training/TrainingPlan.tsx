@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
-import { Award, CalendarClock, ChevronLeft, ChevronRight, ClipboardCheck, FileCheck2, Flag, Headset, Maximize2, Minimize2, Search, ShieldCheck, Target, Truck, UserCheck, type LucideIcon } from "lucide-react";
-import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { Award, CalendarClock, ClipboardCheck, FileCheck2, Flag, Headset, Search, ShieldCheck, Target, Truck, UserCheck, type LucideIcon } from "lucide-react";
 import { ACADEMY, lessonUrl } from "@/lib/training-program";
-import { TruckStage } from "./TruckStage";
+import { SlideIndex, SlideShow, eyebrow, panel } from "./SlideShow";
+import { VideoStage } from "./VideoStage";
 
 export type PlanTab = "trainees" | "academy" | "checks" | "test" | "practice" | "call" | "rules";
 
@@ -135,28 +134,11 @@ const STEPS: Step[] = [
 ];
 
 const HIRE = STEPS.length + 1; // slide 0 is the cover, then one per step, then Hire
-const navBtn =
-  "inline-flex items-center gap-1 h-9 px-3 rounded-lg border border-[var(--cpm-border-strong)] text-[13px] font-semibold text-[var(--cpm-text)] transition-colors hover:border-[var(--cpm-accent)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[var(--cpm-border-strong)]";
-const panel = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] shadow-[0_8px_24px_rgba(0,0,0,.25)] px-5 py-4";
-const eyebrow = "text-[11px] font-bold uppercase tracking-[.14em]";
-
-function Cover({ onPick }: { onPick: (slide: number) => void }) {
-  return (
-    <div className="tp-rise grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-      {STEPS.map((s, i) => (
-        <button
-          key={s.title}
-          type="button"
-          onClick={() => onPick(i + 1)}
-          className="flex items-start gap-2.5 text-left rounded-lg border border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] px-3 py-2.5 transition-colors hover:border-[var(--cpm-accent)]"
-        >
-          <span className="w-6 h-6 shrink-0 rounded-md bg-[var(--cpm-accent)] text-white text-[12px] font-bold flex items-center justify-center">{i + 1}</span>
-          <span className="text-[12.5px] leading-[1.3] font-semibold text-[var(--cpm-text)]">{s.title}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
+const STOPS = ["Start", ...STEPS.map((s) => s.title), "Hire"];
+// Where the build video stops for steps 1 to 10, in seconds. The cover plays it
+// all, each step plays on to its moment, and Hire drives the truck away.
+const STEP_TIMES = [0.1, 0.7, 1.1, 1.6, 2.1, 2.5, 3, 3.5, 4, 4.9];
+const SEGMENTS: [number, number][] = [[0, 10], ...STEP_TIMES.map((t, i): [number, number] => [i ? STEP_TIMES[i - 1] : 0, t]), [4.9, 10]];
 
 function StepDetail({ step, onOpen }: { step: Step; onOpen: (tab: PlanTab) => void }) {
   const lessons = (step.lessons ?? []).map((t) => LESSONS.find((l) => l.title === t)).filter((l) => !!l);
@@ -207,139 +189,64 @@ function StepDetail({ step, onOpen }: { step: Step; onOpen: (tab: PlanTab) => vo
 }
 
 // The training plan as a presentation: each step moves the truck build along.
-// Move with the buttons, the arrow keys, a swipe, or the stops on the road.
 export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
-  const [stored, setSlide] = useLocalStorageState<number>("cpm_trainingSlide", 0);
-  const slide = Math.min(HIRE, Math.max(0, stored));
-  const [full, setFull] = useState(false);
-  const root = useRef<HTMLElement>(null);
-  const dragFrom = useRef<number | null>(null);
-
-  const go = useCallback(
-    (to: number) => {
-      const target = Math.min(HIRE, Math.max(0, to));
-      if (target === slide) return;
-      setSlide(target);
-    },
-    [slide, setSlide]
-  );
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") go(slide + 1);
-      if (e.key === "ArrowLeft") go(slide - 1);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [go, slide]);
-
-  useEffect(() => {
-    const onChange = () => setFull(document.fullscreenElement === root.current);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  const toggleFull = () => {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else root.current?.requestFullscreen?.();
-  };
-
-  // swipe or drag sideways (not when starting on a link or button)
-  const onDown = (e: PointerEvent) => {
-    dragFrom.current = (e.target as HTMLElement).closest("a,button") ? null : e.clientX;
-  };
-  const onUp = (e: PointerEvent) => {
-    if (dragFrom.current == null) return;
-    const dx = e.clientX - dragFrom.current;
-    dragFrom.current = null;
-    if (Math.abs(dx) > 70) go(slide + (dx < 0 ? 1 : -1));
-  };
-
-  const step = slide >= 1 && slide < HIRE ? STEPS[slide - 1] : null;
-  const isHire = slide === HIRE;
-  const Icon = step?.icon;
-  const pct = (slide / HIRE) * 100;
-  const roadColor = isHire ? "var(--cpm-green)" : "var(--cpm-accent)";
-
   return (
-    <section ref={root} className={`flex flex-col gap-3 ${full ? "h-screen overflow-auto p-6 justify-center bg-[var(--cpm-bg)]" : ""}`}>
-      <div className="touch-pan-y flex flex-col gap-3" onPointerDown={onDown} onPointerUp={onUp}>
-        <TruckStage slide={slide}>
-          <div key={slide} className="tp-rise max-w-[640px]">
-            {slide === 0 && (
-              <>
-                <div className={`${eyebrow} brandSilver`}>Class A Recruiting</div>
-                <h2 className="text-[26px] md:text-[38px] leading-[1.1] font-extrabold text-white mt-1">Recruiter Training Roadmap</h2>
-                <p className="text-[13.5px] md:text-[15px] text-[#d6d6d6] mt-1.5">Every recruiter is built step by step.</p>
-              </>
-            )}
-            {step && Icon && (
-              <>
-                <div className={`${eyebrow} flex items-center gap-1.5 text-white`}>
-                  <span className="inline-flex w-6 h-6 rounded-md bg-[var(--cpm-accent)] items-center justify-center">
-                    <Icon size={14} strokeWidth={2.25} />
-                  </span>
-                  Step {slide} of {STEPS.length}
-                </div>
-                <h2 className="text-[24px] md:text-[34px] leading-[1.12] font-extrabold text-white mt-1.5">{step.title}</h2>
-              </>
-            )}
-            {isHire && (
-              <>
-                <div className={`${eyebrow} flex items-center gap-1.5 text-white`}>
-                  <span className="inline-flex w-6 h-6 rounded-md bg-[var(--cpm-green)] items-center justify-center text-[#06240f]">
-                    <Flag size={14} strokeWidth={2.25} />
-                  </span>
-                  Final stage
-                </div>
-                <h2 className="text-[34px] md:text-[48px] leading-[1.05] font-extrabold text-[var(--cpm-green)] mt-1.5">Hire</h2>
-                <p className="text-[13.5px] md:text-[15px] text-[#e4e4e4] mt-1">Built step by step. Ready for the road.</p>
-              </>
-            )}
-          </div>
-        </TruckStage>
-
-        <div key={slide} className="min-h-[150px]">
-          {slide === 0 && <Cover onPick={go} />}
-          {step && <StepDetail step={step} onOpen={onOpen} />}
-          {isHire && (
+    <SlideShow
+      storageKey="cpm_trainingSlide"
+      stops={STOPS}
+      greenAt={HIRE}
+      hint="Or use the arrow keys, or swipe. Each step plays the next part of the build."
+      stage={(slide) => {
+        const step = slide >= 1 && slide < HIRE ? STEPS[slide - 1] : null;
+        const Icon = step?.icon;
+        return (
+          <VideoStage src="training/truck-build.mp4" poster="training/truck-build-end.jpg" segments={SEGMENTS} slide={slide}>
+            <div key={slide} className="tp-rise max-w-[640px]">
+              {slide === 0 && (
+                <>
+                  <div className={`${eyebrow} brandSilver`}>Class A Recruiting</div>
+                  <h2 className="text-[26px] md:text-[38px] leading-[1.1] font-extrabold text-white mt-1">Recruiter Training Roadmap</h2>
+                  <p className="text-[13.5px] md:text-[15px] text-[#d6d6d6] mt-1.5">Every recruiter is built step by step.</p>
+                </>
+              )}
+              {step && Icon && (
+                <>
+                  <div className={`${eyebrow} flex items-center gap-1.5 text-white`}>
+                    <span className="inline-flex w-6 h-6 rounded-md bg-[var(--cpm-accent)] items-center justify-center">
+                      <Icon size={14} strokeWidth={2.25} />
+                    </span>
+                    Step {slide} of {STEPS.length}
+                  </div>
+                  <h2 className="text-[24px] md:text-[34px] leading-[1.12] font-extrabold text-white mt-1.5">{step.title}</h2>
+                </>
+              )}
+              {slide === HIRE && (
+                <>
+                  <div className={`${eyebrow} flex items-center gap-1.5 text-white`}>
+                    <span className="inline-flex w-6 h-6 rounded-md bg-[var(--cpm-green)] items-center justify-center text-[#06240f]">
+                      <Flag size={14} strokeWidth={2.25} />
+                    </span>
+                    Final stage
+                  </div>
+                  <h2 className="text-[34px] md:text-[48px] leading-[1.05] font-extrabold text-[var(--cpm-green)] mt-1.5">Hire</h2>
+                  <p className="text-[13.5px] md:text-[15px] text-[#e4e4e4] mt-1">Built step by step. Ready for the road.</p>
+                </>
+              )}
+            </div>
+          </VideoStage>
+        );
+      }}
+      below={(slide, go) => (
+        <>
+          {slide === 0 && <SlideIndex titles={STEPS.map((s) => s.title)} onPick={go} cols="xl:grid-cols-5" />}
+          {slide >= 1 && slide < HIRE && <StepDetail step={STEPS[slide - 1]} onOpen={onOpen} />}
+          {slide === HIRE && (
             <div className={`tp-rise ${panel} border-[var(--cpm-green)] text-[14px] text-[var(--cpm-text)]`}>
               The driver is officially hired only after dispatch. Confirm the hire, then keep tracking the driver.
             </div>
           )}
-        </div>
-      </div>
-
-      {/* progress: the truck drives along the road to the current slide */}
-      <div className="relative h-10 mx-3">
-        <div className="absolute left-0 right-0 top-[27px] h-[3px] rounded bg-[var(--cpm-border-strong)]" />
-        <div className="absolute left-0 top-[27px] h-[3px] rounded transition-[width] duration-700" style={{ width: `${pct}%`, background: roadColor }} />
-        <Truck size={20} className="absolute top-0 -ml-[10px] transition-[left] duration-700" style={{ left: `${pct}%`, color: isHire ? "var(--cpm-green)" : "var(--cpm-accent-text)" }} />
-        {Array.from({ length: HIRE + 1 }, (_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => go(i)}
-            title={i === 0 ? "Start" : i === HIRE ? "Hire" : STEPS[i - 1].title}
-            aria-label={i === 0 ? "Start" : i === HIRE ? "Hire" : `Step ${i}: ${STEPS[i - 1].title}`}
-            className="absolute top-[21px] -ml-[7.5px] w-[15px] h-[15px] rounded-full border-2 border-[var(--cpm-bg)]"
-            style={{ left: `${(i / HIRE) * 100}%`, background: i === HIRE ? "var(--cpm-green)" : i <= slide ? roadColor : "#4a4a4a" }}
-          />
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button type="button" className={navBtn} onClick={() => go(slide - 1)} disabled={slide === 0}>
-          <ChevronLeft size={16} /> Back
-        </button>
-        <button type="button" className={navBtn} onClick={() => go(slide + 1)} disabled={isHire}>
-          {slide === 0 ? "Start" : "Next"} <ChevronRight size={16} />
-        </button>
-        <span className="text-[12px] text-[var(--cpm-text-faint)] hidden sm:inline">Or use the arrow keys, or swipe. Each step adds a part to the truck.</span>
-        <button type="button" className={`${navBtn} ml-auto`} onClick={toggleFull}>
-          {full ? <Minimize2 size={15} /> : <Maximize2 size={15} />} {full ? "Exit" : "Full screen"}
-        </button>
-      </div>
-    </section>
+        </>
+      )}
+    />
   );
 }

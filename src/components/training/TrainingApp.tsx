@@ -58,7 +58,7 @@ export function TrainingApp() {
           </button>
         ))}
       </div>
-      {active === "plan" && <TrainingPlan />}
+      {active === "plan" && <TrainingPlan onOpen={setTab} />}
       {active === "trainees" && (
         <TraineeManager
           onRunTest={(name) => {

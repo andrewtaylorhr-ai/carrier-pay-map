@@ -1,6 +1,6 @@
 "use client";
 
-// The presentation shell shared by the Training plan and the Driver's journey:
+// The Training plan's presentation shell:
 // slide kept per browser, Back/Next, arrow keys, swipe, road with a stop per
 // slide, and full screen.
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";

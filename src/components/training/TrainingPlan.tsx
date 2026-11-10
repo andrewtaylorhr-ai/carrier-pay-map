@@ -135,10 +135,11 @@ const STEPS: Step[] = [
 
 const HIRE = STEPS.length + 1; // slide 0 is the cover, then one per step, then Hire
 const STOPS = ["Start", ...STEPS.map((s) => s.title), "Hire"];
-// Where the build video stops for steps 1 to 10, in seconds. The cover plays it
-// all, each step plays on to its moment, and Hire drives the truck away.
-const STEP_TIMES = [0.1, 0.7, 1.1, 1.6, 2.1, 2.5, 3, 3.5, 4, 4.9];
-const SEGMENTS: [number, number][] = [[0, 10], ...STEP_TIMES.map((t, i): [number, number] => [i ? STEP_TIMES[i - 1] : 0, t]), [4.9, 10]];
+// The driver's story video: where it stops for steps 1 to 10, in seconds. The
+// cover plays it all, each step plays on to its moment, and Hire ends on the road.
+const STEP_TIMES = [0.25, 1.75, 2.1, 3, 3.6, 4.4, 5, 5.7, 6.4, 7];
+const VIDEO_END = 7.9;
+const SEGMENTS: [number, number][] = [[0, VIDEO_END], ...STEP_TIMES.map((t, i): [number, number] => [i ? STEP_TIMES[i - 1] : 0, t]), [7, VIDEO_END]];
 
 function StepDetail({ step, onOpen }: { step: Step; onOpen: (tab: PlanTab) => void }) {
   const lessons = (step.lessons ?? []).map((t) => LESSONS.find((l) => l.title === t)).filter((l) => !!l);
@@ -188,19 +189,19 @@ function StepDetail({ step, onOpen }: { step: Step; onOpen: (tab: PlanTab) => vo
   );
 }
 
-// The training plan as a presentation: each step moves the truck build along.
+// The training plan as a presentation: each step moves the driver's story along.
 export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
   return (
     <SlideShow
       storageKey="cpm_trainingSlide"
       stops={STOPS}
       greenAt={HIRE}
-      hint="Or use the arrow keys, or swipe. Each step plays the next part of the build."
+      hint="Or use the arrow keys, or swipe. Each step plays the next part of the driver's story."
       stage={(slide) => {
         const step = slide >= 1 && slide < HIRE ? STEPS[slide - 1] : null;
         const Icon = step?.icon;
         return (
-          <VideoStage src="training/truck-build.mp4" poster="training/truck-build-end.jpg" segments={SEGMENTS} slide={slide}>
+          <VideoStage src="training/driver-journey.mp4" poster="training/driver-journey-end.jpg" segments={SEGMENTS} slide={slide}>
             <div key={slide} className="tp-rise max-w-[640px]">
               {slide === 0 && (
                 <>

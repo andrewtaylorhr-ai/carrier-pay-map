@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenCheck, ClipboardCheck, FileDown, GraduationCap, KeyRound, ListChecks, Map as MapIcon, Phone, PhoneCall, Route, Users } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, FileDown, GraduationCap, KeyRound, ListChecks, Map as MapIcon, Phone, PhoneCall, Users } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { downloadAnswerKeyDoc, downloadTestDoc } from "@/lib/academy-test-docs";
@@ -10,7 +10,6 @@ import { AcademyList } from "./AcademyList";
 import { AcademyTest } from "./AcademyTest";
 import { CallGuide } from "./CallGuide";
 import { CarrierRules } from "./CarrierRules";
-import { DriverJourney } from "./DriverJourney";
 import { KnowledgeChecks } from "./KnowledgeChecks";
 import { PaperGrader } from "./PaperGrader";
 import { PracticeGuide } from "./PracticeGuide";
@@ -19,7 +18,6 @@ import { TrainingPlan } from "./TrainingPlan";
 
 const TABS = [
   { id: "plan", label: "Training plan", icon: MapIcon },
-  { id: "journey", label: "Driver's journey", icon: Route },
   { id: "trainees", label: "Trainees", icon: Users },
   { id: "academy", label: "Academy", icon: GraduationCap },
   { id: "checks", label: "Knowledge checks", icon: BookOpenCheck },
@@ -61,7 +59,6 @@ export function TrainingApp() {
         ))}
       </div>
       {active === "plan" && <TrainingPlan onOpen={setTab} />}
-      {active === "journey" && <DriverJourney />}
       {active === "trainees" && (
         <TraineeManager
           onRunTest={(name) => {

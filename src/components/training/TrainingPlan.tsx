@@ -206,12 +206,11 @@ function StepDetail({ step, onOpen }: { step: Step; onOpen: (tab: PlanTab) => vo
   );
 }
 
-// The training plan as a presentation: each step adds a part to the truck.
+// The training plan as a presentation: each step moves the truck build along.
 // Move with the buttons, the arrow keys, a swipe, or the stops on the road.
 export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
   const [stored, setSlide] = useLocalStorageState<number>("cpm_trainingSlide", 0);
   const slide = Math.min(HIRE, Math.max(0, stored));
-  const [forward, setForward] = useState(true);
   const [full, setFull] = useState(false);
   const root = useRef<HTMLElement>(null);
   const dragFrom = useRef<number | null>(null);
@@ -220,7 +219,6 @@ export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
     (to: number) => {
       const target = Math.min(HIRE, Math.max(0, to));
       if (target === slide) return;
-      setForward(target > slide);
       setSlide(target);
     },
     [slide, setSlide]
@@ -266,7 +264,7 @@ export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
   return (
     <section ref={root} className={`flex flex-col gap-3 ${full ? "h-screen overflow-auto p-6 justify-center bg-[var(--cpm-bg)]" : ""}`}>
       <div className="touch-pan-y flex flex-col gap-3" onPointerDown={onDown} onPointerUp={onUp}>
-        <TruckStage slide={slide} forward={forward}>
+        <TruckStage slide={slide}>
           <div key={slide} className="tp-rise max-w-[640px]">
             {slide === 0 && (
               <>

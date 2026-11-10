@@ -163,7 +163,7 @@ export function UploadPanel({
             <button
               type="button"
               onClick={doImportAll}
-              className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-bold border border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[#241800]"
+              className="px-3.5 py-1.5 rounded-lg text-[12.5px] font-bold border border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
             >
               Import all ({pending.length})
             </button>

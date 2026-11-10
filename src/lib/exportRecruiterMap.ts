@@ -144,7 +144,7 @@ export async function downloadRecruiterMap(
     ctx.font = `700 22px ${FONT}`;
     ctx.fillText(st, cx + 46, cy + 35);
     ctx.textAlign = "right";
-    ctx.fillStyle = "#f5c451";
+    ctx.fillStyle = "#ffffff";
     ctx.font = `600 16px ${FONT}`;
     ctx.fillText(`${info.n} account${info.n === 1 ? "" : "s"}`, cx + cellW - 18, cy + 34);
     if (!f) return;
@@ -181,7 +181,7 @@ export async function downloadRecruiterMap(
     ctx.beginPath();
     draw(f);
     ctx.lineWidth = 3 / k;
-    ctx.strokeStyle = "#f5c451";
+    ctx.strokeStyle = "#ffffff";
     ctx.stroke();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
@@ -210,7 +210,7 @@ export async function downloadRecruiterMap(
       const r = c.n > 9 ? 14 : 12;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = "#f5c451";
+      ctx.fillStyle = "#ffffff";
       ctx.fill();
       ctx.lineWidth = 2;
       ctx.strokeStyle = "#241800";
@@ -254,7 +254,7 @@ export async function downloadRecruiterMap(
   ctx.textAlign = "left";
   ctx.beginPath();
   ctx.arc(mapX + 10, ly - 5, 8, 0, Math.PI * 2);
-  ctx.fillStyle = "#f5c451";
+  ctx.fillStyle = "#ffffff";
   ctx.fill();
   ctx.fillStyle = "#c8ccd4";
   ctx.font = `500 15px ${FONT}`;
@@ -295,7 +295,7 @@ export async function downloadRecruiterMap(
     ctx.fillStyle = "#f2f3f5";
     ctx.font = `700 20px ${FONT}`;
     ctx.fillText(p.s, px + 52, y);
-    ctx.fillStyle = "#f5c451";
+    ctx.fillStyle = "#ffffff";
     ctx.font = `600 15px ${FONT}`;
     ctx.textAlign = "right";
     ctx.fillText(`${p.n} account${p.n === 1 ? "" : "s"}`, px + PANEL_W - 24, y);

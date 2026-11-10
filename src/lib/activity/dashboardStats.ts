@@ -13,7 +13,7 @@ import type { CarrierActivityData, DriverRecord } from "./types";
 // any per-carrier color chip in the new dashboard. Chosen to read clearly on
 // the dark --cpm-bg surface; --cpm-accent (gold) reserved for the #1 slice.
 export const CHART_PALETTE = [
-  "#d4a137", // cpm-accent — top carrier
+  "#c90016", // cpm-accent — top carrier
   "#5b9bd8",
   "#4ade80",
   "#e5484d",

@@ -142,7 +142,7 @@ export function AcademyTest({
           <button
             type="button"
             onClick={retry}
-            className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]"
+            className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]"
           >
             Try again
           </button>
@@ -153,7 +153,7 @@ export function AcademyTest({
               type="button"
               onClick={submit}
               disabled={answered < total}
-              className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Check the answers
             </button>

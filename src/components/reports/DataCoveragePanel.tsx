@@ -35,7 +35,7 @@ export function DataCoveragePanel() {
 
   const COLOR_CLS: Record<string, string> = {
     red: "bg-[var(--cpm-red-soft)] text-[var(--cpm-red)]",
-    amber: "bg-[var(--cpm-panel-alt)] text-[var(--cpm-accent)] border border-[var(--cpm-border-strong)]",
+    amber: "bg-[var(--cpm-panel-alt)] text-[var(--cpm-accent-text)] border border-[var(--cpm-border-strong)]",
     blue: "bg-[var(--cpm-blue-soft)] text-[var(--cpm-blue)]",
     purple: "bg-[var(--cpm-purple-soft)] text-[var(--cpm-purple)]",
     green: "bg-[var(--cpm-green-soft)] text-[var(--cpm-green)]",
@@ -44,7 +44,7 @@ export function DataCoveragePanel() {
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 flex-1 min-w-[260px]">
       <div className="flex items-center gap-2 mb-3">
-        <AlertTriangle size={14} className="text-[var(--cpm-accent)]" />
+        <AlertTriangle size={14} className="text-[var(--cpm-accent-text)]" />
         <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--cpm-text-faint)]">
           Recent activity / data quality
         </div>

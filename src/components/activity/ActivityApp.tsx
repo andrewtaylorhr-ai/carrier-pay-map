@@ -241,7 +241,7 @@ export function ActivityApp() {
                           e.stopPropagation();
                           startRename(c);
                         }}
-                        className="text-[var(--cpm-text-faint)] hover:text-[var(--cpm-accent)] text-[11px] leading-none px-1"
+                        className="text-[var(--cpm-text-faint)] hover:text-[var(--cpm-accent-text)] text-[11px] leading-none px-1"
                       >
                         ✎
                       </span>
@@ -411,7 +411,7 @@ function OverallPerformance({
                 <button
                   type="button"
                   onClick={() => onSelectCarrier(topCarrier.carrier)}
-                  className="text-[14px] font-semibold text-[var(--cpm-accent)] hover:underline"
+                  className="text-[14px] font-semibold text-[var(--cpm-accent-text)] hover:underline"
                 >
                   {topCarrier.carrier}
                 </button>
@@ -428,7 +428,7 @@ function OverallPerformance({
                 <button
                   type="button"
                   onClick={() => onSelectAccount(topAccount.carrier, topAccount.account, "Hired")}
-                  className="text-[14px] font-semibold text-[var(--cpm-accent)] hover:underline"
+                  className="text-[14px] font-semibold text-[var(--cpm-accent-text)] hover:underline"
                 >
                   {topAccount.account}
                 </button>
@@ -450,7 +450,7 @@ function OverallPerformance({
                     key={r.carrier}
                     type="button"
                     onClick={() => onSelectCarrier(r.carrier)}
-                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent)]"
+                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent-text)]"
                   >
                     <span className="text-[var(--cpm-text)]">{r.carrier}</span>
                     <span className="text-[var(--cpm-text-dim)]">
@@ -470,7 +470,7 @@ function OverallPerformance({
                     key={`${r.carrier}__${r.account}`}
                     type="button"
                     onClick={() => onSelectAccount(r.carrier, r.account, "Hired")}
-                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent)]"
+                    className="flex items-center justify-between text-[12.5px] text-left hover:text-[var(--cpm-accent-text)]"
                   >
                     <span className="text-[var(--cpm-text)]">
                       {r.account} <span className="text-[var(--cpm-text-faint)]">({r.carrier})</span>
@@ -578,8 +578,8 @@ function BreakdownCard({
           onToggle(next);
         }}
         title={`Show ${label} drivers for ${row.key} (with notes) below`}
-        className={`underline decoration-dotted underline-offset-2 hover:text-[var(--cpm-accent)] ${
-          isActive ? "text-[var(--cpm-accent)] font-semibold" : ""
+        className={`underline decoration-dotted underline-offset-2 hover:text-[var(--cpm-accent-text)] ${
+          isActive ? "text-[var(--cpm-accent-text)] font-semibold" : ""
         }`}
       >
         {n} {label}
@@ -607,8 +607,8 @@ function BreakdownCard({
                     type="button"
                     onClick={() => onToggle(rowFilter)}
                     title={`Show all ${row.key} drivers (with notes) below`}
-                    className={`text-left font-medium hover:text-[var(--cpm-accent)] ${
-                      rowActive ? "text-[var(--cpm-accent)]" : "text-[var(--cpm-text)]"
+                    className={`text-left font-medium hover:text-[var(--cpm-accent-text)] ${
+                      rowActive ? "text-[var(--cpm-accent-text)]" : "text-[var(--cpm-text)]"
                     }`}
                   >
                     {row.key}
@@ -659,7 +659,7 @@ function RecordsTable({
           <button
             type="button"
             onClick={onClear}
-            className="text-[11.5px] font-semibold text-[var(--cpm-accent)] hover:underline"
+            className="text-[11.5px] font-semibold text-[var(--cpm-accent-text)] hover:underline"
           >
             Clear filter
           </button>

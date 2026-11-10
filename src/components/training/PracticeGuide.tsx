@@ -38,7 +38,7 @@ export function PracticeGuide() {
             <ol>
               {plan.blocks.map((b) => (
                 <li key={b.title} className="px-4 py-2.5 border-b border-[var(--cpm-border)] last:border-b-0">
-                  <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--cpm-accent)]">{b.time}</div>
+                  <div className="text-[10.5px] font-semibold uppercase tracking-wider text-[var(--cpm-accent-text)]">{b.time}</div>
                   <div className="text-[13px] font-bold text-[var(--cpm-text)] mb-1">{b.title}</div>
                   <ul className="list-disc pl-4 text-[12px] text-[var(--cpm-text-dim)] flex flex-col gap-0.5">
                     {b.how.map((h) => (
@@ -57,7 +57,7 @@ export function PracticeGuide() {
           <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Carrier quick-fire</h3>
           <span className="text-[12px] text-[var(--cpm-text-faint)]">
             Read the profile out. They answer: which carrier fits and why, or what disqualifies the driver and where to send them. Check it on the{" "}
-            <Link href="/" className="text-[var(--cpm-accent)] hover:underline">
+            <Link href="/" className="text-[var(--cpm-accent-text)] hover:underline">
               pay map
             </Link>
             .
@@ -65,7 +65,7 @@ export function PracticeGuide() {
           <button
             type="button"
             onClick={next}
-            className="ml-auto inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]"
+            className="ml-auto inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]"
           >
             <Shuffle size={14} /> {profile ? "Next driver" : "New driver"}
           </button>

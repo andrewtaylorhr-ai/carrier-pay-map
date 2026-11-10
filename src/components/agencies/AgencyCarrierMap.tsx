@@ -338,7 +338,7 @@ function FleetCard({ f, state }: { f: Item; state: string }) {
           <span
             key={s}
             className={`text-[11px] px-1.5 py-px rounded border ${
-              s === state ? "border-[var(--cpm-accent)] text-[var(--cpm-accent)]" : "border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)]"
+              s === state ? "border-[var(--cpm-accent)] text-[var(--cpm-accent-text)]" : "border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)]"
             }`}
           >
             {s}

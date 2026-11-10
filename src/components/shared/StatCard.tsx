@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 export type StatCardColor = "amber" | "blue" | "purple" | "green";
 
 const COLOR_CLS: Record<StatCardColor, string> = {
-  amber: "bg-[var(--cpm-panel-alt)] text-[var(--cpm-accent)]",
+  amber: "bg-[var(--cpm-panel-alt)] text-[var(--cpm-accent-text)]",
   blue: "bg-[var(--cpm-blue-soft)] text-[var(--cpm-blue)]",
   purple: "bg-[var(--cpm-purple-soft)] text-[var(--cpm-purple)]",
   green: "bg-[var(--cpm-green-soft)] text-[var(--cpm-green)]",

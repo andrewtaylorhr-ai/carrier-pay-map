@@ -32,7 +32,7 @@ export function AcademyList({ done, onToggle }: { done?: Set<string>; onToggle?:
                         <span className={`text-[12.5px] ${checked ? "text-[var(--cpm-text-faint)] line-through" : "text-[var(--cpm-text)]"}`}>{l.title}</span>
                       </label>
                     ) : (
-                      <a href={lessonUrl(l.id)} target="_blank" rel="noreferrer" className="flex-1 px-2 py-1.5 text-[12.5px] text-[var(--cpm-text)] hover:text-[var(--cpm-accent)]">
+                      <a href={lessonUrl(l.id)} target="_blank" rel="noreferrer" className="flex-1 px-2 py-1.5 text-[12.5px] text-[var(--cpm-text)] hover:text-[var(--cpm-accent-text)]">
                         {l.title}
                       </a>
                     )}
@@ -41,7 +41,7 @@ export function AcademyList({ done, onToggle }: { done?: Set<string>; onToggle?:
                       target="_blank"
                       rel="noreferrer"
                       title="Open lesson in Notion"
-                      className="p-1.5 mt-px text-[var(--cpm-text-faint)] hover:text-[var(--cpm-accent)] shrink-0"
+                      className="p-1.5 mt-px text-[var(--cpm-text-faint)] hover:text-[var(--cpm-accent-text)] shrink-0"
                     >
                       <ExternalLink size={13} />
                     </a>

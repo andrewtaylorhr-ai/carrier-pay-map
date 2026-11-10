@@ -24,7 +24,7 @@ function documentXml(blocks: DocBlock[]) {
   const body = blocks
     .map((b) => {
       if (b.kind === "title") return para(run(b.text, { bold: true, size: 18 }), { after: 120 });
-      if (b.kind === "heading") return para(run(b.text, { bold: true, size: 13, color: "8A6100" }), { after: 80 });
+      if (b.kind === "heading") return para(run(b.text, { bold: true, size: 13, color: "C90016" }), { after: 80 });
       if (b.kind === "pageBreak") return '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
       if (b.kind === "runs") return para(b.runs.map((r) => run(r.text, r)).join(""), { indent: b.indent });
       return para(run(b.text, b), { indent: b.indent, after: b.spaceAfter });

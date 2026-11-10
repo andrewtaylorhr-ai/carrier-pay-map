@@ -10,7 +10,7 @@ export function ManagerInsightsCard() {
   return (
     <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)] p-4 flex-[2] min-w-[260px] flex flex-col">
       <div className="flex items-center gap-2 mb-3">
-        <Lightbulb size={14} className="text-[var(--cpm-accent)]" />
+        <Lightbulb size={14} className="text-[var(--cpm-accent-text)]" />
         <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--cpm-text-faint)]">
           Manager insights
         </div>

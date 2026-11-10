@@ -187,7 +187,7 @@ export function CoverageMap() {
       return {
         fillColor: fill,
         fillOpacity: faded ? 0.04 : opacity,
-        color: selected ? "#d4a137" : "#ffffff",
+        color: selected ? "#c90016" : "#ffffff",
         weight: selected ? 3.5 : 1.2,
         opacity: 1,
         dashArray: mode === "recruiter" && c.recruiters.length > 1 ? "5 4" : undefined,

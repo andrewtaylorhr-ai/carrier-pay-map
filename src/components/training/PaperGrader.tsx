@@ -36,7 +36,7 @@ export function PaperGrader({ taker, passMark, locked, onSave }: { taker?: strin
             onClick={save}
             disabled={!taker || filled < total || locked}
             title={!taker ? "Pick who took the test first" : undefined}
-            className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 h-9 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Grade and save
           </button>
@@ -85,7 +85,7 @@ export function PaperGrader({ taker, passMark, locked, onSave }: { taker?: strin
                       : on && graded
                         ? "border-[var(--cpm-red)] bg-[var(--cpm-red-soft)] text-[#ff9a9d]"
                         : on
-                          ? "border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[#241800]"
+                          ? "border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
                           : "border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]";
                   return (
                     <button

@@ -58,11 +58,11 @@ export function Sidebar() {
   return (
     <aside className="w-[280px] shrink-0 sticky top-0 h-screen border-r border-[var(--cpm-border)] bg-[var(--cpm-panel-alt)] flex flex-col overflow-hidden">
       <div className="flex items-center gap-2 px-4 h-16 border-b border-[var(--cpm-border)] shrink-0">
-        <div className="rounded-lg bg-[var(--cpm-accent)] p-1.5 text-[#241800] shrink-0">
+        <div className="rounded-lg bg-[var(--cpm-accent)] p-1.5 text-[var(--cpm-accent-ink)] shrink-0">
           <Truck size={18} strokeWidth={2.25} />
         </div>
         <div className="min-w-0">
-          <div className="text-[12.5px] font-bold tracking-wide text-[var(--cpm-text)] leading-tight">
+          <div className="brandSilver text-[12.5px] font-extrabold tracking-wide leading-tight">
             CLASS A RECRUITING
           </div>
           <div className="text-[9.5px] font-medium tracking-wider text-[var(--cpm-text-faint)] uppercase leading-tight">
@@ -123,7 +123,7 @@ export function Sidebar() {
                 dragging === item.label ? "opacity-40" : ""
               } ${
                 active
-                  ? "bg-[var(--cpm-accent)] text-[#241800]"
+                  ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
                   : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)] hover:bg-[var(--cpm-panel)]"
               }`}
             >

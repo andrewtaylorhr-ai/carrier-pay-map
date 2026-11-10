@@ -301,7 +301,7 @@ export function ChoroplethMap({
     if (paint) {
       paths
         .style("cursor", "pointer")
-        .style("stroke", (d) => (d.properties.name === paint.selected ? "#f5c451" : "#000"))
+        .style("stroke", (d) => (d.properties.name === paint.selected ? "#ffffff" : "#000"))
         .style("stroke-width", (d) => (d.properties.name === paint.selected ? 3 : 1.2))
         .attr("fill", (d) => paint.fill(d.properties.name))
         .attr("opacity", 1);

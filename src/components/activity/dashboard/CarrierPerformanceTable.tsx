@@ -39,7 +39,7 @@ export function CarrierPerformanceTable({
                     <button
                       type="button"
                       onClick={() => onSelectCarrier(r.carrier)}
-                      className="font-semibold text-[13.5px] text-[var(--cpm-text)] hover:text-[var(--cpm-accent)] hover:underline truncate"
+                      className="font-semibold text-[13.5px] text-[var(--cpm-text)] hover:text-[var(--cpm-accent-text)] hover:underline truncate"
                     >
                       {r.carrier}
                     </button>

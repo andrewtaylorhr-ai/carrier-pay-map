@@ -139,7 +139,7 @@ export function HandOverDialog({ from, onClose }: { from: string; onClose: () =>
           <button
             type="button"
             onClick={confirm}
-            className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]"
+            className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]"
           >
             {holdsNothing ? "Mark as left" : to ? `Mark as left and hand over to ${to}` : "Mark as left"}
           </button>

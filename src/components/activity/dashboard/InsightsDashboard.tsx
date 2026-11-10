@@ -67,7 +67,7 @@ export function InsightsDashboard({
           <button
             type="button"
             title="Coming soon"
-            className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold bg-[var(--cpm-accent)] text-[#241800] opacity-70 cursor-default"
+            className="px-3.5 py-1.5 rounded-lg text-[12px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] opacity-70 cursor-default"
           >
             Create Strategy Plan
           </button>

@@ -23,7 +23,7 @@ const TEAM_LABEL: Record<RecruiterTeam, string> = { uzbek: "Uzbek", philippines:
 
 const card = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]";
 const btn = "h-7 px-2.5 rounded-md text-[11.5px] font-semibold border transition-colors whitespace-nowrap";
-const btnMain = `${btn} border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]`;
+const btnMain = `${btn} border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]`;
 const btnGhost = `${btn} border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]`;
 const input =
   "h-8 px-2.5 rounded-lg border border-[var(--cpm-border-strong)] bg-[var(--cpm-panel-alt)] text-[12.5px] text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)]";
@@ -78,7 +78,7 @@ export function TraineeManager({ onRunTest, onOpenGuide, settings }: { onRunTest
     return (
       <div className={`${card} px-4 py-8 text-center text-[13px] text-[var(--cpm-text-dim)]`}>
         Nobody in training yet. Add new recruiters on the{" "}
-        <Link href="/controller" className="text-[var(--cpm-accent)] font-semibold hover:underline">
+        <Link href="/controller" className="text-[var(--cpm-accent-text)] font-semibold hover:underline">
           Controller
         </Link>{" "}
         page, then manage their training here.
@@ -165,7 +165,7 @@ export function TraineeManager({ onRunTest, onOpenGuide, settings }: { onRunTest
         )}
         <div className="px-3 py-2 text-[11px] text-[var(--cpm-text-faint)]">
           Add people on the{" "}
-          <Link href="/controller" className="text-[var(--cpm-accent)] hover:underline">
+          <Link href="/controller" className="text-[var(--cpm-accent-text)] hover:underline">
             Controller
           </Link>
           .
@@ -318,7 +318,7 @@ function TraineeFile({
       <div className="flex items-center gap-2 flex-wrap">
         <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Step 1 · Academy (day 1)</h3>
         <span className="text-[11.5px] text-[var(--cpm-text-faint)]">The whole Academy is done on the first day. Tick each lesson as it&apos;s finished.</span>
-        <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="ml-auto text-[11.5px] text-[var(--cpm-accent)] hover:underline">
+        <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="ml-auto text-[11.5px] text-[var(--cpm-accent-text)] hover:underline">
           Open the Academy in Notion
         </a>
       </div>
@@ -362,9 +362,9 @@ function TraineeFile({
             <h3 className="flex items-center gap-2 flex-wrap px-4 py-2.5 border-b border-[var(--cpm-border)] text-[14px] font-bold text-[var(--cpm-text)]">
               Step {pi + 3} · {plan.title}
               {trainingDay === plan.day && (
-                <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border border-[var(--cpm-accent)] text-[var(--cpm-accent)]">Today</span>
+                <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border border-[var(--cpm-accent)] text-[var(--cpm-accent-text)]">Today</span>
               )}
-              <button type="button" onClick={onOpenGuide} className="text-[11.5px] font-normal text-[var(--cpm-accent)] hover:underline">
+              <button type="button" onClick={onOpenGuide} className="text-[11.5px] font-normal text-[var(--cpm-accent-text)] hover:underline">
                 How to run it
               </button>
               <span className={`ml-auto text-[11.5px] font-semibold ${n === tasks.length ? "text-[var(--cpm-green)]" : "text-[var(--cpm-text-faint)]"}`}>

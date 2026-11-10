@@ -282,7 +282,7 @@ export function MonthlyReportSection() {
                   </div>
                 ))}
                 <div className="flex items-center gap-1.5 rounded-lg border border-[var(--cpm-border-strong)] px-3 h-9 text-[12px] font-semibold text-[var(--cpm-text)]">
-                  <Banknote size={13} className="text-[var(--cpm-accent)]" />
+                  <Banknote size={13} className="text-[var(--cpm-accent-text)]" />
                   Total: {report.weeklySubmissions.reduce((s, w) => s + (w.submissions ?? 0), 0)}
                 </div>
               </div>

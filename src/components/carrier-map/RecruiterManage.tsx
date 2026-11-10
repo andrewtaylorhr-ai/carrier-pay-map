@@ -176,7 +176,7 @@ export function RecruiterManage() {
                   type="button"
                   title={`Hand over ${r}'s states and accounts`}
                   onClick={() => setOffboarding(r)}
-                  className="h-5 px-1.5 whitespace-nowrap rounded border border-[var(--cpm-accent)] text-[10.5px] text-[var(--cpm-accent-strong)] hover:bg-[var(--cpm-accent)] hover:text-[#241800] transition-colors"
+                  className="h-5 px-1.5 whitespace-nowrap rounded border border-[var(--cpm-accent)] text-[10.5px] text-[var(--cpm-accent-strong)] hover:bg-[var(--cpm-accent)] hover:text-[var(--cpm-accent-ink)] transition-colors"
                 >
                   Hand over
                 </button>
@@ -252,7 +252,7 @@ ${formerRecruiters.join(", ")}`)) return;
         <button
           type="button"
           onClick={doAdd}
-          className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] transition-colors"
+          className="px-3 h-8 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] transition-colors"
         >
           + Add recruiter
         </button>

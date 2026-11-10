@@ -253,7 +253,7 @@ export function CarrierAccountsStep() {
                                 {a.sob && <span className="sobTag">{a.sob}</span>}
                               </span>
                               {citiesHere(a).length > 0 && (
-                                <span className="flex items-center gap-1 text-[11.5px] text-[var(--cpm-accent)] mt-0.5">
+                                <span className="flex items-center gap-1 text-[11.5px] text-[var(--cpm-accent-text)] mt-0.5">
                                   <MapPin size={11} /> {citiesHere(a).map((c) => c.name).join(", ")}
                                 </span>
                               )}

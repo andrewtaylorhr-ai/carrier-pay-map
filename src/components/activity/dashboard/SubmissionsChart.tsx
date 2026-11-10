@@ -40,7 +40,7 @@ export function SubmissionsChart({ rows }: { rows: CarrierVolumeRow[] }) {
               type="button"
               onClick={() => setMetric(m)}
               className={`px-3 py-1 rounded-full text-[11.5px] font-semibold transition-colors ${
-                metric === m ? "bg-[var(--cpm-accent)] text-[#241800]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
+                metric === m ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
               }`}
             >
               {METRIC_LABEL[m]}

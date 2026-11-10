@@ -25,18 +25,18 @@ export function printCertificate(name: string, cert: Certificate, signer: string
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Certificate - ${esc(name)}</title><style>
 @page { size: letter landscape; margin: 0; }
 * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: #1a2233; background: #fff; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: #111111; background: #fff; }
 .page { width: 11in; height: 8.5in; padding: .45in; }
-.frame { height: 100%; border: 3px solid #d9a441; outline: 1px solid #1a2233; outline-offset: -10px; padding: .55in .8in; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.frame { height: 100%; border: 3px solid #c90016; outline: 1px solid #111111; outline-offset: -10px; padding: .55in .8in; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .logo { font: 700 22px Arial, sans-serif; letter-spacing: .14em; }
-.tag { font: 11px Arial, sans-serif; letter-spacing: .2em; color: #8a6100; margin-top: 4px; }
+.tag { font: 11px Arial, sans-serif; letter-spacing: .2em; color: #c90016; margin-top: 4px; }
 h1 { font-size: 40px; font-weight: 400; margin: .4in 0 .12in; }
 .lead { font-size: 16px; color: #444; }
-.name { font-size: 42px; font-style: italic; margin: .14in 0 .08in; padding: 0 .5in .06in; border-bottom: 1px solid #d9a441; }
+.name { font-size: 42px; font-style: italic; margin: .14in 0 .08in; padding: 0 .5in .06in; border-bottom: 1px solid #c90016; }
 .body { font-size: 16px; line-height: 1.5; max-width: 7in; color: #333; margin-top: .12in; }
 .row { margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; font: 13px Arial, sans-serif; }
 .cell { width: 2.6in; }
-.line { border-top: 1px solid #1a2233; padding-top: 6px; }
+.line { border-top: 1px solid #111111; padding-top: 6px; }
 .small { color: #666; font-size: 11px; }
 </style></head><body><div class="page"><div class="frame">
 <div class="logo">CLASS A RECRUITING</div><div class="tag">DRIVE TALENT. BUILD TOMORROW.</div>

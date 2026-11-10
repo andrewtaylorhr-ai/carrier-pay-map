@@ -53,7 +53,7 @@ export function CallGuide() {
         <ol>
           {CALL_STEPS.map((s, i) => (
             <li key={s.title} className="flex gap-3 px-4 py-2.5 border-b border-[var(--cpm-border)] last:border-b-0">
-              <span className="w-6 h-6 shrink-0 rounded-full bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border-strong)] text-[11.5px] font-bold text-[var(--cpm-accent)] flex items-center justify-center">
+              <span className="w-6 h-6 shrink-0 rounded-full bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border-strong)] text-[11.5px] font-bold text-[var(--cpm-accent-text)] flex items-center justify-center">
                 {i + 1}
               </span>
               <div className="min-w-0">
@@ -72,7 +72,7 @@ export function CallGuide() {
           <div className="px-4 py-3 flex flex-col gap-2">
             {SAMPLE_CALL.map((l, i) => (
               <div key={i} className="text-[12.5px]">
-                <span className={`font-bold ${l.who === "Recruiter" ? "text-[var(--cpm-accent)]" : "text-[var(--cpm-text-faint)]"}`}>{l.who}: </span>
+                <span className={`font-bold ${l.who === "Recruiter" ? "text-[var(--cpm-accent-text)]" : "text-[var(--cpm-text-faint)]"}`}>{l.who}: </span>
                 <span className="text-[var(--cpm-text-dim)]">{l.line}</span>
               </div>
             ))}

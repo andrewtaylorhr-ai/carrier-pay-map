@@ -95,7 +95,7 @@ export function useMapStyle(): MapStyle {
           const focused = !!recruiterFilter && stateName === selectedState && arr.includes(recruiterFilter);
           return {
             fill,
-            stroke: focused ? "#f5c451" : shared ? "#1a1a1a" : DEFAULT_STROKE,
+            stroke: focused ? "#ffffff" : shared ? "#1a1a1a" : DEFAULT_STROKE,
             strokeWidth: focused ? 3 : shared ? 1.6 : 0.75,
             opacity,
             cursor: "pointer",

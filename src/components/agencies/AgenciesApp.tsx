@@ -10,7 +10,7 @@ const card = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]
 const input =
   "h-8 px-2.5 rounded-lg border border-[var(--cpm-border-strong)] bg-[var(--cpm-panel-alt)] text-[12.5px] text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)]";
 const btnMain =
-  "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12.5px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)] disabled:opacity-50 disabled:cursor-not-allowed";
 const label = "text-[10.5px] font-semibold uppercase tracking-wider text-[var(--cpm-text-faint)]";
 
 function StatusPill({ status }: { status: AgencyStatus }) {

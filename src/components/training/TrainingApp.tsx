@@ -73,7 +73,7 @@ export function TrainingApp() {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 flex-wrap text-[12.5px] text-[var(--cpm-text-dim)]">
             Class A Recruiting Academy · {REQUIRED_LESSONS} lessons, finished on day 1. Each one opens in Notion.
-            <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="text-[var(--cpm-accent)] font-semibold hover:underline">
+            <a href={ACADEMY_URL} target="_blank" rel="noreferrer" className="text-[var(--cpm-accent-text)] font-semibold hover:underline">
               Open the full Academy
             </a>
           </div>

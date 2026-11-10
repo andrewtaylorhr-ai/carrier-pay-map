@@ -44,7 +44,7 @@ export function ReportsMonthNav() {
               onClick={() => setReportsActiveMonth(key)}
               className={`flex items-center px-3 h-8 rounded-lg text-[13px] font-semibold text-left transition-colors ${
                 activeMonth === key
-                  ? "bg-[var(--cpm-accent)] text-[#241800]"
+                  ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]"
                   : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)] hover:bg-[var(--cpm-panel)]"
               }`}
             >

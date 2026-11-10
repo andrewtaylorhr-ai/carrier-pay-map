@@ -33,7 +33,7 @@ const viewOf = (t: Trainee): View => (t.stage === "approved" && t.firstHireAt ? 
 const TEAM_LABEL: Record<RecruiterTeam, string> = { uzbek: "Uzbek", philippines: "Philippines" };
 
 const btn = "h-7 px-2.5 rounded-md text-[11.5px] font-semibold border transition-colors whitespace-nowrap";
-const btnMain = `${btn} border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]`;
+const btnMain = `${btn} border-[var(--cpm-accent)] bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]`;
 const btnGhost = `${btn} border-[var(--cpm-border-strong)] text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]`;
 const input =
   "h-9 px-2.5 rounded-lg border border-[var(--cpm-border-strong)] bg-[var(--cpm-panel-alt)] text-[13px] text-[var(--cpm-text)] outline-none focus:border-[var(--cpm-accent)]";
@@ -127,7 +127,7 @@ export function ControllerApp() {
             Training starts
             <input type="date" className={input} value={start} onChange={(e) => setStart(e.target.value)} />
           </label>
-          <button type="button" onClick={doAdd} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[#241800] hover:bg-[var(--cpm-accent-strong)]">
+          <button type="button" onClick={doAdd} className="h-9 px-4 rounded-lg text-[13px] font-semibold bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)] hover:bg-[var(--cpm-accent-strong)]">
             + Add to training
           </button>
           {err && <span className="text-[12px] text-[var(--cpm-red)] w-full">{err}</span>}
@@ -202,7 +202,7 @@ export function ControllerApp() {
                             localStorage.setItem("cpm_trainingTab", JSON.stringify("trainees"));
                           } catch {}
                         }}
-                        className="font-semibold text-[var(--cpm-text)] hover:text-[var(--cpm-accent)] hover:underline"
+                        className="font-semibold text-[var(--cpm-text)] hover:text-[var(--cpm-accent-text)] hover:underline"
                       >
                         {n}
                       </Link>

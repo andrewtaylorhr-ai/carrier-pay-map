@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenCheck, ClipboardCheck, FileDown, GraduationCap, KeyRound, ListChecks, Phone, PhoneCall, Users } from "lucide-react";
+import { BookOpenCheck, ClipboardCheck, FileDown, GraduationCap, KeyRound, ListChecks, Map as MapIcon, Phone, PhoneCall, Users } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { downloadAnswerKeyDoc, downloadTestDoc } from "@/lib/academy-test-docs";
@@ -14,8 +14,10 @@ import { KnowledgeChecks } from "./KnowledgeChecks";
 import { PaperGrader } from "./PaperGrader";
 import { PracticeGuide } from "./PracticeGuide";
 import { TraineeManager } from "./TraineeManager";
+import { TrainingPlan } from "./TrainingPlan";
 
 const TABS = [
+  { id: "plan", label: "Training plan", icon: MapIcon },
   { id: "trainees", label: "Trainees", icon: Users },
   { id: "academy", label: "Academy", icon: GraduationCap },
   { id: "checks", label: "Knowledge checks", icon: BookOpenCheck },
@@ -32,9 +34,9 @@ const select =
 
 export function TrainingApp() {
   const { trainees, updateTrainee } = useCarrierMap();
-  const [tab, setTab] = useLocalStorageState<TabId>("cpm_trainingTab", "trainees");
+  const [tab, setTab] = useLocalStorageState<TabId>("cpm_trainingTab", "plan");
   const [taker, setTaker] = useLocalStorageState<string>("cpm_testTaker", "");
-  const active = TABS.some((t) => t.id === tab) ? tab : "trainees";
+  const active = TABS.some((t) => t.id === tab) ? tab : "plan";
   const takers = Object.keys(trainees).filter((n) => trainees[n].stage === "training" || trainees[n].stage === "qc" || n === taker);
   const testFor = trainees[taker] ? taker : "";
   const [mode, setMode] = useLocalStorageState<"online" | "paper">("cpm_testMode", "online");
@@ -56,6 +58,7 @@ export function TrainingApp() {
           </button>
         ))}
       </div>
+      {active === "plan" && <TrainingPlan />}
       {active === "trainees" && (
         <TraineeManager
           onRunTest={(name) => {

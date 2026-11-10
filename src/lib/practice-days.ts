@@ -21,11 +21,11 @@ export const DAY_PLANS: DayPlan[] = [
         how: [
           "Open their Academy test result and go over every wrong answer.",
           "They reread the lessons listed under \"Lessons to go over again\".",
-          "Under 80%? They take the test again at the end of the day.",
+          "Didn't pass? They take the test again at the end of the day.",
         ],
         tasks: [
           { id: "day2-review", title: "Went over the test mistakes and reread those lessons" },
-          { id: "day2-retest", title: "Passed the test (retook it if under 80%)" },
+          { id: "day2-retest", title: "Passed the test (retook it if needed)" },
         ],
       },
       {

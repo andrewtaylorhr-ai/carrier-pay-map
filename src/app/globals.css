@@ -399,12 +399,27 @@ main h1 { font-weight: 800; letter-spacing: -0.01em; }
 /* Training roadmap: the truck is assembled piece by piece, one part per step */
 .tp-camera { transition: transform .9s cubic-bezier(.22,.8,.26,1); }
 .tp-layer { transition: transform .35s ease-out; will-change: transform; }
+.tp-whip { animation: tp-whip 1s cubic-bezier(.16,.84,.28,1) both; }
+.tp-fly { animation: tp-fly .75s cubic-bezier(.3,.1,.5,1) both; }
+.tp-spark { transform-box: fill-box; transform-origin: center; animation: tp-spark .6s ease-out .62s both; }
+.tp-glint { animation: tp-glint 1.8s ease-in-out .5s both; mix-blend-mode: screen; }
+.tp-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .22;
+  mix-blend-mode: overlay;
+  animation: tp-grain .5s steps(3) infinite;
+}
 .tp-drop { animation: tp-drop .8s cubic-bezier(.3,.9,.4,1) both; }
 .tp-road { animation: tp-road .55s linear infinite; }
 .tp-spin { transform-box: fill-box; transform-origin: center; animation: tp-spin .6s linear infinite; }
 .tp-drive { animation: tp-bob .4s ease-in-out infinite alternate; }
 .tp-rise { animation: tp-rise .5s ease-out both; }
-@keyframes tp-drop { 0% { transform: translateY(-470px); opacity: 0; } 15% { opacity: 1; } 78% { transform: translateY(0); } 88% { transform: translateY(-9px); } 100% { transform: translateY(0); } }
+@keyframes tp-whip { 0% { transform: scale(2.1) rotate(-2.5deg); filter: blur(10px) brightness(1.35); } 55% { filter: blur(1.5px) brightness(1.08); } 100% { transform: none; filter: none; } }
+@keyframes tp-fly { 0% { transform: translateX(-70%); opacity: 1; } 75% { opacity: 1; } 100% { transform: translateX(120%); opacity: 0; } }
+@keyframes tp-spark { 0% { transform: scale(.2); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes tp-glint { 0% { transform: translateX(-120%) skewX(-18deg); opacity: 0; } 25% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateX(160%) skewX(-18deg); opacity: 0; } }
+@keyframes tp-grain { 33% { background-position: -60px 40px; } 66% { background-position: 50px -70px; } }
+@keyframes tp-drop { 0% { transform: translateY(-470px); opacity: 0; filter: blur(7px); } 15% { opacity: 1; } 78% { transform: translateY(0); filter: none; } 88% { transform: translateY(-9px); } 100% { transform: translateY(0); } }
 @keyframes tp-road { to { stroke-dashoffset: -96; } }
 @keyframes tp-spin { to { transform: rotate(360deg); } }
 @keyframes tp-bob { to { transform: translateY(-2px); } }

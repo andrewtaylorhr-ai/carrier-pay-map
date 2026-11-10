@@ -1,8 +1,8 @@
 "use client";
 
-// The roadmap's picture: a highway at dusk where a semi-truck is assembled one
-// part per training step. Layers shift with the pointer for depth, and the
-// camera moves to each new part. Replace SKY with photography when we have it.
+// The roadmap's picture: a build yard at golden hour where a semi-truck is
+// assembled one part per training step. Each step whips the camera in through
+// flying materials, the part lands with a spark, and loose parts leave the yard.
 import { useRef, type ReactNode, type PointerEvent } from "react";
 
 export const TRUCK_PARTS = 10;
@@ -35,6 +35,56 @@ function Tire({ x, drive }: { x: number; drive?: boolean }) {
         ))}
       </g>
       <circle cx={x} cy="362" r="7" fill="#2a2a2a" />
+    </g>
+  );
+}
+
+// Where each part lands, for its spark.
+const SPOTS: [number, number][] = [
+  [915, 318], [805, 362], [1000, 350], [1070, 270], [960, 210],
+  [860, 200], [900, 120], [185, 350], [420, 190], [420, 190],
+];
+
+// Loose parts stacked in the yard behind the build, one leaves per step: [kind, x, size].
+const YARD: ["tire" | "beam" | "crate" | "drum", number, number][] = [
+  ["crate", 300, 2], ["tire", 560, 2.2], ["beam", 20, 2], ["drum", 1150, 2], ["tire", 470, 1.7],
+  ["crate", 660, 1.6], ["beam", 760, 1.6], ["drum", 250, 1.8], ["tire", 1020, 1.8], ["crate", 110, 1.7],
+];
+
+// Drawn with its base on y=0.
+function Loose({ kind }: { kind: string }) {
+  if (kind === "tire")
+    return (
+      <g>
+        <circle cy="-17" r="17" fill="#0a0705" />
+        <circle cy="-17" r="7" fill="#8a6a42" />
+        <circle cx="19" cy="-14" r="14" fill="#0a0705" />
+      </g>
+    );
+  if (kind === "beam")
+    return (
+      <g>
+        {[0, 1, 2].map((i) => (
+          <g key={i}>
+            <rect x={i * 7} y={-10 - i * 10} width="95" height="9" fill="#120c07" />
+            <rect x={i * 7} y={-10 - i * 10} width="95" height="2" fill="#ffb95e" />
+          </g>
+        ))}
+      </g>
+    );
+  if (kind === "drum")
+    return (
+      <g>
+        <rect x="-14" y="-38" width="28" height="38" rx="3" fill="#120c07" />
+        <rect x="-14" y="-38" width="5" height="38" fill="#ffb95e" opacity=".8" />
+        <rect x="-14" y="-24" width="28" height="2" fill="#000" />
+      </g>
+    );
+  return (
+    <g>
+      <rect x="-24" y="-34" width="48" height="34" fill="#150e08" />
+      <path d="M-24-34l48 34M24-34l-48 34" stroke="#3a2614" strokeWidth="3" />
+      <rect x="-24" y="-34" width="48" height="2" fill="#ffb95e" />
     </g>
   );
 }
@@ -127,6 +177,7 @@ export function TruckStage({ slide, forward, children }: { slide: number; forwar
   const cover = slide === 0;
   const shown = cover || hire ? TRUCK_PARTS : slide;
   const list = parts(hire);
+  const landed = forward && !cover && !hire ? SPOTS[shown - 1] : null;
   const [zoom, fx, fy] = CAMERA[Math.min(slide, CAMERA.length - 1)];
 
   const onMove = (e: PointerEvent) => {
@@ -141,17 +192,19 @@ export function TruckStage({ slide, forward, children }: { slide: number; forwar
   return (
     <div ref={stage} onPointerMove={onMove} className="relative overflow-hidden rounded-xl h-[300px] md:h-[400px] bg-[#0a0a0a] border border-[var(--cpm-border)]">
       <div className="tp-camera absolute inset-0" style={{ transform: `scale(${zoom})`, transformOrigin: `${fx}% ${fy}%` }}>
+        <div key={slide} className="tp-whip absolute inset-0" style={{ transformOrigin: `${fx}% ${fy}%` }}>
         <svg viewBox="0 0 1200 470" preserveAspectRatio="xMidYMax meet" overflow="visible" className="absolute inset-0 w-full h-full" aria-hidden="true">
           <defs>
             <linearGradient id="tpSky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#0a0a0a" />
-              <stop offset=".62" stopColor="#3a0810" />
-              <stop offset="1" stopColor="#a8101f" />
+              <stop offset="0" stopColor="#0d0a08" />
+              <stop offset=".5" stopColor="#4a1f0e" />
+              <stop offset=".8" stopColor="#c0601d" />
+              <stop offset="1" stopColor="#f5b45a" />
             </linearGradient>
             <radialGradient id="tpSun">
-              <stop offset="0" stopColor="#ff6a4d" stopOpacity=".95" />
-              <stop offset=".4" stopColor="#c90016" stopOpacity=".5" />
-              <stop offset="1" stopColor="#c90016" stopOpacity="0" />
+              <stop offset="0" stopColor="#fff0c4" stopOpacity=".98" />
+              <stop offset=".35" stopColor="#ffb347" stopOpacity=".6" />
+              <stop offset="1" stopColor="#e8741c" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="tpChrome" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#ffffff" />
@@ -168,29 +221,40 @@ export function TruckStage({ slide, forward, children }: { slide: number; forwar
               <stop offset="1" stopColor="#111" />
             </linearGradient>
             <linearGradient id="tpGlass" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#ff8a70" />
-              <stop offset=".5" stopColor="#471018" />
+              <stop offset="0" stopColor="#ffd08a" />
+              <stop offset=".5" stopColor="#5c2f12" />
               <stop offset="1" stopColor="#0c0c0c" />
             </linearGradient>
             <linearGradient id="tpRoad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#1d1d1d" />
-              <stop offset="1" stopColor="#090909" />
+              <stop offset="0" stopColor="#3a2413" />
+              <stop offset="1" stopColor="#0b0806" />
             </linearGradient>
+            <radialGradient id="tpFlash">
+              <stop offset="0" stopColor="#fff6d8" />
+              <stop offset=".35" stopColor="#ffb347" stopOpacity=".8" />
+              <stop offset="1" stopColor="#ff7a1a" stopOpacity="0" />
+            </radialGradient>
           </defs>
           <rect x="-900" y="-500" width="3000" height="900" fill="url(#tpSky)" />
           <g className="tp-layer" style={layer(6)}>
             <circle cx="560" cy="396" r="320" fill="url(#tpSun)" />
           </g>
           <g className="tp-layer" style={layer(14)}>
-            <path d="M-900 400V312l240-58 220 62 240-92 200 76 180-108 220 96 240-76 210 84 260-90 300 106 190-40v128z" fill="#1f0508" />
+            <path d="M-900 400V312l240-58 220 62 240-92 200 76 180-108 220 96 240-76 210 84 260-90 300 106 190-40v128z" fill="#3d1c0c" />
           </g>
           <g className="tp-layer" style={layer(24)}>
-            <path d="M-900 400v-46l300-26 260 30 300-40 280 36 260-30 300 34 280-28 320 32 300-26 280 24v40z" fill="#120304" />
+            <path d="M-900 400v-46l300-26 260 30 300-40 280 36 260-30 300 34 280-28 320 32 300-26 280 24v40z" fill="#1e0f07" />
           </g>
           <rect x="-900" width="3000" y="396" height="400" fill="url(#tpRoad)" />
-          <rect x="-900" y="396" width="3000" height="2" fill="#c0c0c0" opacity=".22" />
+          <rect x="-900" y="396" width="3000" height="2" fill="#ffc777" opacity=".4" />
           <line className={hire ? "tp-road" : undefined} x1="-900" y1="436" x2="2100" y2="436" stroke="#c0c0c0" strokeWidth="5" strokeDasharray="56 40" opacity=".55" />
           <g className="tp-layer" style={layer(-8)}>
+            {!cover && !hire &&
+              YARD.slice(shown).map(([kind, x, size]) => (
+                <g key={`${kind}${x}`} transform={`translate(${x} 397) scale(${size})`}>
+                  <Loose kind={kind} />
+                </g>
+              ))}
             <g className={hire ? "tp-drive" : undefined}>
               {/* work stands hold the frame up until its wheels are on */}
               {shown < 3 && <path d="M1100 396l12-68h16l12 68zM730 396l12-68h16l12 68z" fill="#3b3b3b" />}
@@ -202,10 +266,31 @@ export function TruckStage({ slide, forward, children }: { slide: number; forwar
                   </g>
                 );
               })}
+              {landed && (
+                <g transform={`translate(${landed[0]} ${landed[1]})`}>
+                  <g className="tp-spark">
+                    <circle r="90" fill="url(#tpFlash)" />
+                    {[0, 40, 80, 120, 160, 200, 240, 280, 320].map((a) => (
+                      <rect key={a} x="52" y="-1.5" width="34" height="3" fill="#ffe2a8" transform={`rotate(${a})`} />
+                    ))}
+                  </g>
+                </g>
+              )}
             </g>
           </g>
         </svg>
+        {/* materials rushing past the lens as the camera flies in */}
+        <svg viewBox="0 0 1200 470" preserveAspectRatio="none" className="tp-fly absolute inset-0 w-full h-full pointer-events-none" style={{ filter: "blur(5px)" }} aria-hidden="true">
+          <rect x="120" y="40" width="620" height="46" fill="#0c0805" />
+          <rect x="120" y="40" width="620" height="5" fill="#f0a64a" />
+          <rect x="-160" y="330" width="760" height="70" fill="#0c0805" />
+          <rect x="520" y="210" width="430" height="20" fill="#2a1a0e" />
+        </svg>
+        </div>
       </div>
+      {(cover || hire) && <div key={`glint${slide}`} className="tp-glint absolute inset-y-0 left-0 w-1/3 pointer-events-none bg-gradient-to-r from-transparent via-[#ffdca0]/35 to-transparent" />}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 60%, transparent 45%, rgba(0,0,0,.6) 100%)" }} />
+      <div className="tp-grain absolute inset-0 pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-2/3 pointer-events-none bg-gradient-to-b from-black/75 via-black/30 to-transparent" />
       <div className="absolute inset-0 p-5 md:p-7">{children}</div>
     </div>

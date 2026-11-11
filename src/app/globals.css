@@ -396,13 +396,6 @@ table.tracker tr.dropBelow td { box-shadow:inset 0 -3px 0 var(--cpm-accent); }
 main h1 { font-weight: 800; letter-spacing: -0.01em; }
 .wizCard { box-shadow: 0 10px 30px rgba(0, 0, 0, .28); }
 
-/* Training roadmap: the truck is assembled piece by piece, one part per step */
-.tp-rise { animation: tp-rise .5s ease-out both; }
-@keyframes tp-rise { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  [class*="tp-"] { animation: none !important; transition: none !important; }
-}
-
 /* Daily Tracker: hidden hire notes on the weekly Hire cells */
 table.tracker td.noteCell { position:relative; }
 table.tracker td.noteCell.hasNote::after, table.tracker td.noteCell.missing::after { content:""; position:absolute; top:0; right:0; border-style:solid; border-width:0 7px 7px 0; border-color:transparent var(--cpm-accent) transparent transparent; pointer-events:none; }

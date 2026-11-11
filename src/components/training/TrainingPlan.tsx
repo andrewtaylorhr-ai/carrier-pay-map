@@ -3,6 +3,7 @@
 import { Award, CalendarClock, ClipboardCheck, FileCheck2, Flag, Headset, Search, ShieldCheck, Target, Truck, UserCheck, type LucideIcon } from "lucide-react";
 import { ACADEMY, lessonUrl } from "@/lib/training-program";
 import { SlideIndex, SlideShow, eyebrow, panel } from "./SlideShow";
+import { DriverStory } from "./DriverStory";
 import { VideoStage } from "./VideoStage";
 
 export type PlanTab = "trainees" | "academy" | "checks" | "test" | "practice" | "call" | "rules";
@@ -241,6 +242,7 @@ export function TrainingPlan({ onOpen }: { onOpen: (tab: PlanTab) => void }) {
         <>
           {slide === 0 && <SlideIndex titles={STEPS.map((s) => s.title)} onPick={go} cols="xl:grid-cols-5" />}
           {slide >= 1 && slide < HIRE && <StepDetail step={STEPS[slide - 1]} onOpen={onOpen} />}
+          {slide === 1 && <DriverStory />}
           {slide === HIRE && (
             <div className={`tp-rise ${panel} border-[var(--cpm-green)] text-[14px] text-[var(--cpm-text)]`}>
               The driver is officially hired only after dispatch. Confirm the hire, then keep tracking the driver.

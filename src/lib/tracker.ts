@@ -7,9 +7,18 @@ export type Attendance = "P" | "L" | "A" | "O"; // present, late, absent, off
 export const ATTENDANCE_CYCLE: (Attendance | undefined)[] = [undefined, "P", "L", "A", "O"];
 export const ATTENDANCE_LABEL: Record<Attendance, string> = { P: "Present", L: "Late", A: "Absent", O: "Off" };
 
+// A driver hired in a week: who, for which company and on what day. Only
+// these three, never SSNs, phones or license numbers.
+export interface HireNote {
+  driver: string;
+  company: string;
+  day: number; // day of month
+}
+
 export interface TrackerRow {
   sub?: Record<string, number>; // day of month -> submissions
   hire?: Record<string, number>; // week index -> hires
+  hireNotes?: Record<string, HireNote[]>; // week index -> the drivers hired (their count is the week's hires)
   dqp?: number;
   atDqp?: number;
   att?: Record<string, Attendance>; // day of month -> attendance
@@ -52,6 +61,36 @@ export const isSunday = (ym: string, day: number) => {
   return new Date(y, m - 1, day).getDay() === 0;
 };
 
+// US federal holidays on their calendar date (not the weekday they're observed on).
+function nthWeekday(y: number, m: number, weekday: number, n: number) {
+  const first = new Date(y, m - 1, 1).getDay();
+  return 1 + ((weekday - first + 7) % 7) + (n - 1) * 7;
+}
+function lastWeekday(y: number, m: number, weekday: number) {
+  const last = new Date(y, m, 0);
+  return last.getDate() - ((last.getDay() - weekday + 7) % 7);
+}
+export function usHoliday(ym: string, day: number): string | null {
+  const [y, m] = ym.split("-").map(Number);
+  const list: [number, number, string][] = [
+    [1, 1, "New Year's Day"],
+    [1, nthWeekday(y, 1, 1, 3), "Martin Luther King Jr. Day"],
+    [2, nthWeekday(y, 2, 1, 3), "Presidents' Day"],
+    [5, lastWeekday(y, 5, 1), "Memorial Day"],
+    [6, 19, "Juneteenth"],
+    [7, 4, "Independence Day"],
+    [9, nthWeekday(y, 9, 1, 1), "Labor Day"],
+    [10, nthWeekday(y, 10, 1, 2), "Columbus Day"],
+    [11, 11, "Veterans Day"],
+    [11, nthWeekday(y, 11, 4, 4), "Thanksgiving"],
+    [12, 25, "Christmas Day"],
+  ];
+  return list.find(([hm, hd]) => hm === m && hd === day)?.[2] ?? null;
+}
+
+// Sundays and US holidays are days off: the holiday's name, "Sunday", or null.
+export const dayOff = (ym: string, day: number) => usHoliday(ym, day) ?? (isSunday(ym, day) ? "Sunday" : null);
+
 export const dayLabel = (ym: string, day: number) => {
   const [y, m] = ym.split("-").map(Number);
   return `${day} ${new Date(y, m - 1, day).toLocaleString("en-US", { month: "short" })}`;
@@ -82,11 +121,16 @@ export function attendanceCounts(r?: TrackerRow) {
   return { ...c, rate: worked ? `${Math.round(((c.P + c.L) / worked) * 100)}%` : "—" };
 }
 
+const headLabel = (ym: string, d: number) => {
+  const off = dayOff(ym, d);
+  return off ? `${dayLabel(ym, d)} (${off})` : dayLabel(ym, d);
+};
+
 export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Record<string, TrackerRow>) {
   const weeks = monthWeeks(ym);
   const subHead = ["Recruiter", "DQP", "at DQP", "Hire"];
   weeks.forEach((w) => {
-    w.days.forEach((d) => subHead.push(dayLabel(ym, d)));
+    w.days.forEach((d) => subHead.push(headLabel(ym, d)));
     subHead.push(`Week ${w.idx + 1} Submission`, `Week ${w.idx + 1} Hire`);
   });
   subHead.push("Submission", "App-to-Hire %");
@@ -102,12 +146,17 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
   });
 
   const days = weeks.flatMap((w) => w.days);
-  const attHead = ["Recruiter", ...days.map((d) => dayLabel(ym, d)), "Present", "Late", "Absent", "Off", "Attendance %"];
+  const attHead = ["Recruiter", ...days.map((d) => headLabel(ym, d)), "Present", "Late", "Absent", "Off", "Attendance %"];
   const attRows = recruiters.map((name) => {
     const r = rows[name];
     const c = attendanceCounts(r);
     return [name, ...days.map((d) => r?.att?.[d] ?? ""), c.P, c.L, c.A, c.O, c.rate];
   });
+
+  const hireHead = ["Recruiter", "Driver", "Company", "Hire date"];
+  const hireRows = recruiters.flatMap((name) =>
+    weeks.flatMap((w) => (rows[name]?.hireNotes?.[w.idx] ?? []).map((n) => [name, n.driver, n.company, dayLabel(ym, n.day)]))
+  );
 
   const wb = XLSX.utils.book_new();
   const ws1 = XLSX.utils.aoa_to_sheet([subHead, ...subRows]);
@@ -116,5 +165,8 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
   const ws2 = XLSX.utils.aoa_to_sheet([attHead, ...attRows]);
   ws2["!cols"] = [{ wch: 22 }];
   XLSX.utils.book_append_sheet(wb, ws2, "Attendance");
+  const ws3 = XLSX.utils.aoa_to_sheet([hireHead, ...hireRows]);
+  ws3["!cols"] = [{ wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, ws3, "Hires");
   XLSX.writeFile(wb, `Daily_Tracker_${monthLabel(ym).replace(/ /g, "_")}.xlsx`);
 }

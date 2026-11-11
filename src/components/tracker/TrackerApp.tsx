@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
-import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, X } from "lucide-react";
+import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, StickyNote, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { NEW_RECRUITER_COLOR, todayISO } from "@/lib/trainees";
@@ -13,7 +13,7 @@ import {
   attendanceCounts,
   dayLabel,
   exportTrackerToExcel,
-  isSunday,
+  dayOff,
   monthLabel,
   monthWeeks,
   shiftMonth,
@@ -21,9 +21,11 @@ import {
   totalSubs,
   weekSubs,
   type Attendance,
+  type HireNote,
   type TrackerData,
   type TrackerRow,
 } from "@/lib/tracker";
+import { HireNotesBox, noteMissing, notesTitle } from "./HireNotes";
 
 const DEFAULT_ROW_COLOR = "#475569";
 const FORMER_ROW_COLOR = "#e5484d";
@@ -43,6 +45,8 @@ export function TrackerApp() {
   const [picked, setPicked] = useState<string[]>([]);
   const anchor = useRef<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
+  // the Hire cell whose note box is open, and where to show it
+  const [noteAt, setNoteAt] = useState<{ name: string; week: number; x: number; y: number; below: boolean } | null>(null);
 
   const weeks = useMemo(() => monthWeeks(ym), [ym]);
   const days = weeks.flatMap((w) => w.days);
@@ -82,6 +86,10 @@ export function TrackerApp() {
     return acc;
   }, []);
 
+  // Sundays and US holidays are shaded as days off; today stands out on top.
+  const dayClass = (d: number) => [dayOff(ym, d) ? "off" : "", d === today ? "today" : ""].filter(Boolean).join(" ") || undefined;
+  const offTag = (d: number) => (dayOff(ym, d) === "Sunday" ? "Sunday" : "Holiday");
+
   const updateRow = (name: string, fn: (r: TrackerRow) => TrackerRow) =>
     setData((d) => {
       const month = d.months[ym] || {};
@@ -94,6 +102,42 @@ export function TrackerApp() {
       else next[key] = v;
       return { ...r, [field]: next };
     });
+  // A week's hire notes, plus blank lines for hires typed as a number without names.
+  const weekNotes = (r: TrackerRow | undefined, w: number): HireNote[] => {
+    const notes = r?.hireNotes?.[w] ?? [];
+    const count = r?.hire?.[w] ?? 0;
+    const day = monthWeeks(ym)[w]?.days.at(-1) ?? 1;
+    return [...notes, ...Array.from({ length: Math.max(0, count - notes.length) }, () => ({ driver: "", company: "", day }))];
+  };
+  const setNotes = (name: string, w: number, notes: HireNote[]) =>
+    updateRow(name, (r) => {
+      const hire = { ...(r.hire || {}) };
+      const hireNotes = { ...(r.hireNotes || {}) };
+      if (notes.length) {
+        hire[w] = notes.length;
+        hireNotes[w] = notes;
+      } else {
+        delete hire[w];
+        delete hireNotes[w];
+      }
+      return { ...r, hire, hireNotes };
+    });
+  const openNotes = (name: string, w: number, cell: HTMLElement) => {
+    const box = cell.getBoundingClientRect();
+    const below = box.bottom + 260 < window.innerHeight;
+    setNoteAt({ name, week: w, x: Math.max(8, Math.min(box.left, window.innerWidth - 470)), y: below ? box.bottom + 4 : box.top - 4, below });
+  };
+  const usedCompanies = useMemo(
+    () => [
+      ...new Set(
+        Object.values(data.months).flatMap((m) =>
+          Object.values(m).flatMap((r) => Object.values(r.hireNotes || {}).flatMap((ns) => ns.map((n) => n.company.trim()).filter(Boolean)))
+        )
+      ),
+    ],
+    [data.months]
+  );
+
   const setAtt = (name: string, day: number, a: Attendance | undefined) =>
     updateRow(name, (r) => {
       const att = { ...(r.att || {}) };
@@ -226,11 +270,11 @@ export function TrackerApp() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3 flex-wrap">
         <div className="monthNav">
-          <button type="button" onClick={() => setYm((m) => shiftMonth(m, -1))} aria-label="Previous month">
+          <button type="button" onClick={() => (setNoteAt(null), setYm((m) => shiftMonth(m, -1)))} aria-label="Previous month">
             <ChevronLeft size={16} />
           </button>
           <span>{monthLabel(ym)}</span>
-          <button type="button" onClick={() => setYm((m) => shiftMonth(m, 1))} aria-label="Next month">
+          <button type="button" onClick={() => (setNoteAt(null), setYm((m) => shiftMonth(m, 1)))} aria-label="Next month">
             <ChevronRight size={16} />
           </button>
         </div>
@@ -298,8 +342,9 @@ export function TrackerApp() {
                   {weeks.map((w) => (
                     <Fragment key={w.idx}>
                       {w.days.map((d) => (
-                        <th key={d} className={`${isSunday(ym, d) ? "sun" : ""}${d === today ? " today" : ""}`}>
+                        <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
                           {dayLabel(ym, d)}
+                          {dayOff(ym, d) && <span className="offTag">{offTag(d)}</span>}
                         </th>
                       ))}
                       <th className="hSub">Submission</th>
@@ -328,12 +373,49 @@ export function TrackerApp() {
                           {weeks.map((w) => (
                             <Fragment key={w.idx}>
                               {w.days.map((d) => (
-                                <td key={d} className={`${isSunday(ym, d) ? "sun" : ""}${d === today ? " today" : ""}`}>
+                                <td key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
                                   {num(`${name} ${dayLabel(ym, d)}`, r?.sub?.[d], (v) => setIn(name, "sub", d, v), ri, c++)}
                                 </td>
                               ))}
                               <td className="calc sub">{weekSubs(r, w) || ""}</td>
-                              <td className="hireIn">{num(`${name} week ${w.idx + 1} hires`, r?.hire?.[w.idx], (v) => setIn(name, "hire", w.idx, v), ri, c++)}</td>
+                              {(() => {
+                                const saved = r?.hireNotes?.[w.idx] ?? [];
+                                const notes = weekNotes(r, w.idx);
+                                const missing = notes.some(noteMissing);
+                                const title = notes.length
+                                  ? `${notesTitle(ym, notes)}${missing ? "\nNames missing: click to add them" : ""}`
+                                  : "Type the hires, or click the note to add each driver";
+                                const col = c++;
+                                return (
+                                  <td
+                                    className={`hireIn noteCell${notes.length && !missing ? " hasNote" : ""}${missing ? " missing" : ""}`}
+                                    title={title}
+                                  >
+                                    {saved.length ? (
+                                      <input
+                                        className="tCell"
+                                        readOnly
+                                        data-r={ri}
+                                        data-c={col}
+                                        value={String(notes.length)}
+                                        onKeyDown={onKey}
+                                        onClick={(e) => openNotes(name, w.idx, e.currentTarget.parentElement!)}
+                                        aria-label={`${name} week ${w.idx + 1} hires`}
+                                      />
+                                    ) : (
+                                      num(`${name} week ${w.idx + 1} hires`, r?.hire?.[w.idx], (v) => setIn(name, "hire", w.idx, v), ri, col)
+                                    )}
+                                    <button
+                                      type="button"
+                                      className="noteBtn"
+                                      onClick={(e) => openNotes(name, w.idx, e.currentTarget.parentElement!)}
+                                      aria-label={`${name} week ${w.idx + 1} hire notes`}
+                                    >
+                                      <StickyNote size={10} />
+                                    </button>
+                                  </td>
+                                );
+                              })()}
                             </Fragment>
                           ))}
                           <td className="calc sub">{totalSubs(r)}</td>
@@ -370,8 +452,9 @@ export function TrackerApp() {
                   <th className="stick num">#</th>
                   <th className="stick name">Recruiter</th>
                   {days.map((d) => (
-                    <th key={d} className={`${isSunday(ym, d) ? "sun" : ""}${d === today ? " today" : ""}`}>
+                    <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
                       {dayLabel(ym, d)}
+                      {dayOff(ym, d) && <span className="offTag">{offTag(d)}</span>}
                     </th>
                   ))}
                   <th className="hHire">Present</th>
@@ -401,7 +484,7 @@ export function TrackerApp() {
                               setAtt(name, d, ATTENDANCE_CYCLE[(at + dir + n) % n]);
                             };
                             return (
-                              <td key={d} className={`${isSunday(ym, d) ? "sun" : ""}${d === today ? " today" : ""}`}>
+                              <td key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
                                 <button
                                   type="button"
                                   className={`attCell${a ? " a" + a : ""}`}
@@ -431,11 +514,25 @@ export function TrackerApp() {
         </div>
       )}
 
+      {noteAt && weeks[noteAt.week] && (
+        <HireNotesBox
+          recruiter={noteAt.name}
+          ym={ym}
+          week={weeks[noteAt.week]}
+          notes={weekNotes(rows[noteAt.name], noteAt.week)}
+          at={noteAt}
+          today={today}
+          usedCompanies={usedCompanies}
+          onChange={(notes) => setNotes(noteAt.name, noteAt.week, notes)}
+          onClose={() => setNoteAt(null)}
+        />
+      )}
+
       <div className="text-[11.5px] text-[var(--cpm-text-faint)]">
         {tab === "subs" ? (
           <>
             Type submissions per day and hires per week — weekly and monthly totals, the TOTAL row and App-to-Hire % fill
-            in by themselves. Enter / arrow keys move between cells. Click a # to color rows; drag a # up or down to move the row. Saved for the team when a manager is signed in.
+            in by themselves. Enter / arrow keys move between cells. Click the note on a week's Hire cell to add each driver's full name, company and hire date (red corner = names added, yellow = names missing). Click a # to color rows; drag a # up or down to move the row. Saved for the team when a manager is signed in.
           </>
         ) : (
           <>

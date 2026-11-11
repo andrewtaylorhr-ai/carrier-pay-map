@@ -300,7 +300,7 @@ table.wizTable tr.allRow td { font-size:11.5px; color:var(--cpm-text-faint); bac
 table.tracker { border-collapse:separate; border-spacing:0; font-size:12.5px; white-space:nowrap; }
 table.tracker th, table.tracker td { border-right:1px solid var(--cpm-border); border-bottom:1px solid var(--cpm-border); padding:0; text-align:center; height:28px; }
 table.tracker thead th { position:sticky; top:0; z-index:2; padding:6px 6px; font-size:11.5px; font-weight:700; color:#fff; background:#1e3a8a; }
-table.tracker thead th.sun { background:#1a2f6b; color:#aab4d0; }
+table.tracker thead th.off { background:#5b21b6; color:#e9ddff; }
 table.tracker thead th.today { background:var(--cpm-accent); color:var(--cpm-accent-ink); }
 table.tracker thead th.hDqp { background:#2563eb; }
 table.tracker thead th.hAtDqp { background:#ca8a04; }
@@ -312,7 +312,7 @@ table.tracker .stick { position:sticky; z-index:1; background:var(--cpm-panel-al
 table.tracker thead .stick { z-index:3; background:#1e3a8a; }
 table.tracker .stick.num { left:0; width:30px; min-width:30px; color:#fff; font-weight:800; }
 table.tracker .stick.name { left:30px; min-width:170px; text-align:left; padding:0 10px; font-weight:600; color:var(--cpm-text); box-shadow:2px 0 0 var(--cpm-border-strong); }
-table.tracker tbody td.sun { background:rgba(255,255,255,.025); }
+table.tracker tbody td.off { background:rgba(124,58,237,.13); }
 table.tracker tbody td.today { background:rgba(201,0,22,.08); }
 table.tracker td.calc { padding:0 8px; font-weight:700; color:var(--cpm-text); min-width:44px; }
 table.tracker td.calc.sub { background:rgba(234,138,12,.12); }
@@ -402,3 +402,17 @@ main h1 { font-weight: 800; letter-spacing: -0.01em; }
 @media (prefers-reduced-motion: reduce) {
   [class*="tp-"] { animation: none !important; transition: none !important; }
 }
+
+/* Daily Tracker: hidden hire notes on the weekly Hire cells */
+table.tracker td.noteCell { position:relative; }
+table.tracker td.noteCell.hasNote::after, table.tracker td.noteCell.missing::after { content:""; position:absolute; top:0; right:0; border-style:solid; border-width:0 7px 7px 0; border-color:transparent var(--cpm-accent) transparent transparent; pointer-events:none; }
+table.tracker td.noteCell.missing::after { border-right-color:#eab308; }
+.noteBtn { position:absolute; left:1px; bottom:1px; display:inline-flex; padding:2px; border-radius:3px; color:var(--cpm-text-faint); opacity:0; cursor:pointer; }
+table.tracker td.noteCell:hover .noteBtn, .noteBtn:focus-visible { opacity:1; }
+.noteBtn:hover { color:var(--cpm-text); background:var(--cpm-panel-alt); }
+.hireNotes { position:fixed; z-index:50; width:460px; max-width:calc(100vw - 16px); padding:12px; border-radius:10px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); box-shadow:0 12px 32px rgba(0,0,0,.45); }
+.hireNoteLine { display:flex; align-items:center; gap:6px; }
+.noteIn { min-width:0; height:30px; padding:0 8px; border-radius:6px; border:1px solid var(--cpm-border-strong); background:var(--cpm-bg); color:var(--cpm-text); font-size:12.5px; outline:none; }
+.noteIn:focus { border-color:var(--cpm-accent); }
+.hireNoteLine.missing .noteIn:placeholder-shown { border-color:#a16207; }
+table.tracker thead th .offTag { display:block; margin-top:1px; font-size:9px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.85; }

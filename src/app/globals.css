@@ -411,7 +411,7 @@ table.tracker td.noteCell.missing::after { border-right-color:#eab308; }
 table.tracker td.noteCell:hover .noteBtn, .noteBtn:focus-visible { opacity:1; }
 .noteBtn:hover { color:var(--cpm-text); background:var(--cpm-panel-alt); }
 .hireNotes { position:fixed; z-index:50; width:560px; max-width:calc(100vw - 16px); padding:12px; border-radius:10px; border:1px solid var(--cpm-border-strong); background:var(--cpm-panel-alt); box-shadow:0 12px 32px rgba(0,0,0,.45); }
-.hireNoteLine { display:flex; align-items:center; gap:6px; }
+.hireNoteLine { display:flex; align-items:flex-start; gap:6px; padding-bottom:6px; border-bottom:1px solid var(--cpm-border); }
 .noteIn { min-width:0; height:30px; padding:0 8px; border-radius:6px; border:1px solid var(--cpm-border-strong); background:var(--cpm-bg); color:var(--cpm-text); font-size:12.5px; outline:none; }
 .noteIn:focus { border-color:var(--cpm-accent); }
 .hireNoteLine.missing .noteIn:placeholder-shown { border-color:#a16207; }

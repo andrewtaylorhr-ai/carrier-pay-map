@@ -7,12 +7,14 @@ export type Attendance = "P" | "L" | "A" | "O"; // present, late, absent, off
 export const ATTENDANCE_CYCLE: (Attendance | undefined)[] = [undefined, "P", "L", "A", "O"];
 export const ATTENDANCE_LABEL: Record<Attendance, string> = { P: "Present", L: "Late", A: "Absent", O: "Off" };
 
-// A driver hired in a week: who, for which company and on what day. Only
-// these three, never SSNs, phones or license numbers.
+// A driver hired in a week: who, for which company, account and state, and on
+// what day. Never SSNs, phones or license numbers.
 export interface HireNote {
   driver: string;
   company: string;
   kind?: "Trainee" | "Exp"; // Swift only: hired as a student (trainee) or experienced
+  account?: string; // the carrier's account the driver was hired on
+  state?: string; // driver's state, full name ("Texas")
   day: number; // day of month
 }
 
@@ -159,9 +161,9 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
     return [name, ...days.map((d) => r?.att?.[d] ?? ""), c.P, c.L, c.A, c.O, c.rate];
   });
 
-  const hireHead = ["Recruiter", "Driver", "Company", "Trainee / Exp", "Hire date"];
+  const hireHead = ["Recruiter", "Driver", "Company", "Trainee / Exp", "Account", "State", "Hire date"];
   const hireRows = recruiters.flatMap((name) =>
-    weeks.flatMap((w) => (rows[name]?.hireNotes?.[w.idx] ?? []).map((n) => [name, n.driver, n.company, n.kind ?? "", dayLabel(ym, n.day)]))
+    weeks.flatMap((w) => (rows[name]?.hireNotes?.[w.idx] ?? []).map((n) => [name, n.driver, n.company, n.kind ?? "", n.account ?? "", n.state ?? "", dayLabel(ym, n.day)]))
   );
 
   const wb = XLSX.utils.book_new();
@@ -172,7 +174,7 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
   ws2["!cols"] = [{ wch: 22 }];
   XLSX.utils.book_append_sheet(wb, ws2, "Attendance");
   const ws3 = XLSX.utils.aoa_to_sheet([hireHead, ...hireRows]);
-  ws3["!cols"] = [{ wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 13 }, { wch: 12 }];
+  ws3["!cols"] = [{ wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 13 }, { wch: 28 }, { wch: 14 }, { wch: 12 }];
   XLSX.utils.book_append_sheet(wb, ws3, "Hires");
   XLSX.writeFile(wb, `Daily_Tracker_${monthLabel(ym).replace(/ /g, "_")}.xlsx`);
 }

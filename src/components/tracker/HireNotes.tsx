@@ -1,26 +1,37 @@
 "use client";
 
 // The hidden note on a week's Hire cell: one line per driver hired (full name,
-// company, hire date). The cell's hire count is the number of lines.
+// company, account, state, hire date). The cell's hire count is the number of lines.
 import { useEffect, useRef } from "react";
 import { Plus, Trash2, X } from "lucide-react";
-import { CARRIERS, CARRIER_ORDER } from "@/lib/carriers/data";
+import { carrierAccounts } from "@/lib/carriers/accounts";
+import { ALL_STATES, CARRIERS, CARRIER_ORDER } from "@/lib/carriers/data";
 import { dayLabel, type HireNote, type Week } from "@/lib/tracker";
 
 // Companies offered while typing; any other name can be typed too.
 const COMPANIES = [...CARRIER_ORDER.map((id) => CARRIERS[id].label), "Barr-Nunn", "Day & Ross"];
 
+// The carrier's open accounts (hiring in the driver's state, when it's picked) to choose from.
+function accountChoices(company: string, state?: string) {
+  const id = CARRIER_ORDER.find((c) => CARRIERS[c].label.toLowerCase() === company.trim().toLowerCase());
+  if (!id) return [];
+  const pick = state ? carrierAccounts(id, undefined, state) : [];
+  return [...new Set((pick.length ? pick : carrierAccounts(id)).map((a) => a.name))];
+}
+
 // Swift hires both students and experienced drivers, so its hires say which.
 export const needsKind = (n: HireNote) => /swift/i.test(n.company);
 
-export const noteMissing = (n: HireNote) => !n.driver.trim() || !n.company.trim() || (needsKind(n) && !n.kind);
+export const noteMissing = (n: HireNote) =>
+  !n.driver.trim() || !n.company.trim() || !n.account?.trim() || !n.state || (needsKind(n) && !n.kind);
 
 // One line per line of the hover text.
 export const notesTitle = (ym: string, notes: HireNote[]) =>
   notes
     .map((n) => {
       const kind = needsKind(n) ? ` (${n.kind ?? "Trainee or Exp?"})` : "";
-      return `${n.driver.trim() || "(no name)"} · ${n.company.trim() || "(no company)"}${kind} · ${dayLabel(ym, n.day)}`;
+      const where = `${n.account?.trim() || "(no account)"} · ${n.state || "(no state)"}`;
+      return `${n.driver.trim() || "(no name)"} · ${n.company.trim() || "(no company)"}${kind} · ${where} · ${dayLabel(ym, n.day)}`;
     })
     .join("\n");
 
@@ -93,40 +104,72 @@ export function HireNotesBox({
       <div className="flex flex-col gap-1.5">
         {notes.map((n, i) => (
           <div key={i} className={`hireNoteLine${noteMissing(n) ? " missing" : ""}`}>
-            <span className="text-[11px] font-bold text-[var(--cpm-text-faint)] w-4 text-right">{i + 1}</span>
-            <input
-              className="noteIn flex-[3]"
-              placeholder="Driver full name"
-              value={n.driver}
-              autoFocus={i === notes.length - 1 && !n.driver}
-              onChange={(e) => set(i, { driver: e.target.value })}
-              aria-label={`Hire ${i + 1} driver full name`}
-            />
-            <input
-              className="noteIn flex-[2]"
-              placeholder="Company"
-              list={listId}
-              value={n.company}
-              onChange={(e) => set(i, { company: e.target.value, ...(/swift/i.test(e.target.value) ? {} : { kind: undefined }) })}
-              aria-label={`Hire ${i + 1} company`}
-            />
-            {needsKind(n) && (
-              <div className="kindPick" role="group" aria-label={`Hire ${i + 1} trainee or experienced`}>
-                {(["Trainee", "Exp"] as const).map((k) => (
-                  <button key={k} type="button" className={n.kind === k ? "on" : undefined} onClick={() => set(i, { kind: k })}>
-                    {k}
-                  </button>
-                ))}
+            <span className="text-[11px] font-bold text-[var(--cpm-text-faint)] w-4 text-right self-start mt-[7px]">{i + 1}</span>
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <input
+                  className="noteIn flex-[3]"
+                  placeholder="Driver full name"
+                  value={n.driver}
+                  autoFocus={i === notes.length - 1 && !n.driver}
+                  onChange={(e) => set(i, { driver: e.target.value })}
+                  aria-label={`Hire ${i + 1} driver full name`}
+                />
+                <input
+                  className="noteIn flex-[2]"
+                  placeholder="Company"
+                  list={listId}
+                  value={n.company}
+                  onChange={(e) => set(i, { company: e.target.value, ...(/swift/i.test(e.target.value) ? {} : { kind: undefined }) })}
+                  aria-label={`Hire ${i + 1} company`}
+                />
+                {needsKind(n) && (
+                  <div className="kindPick" role="group" aria-label={`Hire ${i + 1} trainee or experienced`}>
+                    {(["Trainee", "Exp"] as const).map((k) => (
+                      <button key={k} type="button" className={n.kind === k ? "on" : undefined} onClick={() => set(i, { kind: k })}>
+                        {k}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-            <select className="noteIn w-[74px]" value={n.day} onChange={(e) => set(i, { day: Number(e.target.value) })} aria-label={`Hire ${i + 1} date`}>
-              {week.days.map((d) => (
-                <option key={d} value={d}>
-                  {dayLabel(ym, d)}
-                </option>
-              ))}
-            </select>
-            <button type="button" className="iconBtn" onClick={() => onChange(notes.filter((_, j) => j !== i))} aria-label={`Remove hire ${i + 1}`}>
+              <div className="flex items-center gap-1.5">
+                <input
+                  className="noteIn flex-[3]"
+                  placeholder="Account"
+                  list={`${listId}-acc${i}`}
+                  value={n.account ?? ""}
+                  onChange={(e) => set(i, { account: e.target.value })}
+                  aria-label={`Hire ${i + 1} account`}
+                />
+                <datalist id={`${listId}-acc${i}`}>
+                  {accountChoices(n.company, n.state).map((a) => (
+                    <option key={a} value={a} />
+                  ))}
+                </datalist>
+                <select
+                  className="noteIn flex-[2]"
+                  value={n.state ?? ""}
+                  onChange={(e) => set(i, { state: e.target.value || undefined })}
+                  aria-label={`Hire ${i + 1} state`}
+                >
+                  <option value="">State</option>
+                  {ALL_STATES.map((st) => (
+                    <option key={st} value={st}>
+                      {st}
+                    </option>
+                  ))}
+                </select>
+                <select className="noteIn w-[74px]" value={n.day} onChange={(e) => set(i, { day: Number(e.target.value) })} aria-label={`Hire ${i + 1} date`}>
+                  {week.days.map((d) => (
+                    <option key={d} value={d}>
+                      {dayLabel(ym, d)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <button type="button" className="iconBtn self-start mt-[3px]" onClick={() => onChange(notes.filter((_, j) => j !== i))} aria-label={`Remove hire ${i + 1}`}>
               <Trash2 size={13} />
             </button>
           </div>
@@ -136,7 +179,7 @@ export function HireNotesBox({
         <Plus size={14} /> Add hire
       </button>
       <div className="mt-2 text-[10.5px] leading-snug text-[var(--cpm-text-faint)]">
-        Each line is one hire; the Hire count fills in from them. Swift hires say Trainee or Exp. Name, company and date only, no SSN or phone.
+        Each line is one hire; the Hire count fills in from them. Swift hires say Trainee or Exp. Account suggestions follow the company and state. No SSN or phone.
       </div>
     </div>
   );

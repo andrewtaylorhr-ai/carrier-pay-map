@@ -14,6 +14,8 @@ import {
   dayLabel,
   exportTrackerToExcel,
   dayOff,
+  usHoliday,
+  weekdayShort,
   monthLabel,
   monthWeeks,
   shiftMonth,
@@ -88,7 +90,16 @@ export function TrackerApp() {
 
   // Sundays and US holidays are shaded as days off; today stands out on top.
   const dayClass = (d: number) => [dayOff(ym, d) ? "off" : "", d === today ? "today" : ""].filter(Boolean).join(" ") || undefined;
-  const offTag = (d: number) => (dayOff(ym, d) === "Sunday" ? "Sunday" : "Holiday");
+  const dayHead = (d: number) => {
+    const holiday = usHoliday(ym, d);
+    return (
+      <>
+        <span className="wkTag">{weekdayShort(ym, d)}</span>
+        {dayLabel(ym, d)}
+        {holiday && <span className="offTag">{holiday}</span>}
+      </>
+    );
+  };
 
   const updateRow = (name: string, fn: (r: TrackerRow) => TrackerRow) =>
     setData((d) => {
@@ -343,8 +354,7 @@ export function TrackerApp() {
                     <Fragment key={w.idx}>
                       {w.days.map((d) => (
                         <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
-                          {dayLabel(ym, d)}
-                          {dayOff(ym, d) && <span className="offTag">{offTag(d)}</span>}
+                          {dayHead(d)}
                         </th>
                       ))}
                       <th className="hSub">Submission</th>
@@ -453,8 +463,7 @@ export function TrackerApp() {
                   <th className="stick name">Recruiter</th>
                   {days.map((d) => (
                     <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
-                      {dayLabel(ym, d)}
-                      {dayOff(ym, d) && <span className="offTag">{offTag(d)}</span>}
+                      {dayHead(d)}
                     </th>
                   ))}
                   <th className="hHire">Present</th>

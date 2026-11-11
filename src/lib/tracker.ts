@@ -74,7 +74,7 @@ export function usHoliday(ym: string, day: number): string | null {
   const [y, m] = ym.split("-").map(Number);
   const list: [number, number, string][] = [
     [1, 1, "New Year's Day"],
-    [1, nthWeekday(y, 1, 1, 3), "Martin Luther King Jr. Day"],
+    [1, nthWeekday(y, 1, 1, 3), "MLK Day"],
     [2, nthWeekday(y, 2, 1, 3), "Presidents' Day"],
     [5, lastWeekday(y, 5, 1), "Memorial Day"],
     [6, 19, "Juneteenth"],
@@ -87,6 +87,11 @@ export function usHoliday(ym: string, day: number): string | null {
   ];
   return list.find(([hm, hd]) => hm === m && hd === day)?.[2] ?? null;
 }
+
+export const weekdayShort = (ym: string, day: number) => {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m - 1, day).toLocaleString("en-US", { weekday: "short" });
+};
 
 // Sundays and US holidays are days off: the holiday's name, "Sunday", or null.
 export const dayOff = (ym: string, day: number) => usHoliday(ym, day) ?? (isSunday(ym, day) ? "Sunday" : null);
@@ -122,8 +127,8 @@ export function attendanceCounts(r?: TrackerRow) {
 }
 
 const headLabel = (ym: string, d: number) => {
-  const off = dayOff(ym, d);
-  return off ? `${dayLabel(ym, d)} (${off})` : dayLabel(ym, d);
+  const holiday = usHoliday(ym, d);
+  return `${dayLabel(ym, d)} ${weekdayShort(ym, d)}${holiday ? ` (${holiday})` : ""}`;
 };
 
 export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Record<string, TrackerRow>) {

@@ -136,7 +136,7 @@ export function TrackerApp() {
   const openNotes = (name: string, w: number, cell: HTMLElement) => {
     const box = cell.getBoundingClientRect();
     const below = box.bottom + 260 < window.innerHeight;
-    setNoteAt({ name, week: w, x: Math.max(8, Math.min(box.left, window.innerWidth - 470)), y: below ? box.bottom + 4 : box.top - 4, below });
+    setNoteAt({ name, week: w, x: Math.max(8, Math.min(box.left, window.innerWidth - 570)), y: below ? box.bottom + 4 : box.top - 4, below });
   };
   const usedCompanies = useMemo(
     () => [

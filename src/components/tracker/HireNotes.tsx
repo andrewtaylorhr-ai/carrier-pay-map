@@ -10,11 +10,19 @@ import { dayLabel, type HireNote, type Week } from "@/lib/tracker";
 // Companies offered while typing; any other name can be typed too.
 const COMPANIES = [...CARRIER_ORDER.map((id) => CARRIERS[id].label), "Barr-Nunn", "Day & Ross"];
 
-export const noteMissing = (n: HireNote) => !n.driver.trim() || !n.company.trim();
+// Swift hires both students and experienced drivers, so its hires say which.
+export const needsKind = (n: HireNote) => /swift/i.test(n.company);
+
+export const noteMissing = (n: HireNote) => !n.driver.trim() || !n.company.trim() || (needsKind(n) && !n.kind);
 
 // One line per line of the hover text.
 export const notesTitle = (ym: string, notes: HireNote[]) =>
-  notes.map((n) => `${n.driver.trim() || "(no name)"} · ${n.company.trim() || "(no company)"} · ${dayLabel(ym, n.day)}`).join("\n");
+  notes
+    .map((n) => {
+      const kind = needsKind(n) ? ` (${n.kind ?? "Trainee or Exp?"})` : "";
+      return `${n.driver.trim() || "(no name)"} · ${n.company.trim() || "(no company)"}${kind} · ${dayLabel(ym, n.day)}`;
+    })
+    .join("\n");
 
 export function HireNotesBox({
   recruiter,
@@ -99,9 +107,18 @@ export function HireNotesBox({
               placeholder="Company"
               list={listId}
               value={n.company}
-              onChange={(e) => set(i, { company: e.target.value })}
+              onChange={(e) => set(i, { company: e.target.value, ...(/swift/i.test(e.target.value) ? {} : { kind: undefined }) })}
               aria-label={`Hire ${i + 1} company`}
             />
+            {needsKind(n) && (
+              <div className="kindPick" role="group" aria-label={`Hire ${i + 1} trainee or experienced`}>
+                {(["Trainee", "Exp"] as const).map((k) => (
+                  <button key={k} type="button" className={n.kind === k ? "on" : undefined} onClick={() => set(i, { kind: k })}>
+                    {k}
+                  </button>
+                ))}
+              </div>
+            )}
             <select className="noteIn w-[74px]" value={n.day} onChange={(e) => set(i, { day: Number(e.target.value) })} aria-label={`Hire ${i + 1} date`}>
               {week.days.map((d) => (
                 <option key={d} value={d}>
@@ -119,7 +136,7 @@ export function HireNotesBox({
         <Plus size={14} /> Add hire
       </button>
       <div className="mt-2 text-[10.5px] leading-snug text-[var(--cpm-text-faint)]">
-        Each line is one hire; the Hire count fills in from them. Name, company and date only, no SSN or phone.
+        Each line is one hire; the Hire count fills in from them. Swift hires say Trainee or Exp. Name, company and date only, no SSN or phone.
       </div>
     </div>
   );

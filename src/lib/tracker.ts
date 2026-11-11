@@ -12,6 +12,7 @@ export const ATTENDANCE_LABEL: Record<Attendance, string> = { P: "Present", L: "
 export interface HireNote {
   driver: string;
   company: string;
+  kind?: "Trainee" | "Exp"; // Swift only: hired as a student (trainee) or experienced
   day: number; // day of month
 }
 
@@ -158,9 +159,9 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
     return [name, ...days.map((d) => r?.att?.[d] ?? ""), c.P, c.L, c.A, c.O, c.rate];
   });
 
-  const hireHead = ["Recruiter", "Driver", "Company", "Hire date"];
+  const hireHead = ["Recruiter", "Driver", "Company", "Trainee / Exp", "Hire date"];
   const hireRows = recruiters.flatMap((name) =>
-    weeks.flatMap((w) => (rows[name]?.hireNotes?.[w.idx] ?? []).map((n) => [name, n.driver, n.company, dayLabel(ym, n.day)]))
+    weeks.flatMap((w) => (rows[name]?.hireNotes?.[w.idx] ?? []).map((n) => [name, n.driver, n.company, n.kind ?? "", dayLabel(ym, n.day)]))
   );
 
   const wb = XLSX.utils.book_new();
@@ -171,7 +172,7 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
   ws2["!cols"] = [{ wch: 22 }];
   XLSX.utils.book_append_sheet(wb, ws2, "Attendance");
   const ws3 = XLSX.utils.aoa_to_sheet([hireHead, ...hireRows]);
-  ws3["!cols"] = [{ wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 12 }];
+  ws3["!cols"] = [{ wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 13 }, { wch: 12 }];
   XLSX.utils.book_append_sheet(wb, ws3, "Hires");
   XLSX.writeFile(wb, `Daily_Tracker_${monthLabel(ym).replace(/ /g, "_")}.xlsx`);
 }

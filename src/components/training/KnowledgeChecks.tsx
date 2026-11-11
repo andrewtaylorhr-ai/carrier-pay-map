@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { FileDown, KeyRound } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
+import { downloadChecksAnswerKeyDoc, downloadChecksDoc } from "@/lib/knowledge-check-docs";
 import { KNOWLEDGE_CHECKS, type KnowledgeCheck } from "@/lib/training-content";
 
 const card = "rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]";
@@ -35,6 +37,15 @@ export function KnowledgeChecks({ taker, takers, setTaker }: { taker: string; ta
 
   return (
     <div className="flex flex-col gap-3 max-w-[860px]">
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[12.5px] text-[var(--cpm-text-dim)]">Word files:</span>
+        <button type="button" className="ghostBtn" onClick={() => downloadChecksDoc()}>
+          <FileDown size={14} /> Download all checks (for recruiters)
+        </button>
+        <button type="button" className="ghostBtn" onClick={downloadChecksAnswerKeyDoc}>
+          <KeyRound size={14} /> Download answer key (for you)
+        </button>
+      </div>
       <label className="flex items-center gap-2 text-[12.5px] text-[var(--cpm-text-dim)]">
         Who is taking it?
         <select
@@ -69,7 +80,10 @@ export function KnowledgeChecks({ taker, takers, setTaker }: { taker: string; ta
                     {best != null && ` · best ${best}%`}
                   </div>
                 </div>
-                <button type="button" className="ghostBtn ml-auto" onClick={() => setOpen(c.id)}>
+                <button type="button" className="ghostBtn ml-auto" title="Download this check as a Word file" onClick={() => downloadChecksDoc(c)}>
+                  <FileDown size={14} /> Word
+                </button>
+                <button type="button" className="ghostBtn" onClick={() => setOpen(c.id)}>
                   {best != null ? "Again" : "Start"}
                 </button>
               </div>

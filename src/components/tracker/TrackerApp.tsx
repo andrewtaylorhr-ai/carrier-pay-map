@@ -435,7 +435,7 @@ export function TrackerApp() {
         {tab === "subs" ? (
           <>
             Type submissions per day and hires per week — weekly and monthly totals, the TOTAL row and App-to-Hire % fill
-            in by themselves. Enter / arrow keys move between cells. Click a # to color rows; drag a # up or down to move the row. Saved in this browser.
+            in by themselves. Enter / arrow keys move between cells. Click a # to color rows; drag a # up or down to move the row. Saved for the team when a manager is signed in.
           </>
         ) : (
           <>

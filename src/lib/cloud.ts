@@ -49,8 +49,22 @@ let client: SupabaseClient | null = null;
 let channel: RealtimeChannel | null = null;
 let state: CloudState = { status: "loading", email: "", message: "" };
 const listeners = new Set<() => void>();
-const pending = new Map<string, ReturnType<typeof setTimeout>>();
+// Saving, per key: the timer waiting to send, whether a send is under way,
+// the latest value (sent once the current send ends), and what this browser
+// sent lately, so the database echoing our own saves back doesn't overwrite
+// what was typed since.
+type Save = { timer?: ReturnType<typeof setTimeout>; sending: boolean; value?: unknown; dirty: boolean; sent: string[] };
+const saves = new Map<string, Save>();
 let started = false;
+
+// JSON with object keys sorted: the database (jsonb) reorders keys.
+function canonical(v: unknown): string {
+  return JSON.stringify(v, (_k, x) =>
+    x && typeof x === "object" && !Array.isArray(x)
+      ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, (x as Record<string, unknown>)[k]]))
+      : x
+  );
+}
 
 function sb() {
   if (!client) client = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -135,10 +149,19 @@ function listen() {
     .channel("app_state")
     .on("postgres_changes", { event: "*", schema: "public", table: TABLE }, (change) => {
       const row = change.new as { key?: string; value?: unknown };
-      if (!row?.key || !SHARED_KEYS.has(row.key) || pending.has(row.key)) return;
-      const raw = JSON.stringify(row.value);
-      if (localStorage.getItem(row.key) === raw) return;
-      localStorage.setItem(row.key, raw);
+      if (!row?.key || !SHARED_KEYS.has(row.key)) return;
+      const save = saves.get(row.key);
+      // still saving here: this browser's newer value wins
+      if (save && (save.timer || save.sending)) return;
+      const incoming = canonical(row.value);
+      if (save?.sent.includes(incoming)) return;
+      const local = localStorage.getItem(row.key);
+      try {
+        if (local != null && canonical(JSON.parse(local)) === incoming) return;
+      } catch {
+        // unreadable local value: take the database's
+      }
+      localStorage.setItem(row.key, JSON.stringify(row.value));
       announce(row.key);
     })
     .subscribe();
@@ -147,27 +170,40 @@ function listen() {
 function leave(signedOut: boolean) {
   if (channel) sb().removeChannel(channel);
   channel = null;
-  pending.forEach((t) => clearTimeout(t));
-  pending.clear();
+  saves.forEach((s) => clearTimeout(s.timer));
+  saves.clear();
   // This browser's copy goes with the sign-out; it is safe in the database.
   if (signedOut) SHARED_KEYS.forEach((k) => localStorage.removeItem(k));
   setState({ status: "signedOut", email: "", message: "" });
   announce(null);
 }
 
-// Saves a shared key's new value a moment after the last change.
+// Saves a shared key's new value a moment after the last change, one send
+// at a time per key.
 export function saveShared(key: string, value: unknown) {
-  const t = pending.get(key);
-  if (t) clearTimeout(t);
-  pending.set(
-    key,
-    setTimeout(async () => {
-      const { error } = await sb().from(TABLE).upsert({ key, value, updated_at: new Date().toISOString() });
-      pending.delete(key);
-      if (error) setState({ message: `Not saved to the shared database: ${error.message}` });
-      else if (state.message) setState({ message: "" });
-    }, 400)
-  );
+  let save = saves.get(key);
+  if (!save) saves.set(key, (save = { sending: false, dirty: false, sent: [] }));
+  save.value = value;
+  save.dirty = true;
+  clearTimeout(save.timer);
+  save.timer = setTimeout(() => {
+    save.timer = undefined;
+    send(key, save);
+  }, 400);
+}
+
+async function send(key: string, save: Save) {
+  if (save.sending || !save.dirty) return;
+  save.sending = true;
+  save.dirty = false;
+  const value = save.value;
+  save.sent = [...save.sent.slice(-19), canonical(value)];
+  const { error } = await sb().from(TABLE).upsert({ key, value, updated_at: new Date().toISOString() });
+  save.sending = false;
+  if (error) setState({ message: `Not saved to the shared database: ${error.message}` });
+  else if (state.message) setState({ message: "" });
+  // typed more while sending (and no timer will send it)
+  if (save.dirty && !save.timer) send(key, save);
 }
 
 export async function signIn(email: string, password: string) {

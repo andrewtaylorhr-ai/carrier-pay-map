@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   output: "export",
   basePath: process.env.NODE_ENV === "production" ? "/carrier-pay-map" : "",
   images: { unoptimized: true },
+  // the dev badge sits on top of the sidebar's sign-in button
+  devIndicators: false,
 };
 
 export default nextConfig;

@@ -8,6 +8,7 @@ import type { LucideIcon } from "lucide-react";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
 import { ReportsMonthNav } from "@/components/reports/ReportsMonthNav";
+import { AccountBox } from "@/components/AccountBox";
 
 type NavItem = {
   label: string;
@@ -163,6 +164,8 @@ export function Sidebar() {
           <ReportsMonthNav />
         </div>
       )}
+
+      <AccountBox />
     </aside>
   );
 }

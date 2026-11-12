@@ -44,6 +44,8 @@ export default function OverviewPage() {
       </div>
 
       <CoverageMap />
+      <CoverageMap team="uzbek" />
+      <CoverageMap team="philippines" />
 
       <div className="mx-auto w-full max-w-[1400px] px-6 py-4">
         <DetailCard strategyDetail={false} />

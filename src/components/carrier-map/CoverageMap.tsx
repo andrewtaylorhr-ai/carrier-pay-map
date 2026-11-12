@@ -8,7 +8,7 @@ import type { GeometryCollection, Topology } from "topojson-specification";
 import { feature } from "topojson-client";
 import statesTopo from "us-atlas/states-10m.json";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS, STATE_CODE } from "@/lib/carriers/data";
-import type { CarrierId } from "@/lib/carriers/types";
+import type { CarrierId, RecruiterTeam } from "@/lib/carriers/types";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { buildCoverage, COVERAGE_COLOR, COVERAGE_LABEL, coverageLevel, type StateCoverage } from "@/lib/coverage";
 import { StateCoverageDetail } from "./StateCoverageDetail";
@@ -29,6 +29,7 @@ const US_BOUNDS: [[number, number], [number, number]] = [
 ];
 const CODE_STATE: Record<string, string> = Object.fromEntries(Object.entries(STATE_CODE).map(([n, c]) => [c, n]));
 const NO_FILL = "#9aa0ad";
+const TEAM_NAME: Record<RecruiterTeam, string> = { uzbek: "Uzbek", philippines: "Philippines" };
 
 const segBtn = (on: boolean) =>
   `px-3 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${
@@ -40,20 +41,26 @@ const segBtn = (on: boolean) =>
 // recruiter has, plus a pin per account city (green = assigned, red = not).
 // Clicking a state opens the full account list below the map. In Pay view the
 // page keeps the original D3 pay map (StatePerformancePanel).
-export function CoverageMap() {
+// With a team, the map counts only that team's recruiters, so an account
+// another team works shows as not assigned. It keeps its own selected state.
+export function CoverageMap({ team }: { team?: RecruiterTeam } = {}) {
+  const ctx = useCarrierMap();
   const {
     strategyMode,
     assignments,
     recruiterAssignments,
     recruiterAccounts,
     recruiterColor,
-    recruiterFilter,
-    selectedState,
-    setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
     recruiterStatus,
-  } = useCarrierMap();
+    getRecruiterTeam,
+  } = ctx;
+  const [ownSelected, setOwnSelected] = useState<string | null>(null);
+  const selectedState = team ? ownSelected : ctx.selectedState;
+  const setSelectedState = team ? setOwnSelected : ctx.setSelectedState;
+  // a recruiter picked from the other team would fade this whole map
+  const recruiterFilter = team && ctx.recruiterFilter && getRecruiterTeam(ctx.recruiterFilter) !== team ? null : ctx.recruiterFilter;
 
   const [mode, setMode] = useState<Mode>("coverage");
   const [pins, setPins] = useState<Pins>("all");
@@ -66,11 +73,11 @@ export function CoverageMap() {
   const activeAssignments = useMemo(() => {
     const next: typeof recruiterAssignments = {};
     for (const [state, arr] of Object.entries(recruiterAssignments)) {
-      const active = arr.filter((r) => recruiterStatus[r] !== "inactive");
+      const active = arr.filter((r) => recruiterStatus[r] !== "inactive" && (!team || getRecruiterTeam(r) === team));
       if (active.length) next[state] = active;
     }
     return next;
-  }, [recruiterAssignments, recruiterStatus]);
+  }, [recruiterAssignments, recruiterStatus, team, getRecruiterTeam]);
 
   const coverage = useMemo(
     () => buildCoverage(assignments, activeAssignments, recruiterAccounts, carriers),
@@ -261,7 +268,7 @@ export function CoverageMap() {
       .sort((a, b) => (sort === "az" ? a.state.localeCompare(b.state) : b.total - b.assigned - (a.total - a.assigned) || a.state.localeCompare(b.state)));
   }, [coverage, query, sort, recruiterFilter]);
 
-  if (!strategyMode) return <StatePerformancePanel />;
+  if (!strategyMode) return team ? null : <StatePerformancePanel />;
 
   const allCarriers = carriers.length === CARRIER_ORDER.length;
   const toggleCarrier = (id: CarrierId) =>
@@ -272,7 +279,7 @@ export function CoverageMap() {
       <div className="rounded-xl border border-[var(--cpm-border)] bg-[var(--cpm-panel)]">
         {/* header */}
         <div className="flex items-center gap-x-5 gap-y-2.5 flex-wrap px-4 py-3 border-b border-[var(--cpm-border)]">
-          <div className="text-[14px] font-semibold text-[var(--cpm-text)]">Account coverage map</div>
+          <div className="text-[14px] font-semibold text-[var(--cpm-text)]">{team ? `${TEAM_NAME[team]} team coverage map` : "Account coverage map"}</div>
           <div className="flex items-center gap-0.5 p-[3px] rounded-lg bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)]">
             {(
               [
@@ -334,10 +341,10 @@ export function CoverageMap() {
 
         {/* totals */}
         <div className="grid grid-cols-2 md:grid-cols-5 border-b border-[var(--cpm-border)]">
-          <Stat label="Open accounts" value={totals.total} sub="all states, picked carriers" />
+          <Stat label="Open accounts" value={totals.total} sub={team ? `counts ${TEAM_NAME[team]} team recruiters only` : "all states, picked carriers"} />
           <Stat label="Assigned" value={totals.assigned} color="var(--cpm-green)" sub={pct(totals.assigned, totals.total)} />
           <Stat label="Not assigned" value={totals.open} color="#ff8a8e" sub={pct(totals.open, totals.total)} />
-          <Stat label="States without recruiter" value={totals.noRecruiter} color="#ff8a8e" sub="that have open accounts" />
+          <Stat label="States without recruiter" value={totals.noRecruiter} color="#ff8a8e" sub={team ? `no ${TEAM_NAME[team]} team recruiter` : "that have open accounts"} />
           <Stat label="Carrier gaps" value={totals.carrierGaps} color="#f5b84a" sub="carrier hiring, not assigned to state" />
         </div>
 

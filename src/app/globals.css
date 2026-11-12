@@ -312,7 +312,6 @@ table.tracker .stick { position:sticky; z-index:1; background:var(--cpm-panel-al
 table.tracker thead .stick { z-index:3; background:#1e3a8a; }
 table.tracker .stick.num { left:0; width:30px; min-width:30px; color:#fff; font-weight:800; }
 table.tracker .stick.name { left:30px; min-width:170px; text-align:left; padding:0 10px; font-weight:600; color:var(--cpm-text); box-shadow:2px 0 0 var(--cpm-border-strong); }
-table.tracker tbody td.off { background:rgba(124,58,237,.13); }
 table.tracker tbody td.today { background:rgba(201,0,22,.08); }
 table.tracker td.calc { padding:0 8px; font-weight:700; color:var(--cpm-text); min-width:44px; }
 table.tracker td.calc.sub { background:rgba(234,138,12,.12); }

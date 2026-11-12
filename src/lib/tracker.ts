@@ -34,29 +34,63 @@ export interface TrackerData {
   rowColors?: Record<string, string>; // recruiter -> color of their # cell
   rowOrder?: string[]; // recruiters top to bottom, as dragged by the user
   months: Record<string, Record<string, TrackerRow>>; // "YYYY-MM" -> recruiter -> row
+  weekStart?: "mon"; // set once hires are keyed by Monday-to-Sunday weeks (older data used Sunday-to-Saturday)
 }
 
-export const EMPTY_TRACKER: TrackerData = { groups: ["Team 1", "Team 2", "Team 3"], rowGroup: {}, months: {} };
+export const EMPTY_TRACKER: TrackerData = { groups: ["Team 1", "Team 2", "Team 3"], rowGroup: {}, months: {}, weekStart: "mon" };
 
 export interface Week {
   idx: number;
   days: number[];
 }
 
-// Sunday-to-Saturday weeks, clipped to the month.
-export function monthWeeks(ym: string): Week[] {
+// Monday-to-Sunday weeks, clipped to the month (endDay 6 gives the old Sunday-to-Saturday ones).
+export function monthWeeks(ym: string, endDay = 0): Week[] {
   const [y, m] = ym.split("-").map(Number);
   const last = new Date(y, m, 0).getDate();
   const weeks: Week[] = [];
   let cur: number[] = [];
   for (let d = 1; d <= last; d++) {
     cur.push(d);
-    if (new Date(y, m - 1, d).getDay() === 6 || d === last) {
+    if (new Date(y, m - 1, d).getDay() === endDay || d === last) {
       weeks.push({ idx: weeks.length, days: cur });
       cur = [];
     }
   }
   return weeks;
+}
+
+// Moves hires saved under Sunday-to-Saturday week numbers to the Monday-to-Sunday
+// week they fall in: a named hire by its hire date, a hire typed only as a number
+// by its old week's Saturday. Data already on Monday weeks is returned as is.
+export function toMondayWeeks(d: TrackerData): TrackerData {
+  if (d.weekStart === "mon") return d;
+  const months: TrackerData["months"] = {};
+  for (const [ym, rows] of Object.entries(d.months || {})) {
+    const oldWeeks = monthWeeks(ym, 6);
+    const newWeeks = monthWeeks(ym);
+    const weekOf = (day: number) => newWeeks.find((w) => w.days.includes(day))?.idx ?? 0;
+    months[ym] = {};
+    for (const [name, r] of Object.entries(rows)) {
+      const hire: Record<string, number> = {};
+      const hireNotes: Record<string, HireNote[]> = {};
+      oldWeeks.forEach((ow) => {
+        const notes = r.hireNotes?.[ow.idx] ?? [];
+        notes.forEach((n) => {
+          const w = weekOf(n.day);
+          (hireNotes[w] ||= []).push(n);
+          hire[w] = (hire[w] ?? 0) + 1;
+        });
+        const extra = (r.hire?.[ow.idx] ?? 0) - notes.length;
+        if (extra > 0) {
+          const w = weekOf(ow.days[ow.days.length - 1]);
+          hire[w] = (hire[w] ?? 0) + extra;
+        }
+      });
+      months[ym][name] = { ...r, hire, hireNotes };
+    }
+  }
+  return { ...d, months, weekStart: "mon" };
 }
 
 export const isSunday = (ym: string, day: number) => {

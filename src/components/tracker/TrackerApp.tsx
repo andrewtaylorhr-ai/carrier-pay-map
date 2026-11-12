@@ -18,6 +18,7 @@ import {
   weekdayShort,
   monthLabel,
   monthWeeks,
+  toMondayWeeks,
   shiftMonth,
   totalHires,
   totalSubs,
@@ -40,7 +41,9 @@ const thisMonth = () => {
 
 export function TrackerApp() {
   const { recruiters, getRecruiterStatus, showFormer, setShowFormer, trainees, isNewRecruiter, updateTrainee } = useCarrierMap();
-  const [data, setData] = useLocalStorageState<TrackerData>("cdlPayMapTracker", EMPTY_TRACKER);
+  const [data, setData] = useLocalStorageState<TrackerData>("cdlPayMapTracker", EMPTY_TRACKER, {
+    migrate: (raw) => toMondayWeeks(raw as TrackerData),
+  });
   const [ym, setYm] = useState(thisMonth);
   const [tab, setTab] = useState<"subs" | "att">("subs");
   // rows picked by clicking their # cell (shift = range, ctrl = add/remove one)
@@ -88,7 +91,7 @@ export function TrackerApp() {
     return acc;
   }, []);
 
-  // Sundays and US holidays are shaded as days off; today stands out on top.
+  // Sundays and US holidays are marked on their date only; today stands out on top.
   const dayClass = (d: number) => [dayOff(ym, d) ? "off" : "", d === today ? "today" : ""].filter(Boolean).join(" ") || undefined;
   const dayHead = (d: number) => {
     const holiday = usHoliday(ym, d);

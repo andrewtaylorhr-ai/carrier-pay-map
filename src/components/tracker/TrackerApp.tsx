@@ -224,6 +224,20 @@ export function TrackerApp() {
     });
   // The picked header colors, as the CSS variables the header styles read.
   const headStyle = Object.fromEntries(Object.entries(data.headColors || {}).map(([k, c]) => [`--th-${k}`, c])) as CSSProperties;
+  // On this month, open scrolled to the current week: its Monday sits just
+  // right of the frozen columns.
+  // (and again once the team's numbers arrive, as they widen the columns)
+  const hasTable = ordered.length > 0;
+  const hasRows = Object.keys(rows).length > 0;
+  useEffect(() => {
+    const wrap = tableRef.current;
+    if (!wrap || !today) return;
+    const first = weeks.find((w) => w.days.includes(today))?.days[0];
+    const th = wrap.querySelector<HTMLElement>(`thead th[data-col="${ym}/d${first}"]`);
+    const frozen = [...wrap.querySelectorAll<HTMLElement>("thead th.stick")].at(-1);
+    if (th && frozen) wrap.scrollLeft = Math.max(0, wrap.scrollLeft + th.getBoundingClientRect().left - frozen.getBoundingClientRect().right);
+  }, [ym, tab, hasTable, hasRows, today, weeks]);
+
   // The column whose header was clicked, to color just that header.
   const [colPick, setColPick] = useState<{ key: string; label: string } | null>(null);
   const setColColor = (key: string, color: string | null) =>

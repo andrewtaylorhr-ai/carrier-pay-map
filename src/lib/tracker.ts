@@ -33,6 +33,7 @@ export interface TrackerData {
   groupColors?: Record<string, string>; // group name -> color picked by the user
   rowColors?: Record<string, string>; // recruiter -> color of their # cell
   headColors?: Partial<Record<HeadColor, string>>; // header colors picked by the user
+  colColors?: Record<string, string>; // one column's header -> color, picked by clicking it (beats headColors)
   rowOrder?: string[]; // recruiters top to bottom, as dragged by the user
   months: Record<string, Record<string, TrackerRow>>; // "YYYY-MM" -> recruiter -> row
   weekStart?: "mon"; // set once hires are keyed by Monday-to-Sunday weeks (older data used Sunday-to-Saturday)

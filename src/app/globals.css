@@ -300,6 +300,8 @@ table.wizTable tr.allRow td { font-size:11.5px; color:var(--cpm-text-faint); bac
 table.tracker { border-collapse:separate; border-spacing:0; font-size:12.5px; white-space:nowrap; }
 table.tracker th, table.tracker td { border-right:1px solid var(--cpm-border); border-bottom:1px solid var(--cpm-border); padding:0; text-align:center; height:28px; }
 table.tracker thead th { position:sticky; top:0; z-index:2; padding:6px 6px; font-size:11.5px; font-weight:700; color:#fff; background:var(--th-day, #1e3a8a); }
+table.tracker thead th[data-col] { cursor:pointer; }
+table.tracker thead th[data-col]:hover { filter:brightness(1.18); }
 table.tracker thead th.off { background:var(--th-off, #5b21b6); color:#e9ddff; }
 table.tracker thead th.today { background:var(--cpm-accent); color:var(--cpm-accent-ink); }
 table.tracker thead th.hDqp { background:var(--th-dqp, #2563eb); }

@@ -224,6 +224,22 @@ export function TrackerApp() {
     });
   // The picked header colors, as the CSS variables the header styles read.
   const headStyle = Object.fromEntries(Object.entries(data.headColors || {}).map(([k, c]) => [`--th-${k}`, c])) as CSSProperties;
+  // The column whose header was clicked, to color just that header.
+  const [colPick, setColPick] = useState<{ key: string; label: string } | null>(null);
+  const setColColor = (key: string, color: string | null) =>
+    setData((d) => {
+      const colColors = { ...(d.colColors || {}) };
+      if (color) colColors[key] = color;
+      else delete colColors[key];
+      return { ...d, colColors };
+    });
+  // Props for a header cell: click it to pick its color. Day and week columns
+  // are per month; the others keep their color in every month.
+  const col = (key: string, label: string) => ({
+    "data-col": key,
+    onClick: () => setColPick({ key, label }),
+    style: data.colColors?.[key] ? { background: data.colColors[key] } : undefined,
+  });
   const colorPicked = (color: string | null) =>
     setData((d) => {
       const rowColors = { ...(d.rowColors || {}) };
@@ -351,6 +367,25 @@ export function TrackerApp() {
         </div>
       )}
 
+      {colPick && (
+        <div className="colorBar">
+          <b>Header: {colPick.label}</b>
+          <span className="text-[var(--cpm-text-faint)]">Color:</span>
+          {PALETTE.map((c) => (
+            <button key={c} type="button" className="paletteDot" style={{ background: c }} onClick={() => setColColor(colPick.key, c)} aria-label={`Color ${c}`} />
+          ))}
+          <label className="colorSwatch" title="Any color" style={{ background: "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" }}>
+            <input type="color" value={data.colColors?.[colPick.key] ?? "#1e3a8a"} onChange={(e) => setColColor(colPick.key, e.target.value)} aria-label="Pick any color" />
+          </label>
+          <button type="button" className="ghostBtn" onClick={() => setColColor(colPick.key, null)} disabled={!data.colColors?.[colPick.key]}>
+            Reset
+          </button>
+          <button type="button" className="ghostBtn ml-auto" onClick={() => setColPick(null)}>
+            <X size={14} /> Done
+          </button>
+        </div>
+      )}
+
       {picked.length > 0 && (
         <div className="colorBar">
           <b>
@@ -382,24 +417,32 @@ export function TrackerApp() {
             <table className="tracker">
               <thead>
                 <tr>
-                  <th className="stick num">#</th>
-                  <th className="stick name">Recruiter</th>
-                  <th className="stick c1 hDqp">DQP</th>
-                  <th className="stick c2 hAtDqp">at DQP</th>
-                  <th className="stick c3 hHire">Hire</th>
+                  <th className="stick num" {...col("num", "#")}>#</th>
+                  <th className="stick name" {...col("name", "Recruiter")}>Recruiter</th>
+                  <th className="stick c1 hDqp" {...col("dqp", "DQP")}>DQP</th>
+                  <th className="stick c2 hAtDqp" {...col("atDqp", "at DQP")}>at DQP</th>
+                  <th className="stick c3 hHire" {...col("hireTotal", "Hire (month)")}>Hire</th>
                   {weeks.map((w) => (
                     <Fragment key={w.idx}>
                       {w.days.map((d) => (
-                        <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
+                        <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined} {...col(`${ym}/d${d}`, `${weekdayShort(ym, d)} ${dayLabel(ym, d)}`)}>
                           {dayHead(d)}
                         </th>
                       ))}
-                      <th className="hSub">Submission</th>
-                      <th className="hHire">Hire</th>
+                      <th className="hSub" {...col(`${ym}/w${w.idx}/sub`, `Week ${w.idx + 1} Submission`)}>
+                        Submission
+                      </th>
+                      <th className="hHire" {...col(`${ym}/w${w.idx}/hire`, `Week ${w.idx + 1} Hire`)}>
+                        Hire
+                      </th>
                     </Fragment>
                   ))}
-                  <th className="hSub">Submission</th>
-                  <th className="hRate">App-to-Hire %</th>
+                  <th className="hSub" {...col("subTotal", "Submission (month)")}>
+                    Submission
+                  </th>
+                  <th className="hRate" {...col("rate", "App-to-Hire %")}>
+                    App-to-Hire %
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -496,18 +539,26 @@ export function TrackerApp() {
             <table className="tracker att">
               <thead>
                 <tr>
-                  <th className="stick num">#</th>
-                  <th className="stick name">Recruiter</th>
+                  <th className="stick num" {...col("num", "#")}>#</th>
+                  <th className="stick name" {...col("name", "Recruiter")}>Recruiter</th>
                   {days.map((d) => (
-                    <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
+                    <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined} {...col(`${ym}/d${d}`, `${weekdayShort(ym, d)} ${dayLabel(ym, d)}`)}>
                       {dayHead(d)}
                     </th>
                   ))}
-                  <th className="hHire">Present</th>
-                  <th className="hAtDqp">Late</th>
-                  <th className="hAbs">Absent</th>
-                  <th>Off</th>
-                  <th className="hRate">Attendance %</th>
+                  <th className="hHire" {...col("present", "Present")}>
+                    Present
+                  </th>
+                  <th className="hAtDqp" {...col("late", "Late")}>
+                    Late
+                  </th>
+                  <th className="hAbs" {...col("absent", "Absent")}>
+                    Absent
+                  </th>
+                  <th {...col("off", "Off")}>Off</th>
+                  <th className="hRate" {...col("attRate", "Attendance %")}>
+                    Attendance %
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -578,7 +629,7 @@ export function TrackerApp() {
         {tab === "subs" ? (
           <>
             Type submissions per day and hires per week — weekly and monthly totals, the TOTAL row and App-to-Hire % fill
-            in by themselves. Enter / arrow keys move between cells. Click the note on a week's Hire cell to add each driver's full name, company and hire date (red corner = names added, yellow = names missing). Click a # to color rows; drag a # up or down to move the row. Saved for the team when a manager is signed in.
+            in by themselves. Enter / arrow keys move between cells. Click the note on a week's Hire cell to add each driver's full name, company and hire date (red corner = names added, yellow = names missing). Click a # to color rows, or a header to color it; drag a # up or down to move the row. Saved for the team when a manager is signed in.
           </>
         ) : (
           <>

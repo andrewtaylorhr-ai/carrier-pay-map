@@ -55,7 +55,11 @@ export function useMapStyle(): MapStyle {
     getMonthlyReport,
     reportsActiveMonth,
     selectedState,
+    getRecruiterTeam,
   } = useCarrierMap();
+  // With a recruiter picked, the map shows only their own team's recruiters
+  // (a recruiter with no team sees everyone).
+  const team = recruiterFilter ? getRecruiterTeam(recruiterFilter) : null;
 
   const gradients = useMemo<GradientSpec[]>(() => {
     const combos = new Map<string, string[]>();
@@ -82,7 +86,8 @@ export function useMapStyle(): MapStyle {
     if (strategyMode) {
       if (colorMode === "recruiter") {
         const getStyle = (stateName: string): StateStyle => {
-          const arr = recruiterAssignments[stateName] || [];
+          const all = recruiterAssignments[stateName] || [];
+          const arr = team ? all.filter((r) => getRecruiterTeam(r) === team) : all;
           const shared = arr.length > 1;
           let fill = UNASSIGNED_FILL;
           if (arr.length) {
@@ -226,6 +231,8 @@ export function useMapStyle(): MapStyle {
     getMonthlyReport,
     reportsActiveMonth,
     selectedState,
+    team,
+    getRecruiterTeam,
   ]);
 }
 

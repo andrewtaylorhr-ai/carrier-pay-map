@@ -125,6 +125,7 @@ export function ChoroplethMap({
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    getRecruiterTeam,
   } = useCarrierMap();
   const mapStyle = useMapStyle();
 
@@ -138,6 +139,7 @@ export function ChoroplethMap({
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    getRecruiterTeam,
     paint,
   });
   latest.current = {
@@ -149,6 +151,7 @@ export function ChoroplethMap({
     setSelectedState,
     assignModeRecruiter,
     toggleRecruiterOnState,
+    getRecruiterTeam,
     paint,
   };
 
@@ -198,7 +201,9 @@ export function ChoroplethMap({
               }
               html = h;
             } else if (strategyMode && assignModeRecruiter) {
-              const recs = recruiterAssignments[name] || [];
+              // only the recruiter's own team, like the map's colors
+              const team = latest.current.getRecruiterTeam(assignModeRecruiter);
+              const recs = (recruiterAssignments[name] || []).filter((r) => !team || latest.current.getRecruiterTeam(r) === team);
               const on = recs.includes(assignModeRecruiter);
               html =
                 `<div style="font-weight:600;margin-bottom:4px">${name}</div>` +

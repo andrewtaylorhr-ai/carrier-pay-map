@@ -6,9 +6,17 @@ import { ChoroplethMap } from "@/components/carrier-map/ChoroplethMap";
 import { RecruiterReport } from "@/components/carrier-map/RecruiterReport";
 import { ALL_STATES, CARRIER_ORDER, CARRIERS } from "@/lib/carriers/data";
 import { useCarrierMap } from "@/lib/carrier-map-context";
+import type { RecruiterTeam } from "@/lib/carriers/types";
 import { downloadRecruiterMap } from "@/lib/exportRecruiterMap";
 import { exportRecruiterReportToExcel, recruiterStates } from "@/lib/exportRecruiterReport";
 import { CarrierAccountsStep } from "./CarrierAccountsStep";
+
+// The recruiter list's sections, in this order.
+const TEAMS: { team: RecruiterTeam | null; label: string }[] = [
+  { team: "uzbek", label: "Uzbek team" },
+  { team: "philippines", label: "Philippines team" },
+  { team: null, label: "No team" },
+];
 
 const STEPS = ["Recruiter", "States", "Carriers & accounts", "Download"] as const;
 type Step = 0 | 1 | 2 | 3;
@@ -171,37 +179,48 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
         </div>
       </div>
 
-      <div className="grid gap-2.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-        {list.map((r) => {
-          const states = recruiterStates(r, recruiterAssignments).length;
-          const accounts = (recruiterAccounts[r] || []).length;
-          const team = getRecruiterTeam(r);
-          return (
-            <button key={r} type="button" className="recruiterCard" onClick={() => onPick(r)}>
-              <span className="flex items-center gap-2 min-w-0">
-                <span className="avatar" style={{ background: recruiterColor(r) }}>
-                  {r.slice(0, 1).toUpperCase()}
-                </span>
-                <span className="min-w-0 text-left">
-                  <span className="block font-semibold truncate text-[var(--cpm-text)]">{r}</span>
-                  <span className="block text-[11.5px] text-[var(--cpm-text-faint)]">
-                    {team === "uzbek" ? "Uzbek team" : team === "philippines" ? "Philippines team" : "No team"}
-                  </span>
-                </span>
-              </span>
-              <span className="flex gap-3 text-[11.5px] text-[var(--cpm-text-dim)] mt-2">
-                <span>
-                  <b className="text-[var(--cpm-text)]">{states}</b> state{states === 1 ? "" : "s"}
-                </span>
-                <span>
-                  <b className="text-[var(--cpm-text)]">{accounts}</b> account{accounts === 1 ? "" : "s"}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-        {!list.length && <div className="text-[13px] text-[var(--cpm-text-faint)] py-6">No recruiters match.</div>}
-      </div>
+      {TEAMS.map(({ team: t, label }) => {
+        const inTeam = list.filter((r) => (getRecruiterTeam(r) ?? null) === t);
+        if (!inTeam.length) return null;
+        return (
+          <section key={label} className="mb-4">
+            <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--cpm-text-faint)] mb-2">
+              {label} <span className="font-normal">({inTeam.length})</span>
+            </h3>
+            <div className="grid gap-2.5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+              {inTeam.map((r) => {
+                const states = recruiterStates(r, recruiterAssignments).length;
+                const accounts = (recruiterAccounts[r] || []).length;
+                const team = getRecruiterTeam(r);
+                return (
+                  <button key={r} type="button" className="recruiterCard" onClick={() => onPick(r)}>
+                    <span className="flex items-center gap-2 min-w-0">
+                      <span className="avatar" style={{ background: recruiterColor(r) }}>
+                        {r.slice(0, 1).toUpperCase()}
+                      </span>
+                      <span className="min-w-0 text-left">
+                        <span className="block font-semibold truncate text-[var(--cpm-text)]">{r}</span>
+                        <span className="block text-[11.5px] text-[var(--cpm-text-faint)]">
+                          {team === "uzbek" ? "Uzbek team" : team === "philippines" ? "Philippines team" : "No team"}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="flex gap-3 text-[11.5px] text-[var(--cpm-text-dim)] mt-2">
+                      <span>
+                        <b className="text-[var(--cpm-text)]">{states}</b> state{states === 1 ? "" : "s"}
+                      </span>
+                      <span>
+                        <b className="text-[var(--cpm-text)]">{accounts}</b> account{accounts === 1 ? "" : "s"}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        );
+      })}
+      {!list.length && <div className="text-[13px] text-[var(--cpm-text-faint)] py-6">No recruiters match.</div>}
 
       <div className="mt-5 pt-4 border-t border-[var(--cpm-border)] flex items-center gap-2 flex-wrap">
         <span className="text-[12.5px] text-[var(--cpm-text-dim)]">New recruiter:</span>
@@ -227,7 +246,9 @@ function RecruiterStep({ onPick }: { onPick: (r: string) => void }) {
 
 /* ---------- 2. States ---------- */
 function StatesStep() {
-  const { recruiterFilter, recruiterAssignments, toggleRecruiterOnState, recruiterColor } = useCarrierMap();
+  const { recruiterFilter, recruiterAssignments, toggleRecruiterOnState, recruiterColor, getRecruiterTeam } = useCarrierMap();
+  const team = getRecruiterTeam(recruiterFilter);
+  const teamName = team === "uzbek" ? "Uzbek" : team === "philippines" ? "Philippines" : "";
   const [pick, setPick] = useState("");
   const states = recruiterStates(recruiterFilter, recruiterAssignments);
   const available = ALL_STATES.filter((s) => !states.includes(s)).sort();
@@ -246,10 +267,10 @@ function StatesStep() {
               <span className="w-3 h-3 rounded-sm" style={{ background: recruiterColor(recruiterFilter) }} /> {recruiterFilter}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-[#e3e2de] opacity-40" /> other recruiters
+              <span className="w-3 h-3 rounded-sm bg-[#e3e2de] opacity-40" /> other {teamName ? `${teamName} team ` : ""}recruiters
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-[#232733] border border-[var(--cpm-border-strong)]" /> nobody yet
+              <span className="w-3 h-3 rounded-sm bg-[#232733] border border-[var(--cpm-border-strong)]" /> nobody{teamName ? ` on the ${teamName} team` : ""} yet
             </span>
           </div>
         </div>

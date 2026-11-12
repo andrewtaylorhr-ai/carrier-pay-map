@@ -299,17 +299,17 @@ table.wizTable tr.allRow td { font-size:11.5px; color:var(--cpm-text-faint); bac
 .trackerWrap { overflow:auto; max-height:calc(100vh - 230px); border:1px solid var(--cpm-border); border-radius:10px; background:var(--cpm-panel); }
 table.tracker { border-collapse:separate; border-spacing:0; font-size:12.5px; white-space:nowrap; }
 table.tracker th, table.tracker td { border-right:1px solid var(--cpm-border); border-bottom:1px solid var(--cpm-border); padding:0; text-align:center; height:28px; }
-table.tracker thead th { position:sticky; top:0; z-index:2; padding:6px 6px; font-size:11.5px; font-weight:700; color:#fff; background:#1e3a8a; }
-table.tracker thead th.off { background:#5b21b6; color:#e9ddff; }
+table.tracker thead th { position:sticky; top:0; z-index:2; padding:6px 6px; font-size:11.5px; font-weight:700; color:#fff; background:var(--th-day, #1e3a8a); }
+table.tracker thead th.off { background:var(--th-off, #5b21b6); color:#e9ddff; }
 table.tracker thead th.today { background:var(--cpm-accent); color:var(--cpm-accent-ink); }
-table.tracker thead th.hDqp { background:#2563eb; }
-table.tracker thead th.hAtDqp { background:#ca8a04; }
-table.tracker thead th.hHire { background:#15803d; }
-table.tracker thead th.hSub { background:#ea8a0c; }
-table.tracker thead th.hAbs { background:#b91c1c; }
-table.tracker thead th.hRate { background:#7c2d4f; }
+table.tracker thead th.hDqp { background:var(--th-dqp, #2563eb); }
+table.tracker thead th.hAtDqp { background:var(--th-atDqp, #ca8a04); }
+table.tracker thead th.hHire { background:var(--th-hire, #15803d); }
+table.tracker thead th.hSub { background:var(--th-sub, #ea8a0c); }
+table.tracker thead th.hAbs { background:var(--th-abs, #b91c1c); }
+table.tracker thead th.hRate { background:var(--th-rate, #7c2d4f); }
 table.tracker .stick { position:sticky; z-index:1; background:var(--cpm-panel-alt); }
-table.tracker thead .stick { z-index:3; background:#1e3a8a; }
+table.tracker thead .stick { z-index:3; background:var(--th-day, #1e3a8a); }
 table.tracker .stick.num { left:0; width:30px; min-width:30px; color:#fff; font-weight:800; }
 table.tracker .stick.name { left:30px; min-width:170px; text-align:left; padding:0 10px; font-weight:600; color:var(--cpm-text); box-shadow:2px 0 0 var(--cpm-border-strong); }
 table.tracker tbody td.today { background:rgba(201,0,22,.08); }
@@ -346,9 +346,9 @@ table.tracker tr.newRow td.stick.name { color:#7dd3fc; }
 table.tracker .newTag { margin-left:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#7dd3fc; }
 table.tracker .formerTag { margin-left:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#ff8a8e; }
 table.tracker:has(.stick.c3) .stick.name { box-shadow:none; }
-table.tracker thead th.stick.hDqp { background:#2563eb; }
-table.tracker thead th.stick.hAtDqp { background:#ca8a04; }
-table.tracker thead th.stick.hHire { background:#15803d; }
+table.tracker thead th.stick.hDqp { background:var(--th-dqp, #2563eb); }
+table.tracker thead th.stick.hAtDqp { background:var(--th-atDqp, #ca8a04); }
+table.tracker thead th.stick.hHire { background:var(--th-hire, #15803d); }
 table.tracker tbody td.stick.c3.hire { background:#1f3a2c; }
 table.tracker tr.groupRow td.stick { background:var(--cpm-bg); }
 

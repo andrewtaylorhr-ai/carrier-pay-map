@@ -32,10 +32,24 @@ export interface TrackerData {
   rowGroup: Record<string, string>; // recruiter -> group name
   groupColors?: Record<string, string>; // group name -> color picked by the user
   rowColors?: Record<string, string>; // recruiter -> color of their # cell
+  headColors?: Partial<Record<HeadColor, string>>; // header colors picked by the user
   rowOrder?: string[]; // recruiters top to bottom, as dragged by the user
   months: Record<string, Record<string, TrackerRow>>; // "YYYY-MM" -> recruiter -> row
   weekStart?: "mon"; // set once hires are keyed by Monday-to-Sunday weeks (older data used Sunday-to-Saturday)
 }
+
+// The header colors the user can change, with their default colors.
+export const HEAD_COLORS = [
+  { key: "day", label: "Dates", color: "#1e3a8a" },
+  { key: "off", label: "Sundays & holidays", color: "#5b21b6" },
+  { key: "dqp", label: "DQP", color: "#2563eb" },
+  { key: "atDqp", label: "at DQP / Late", color: "#ca8a04" },
+  { key: "hire", label: "Hire / Present", color: "#15803d" },
+  { key: "sub", label: "Submission", color: "#ea8a0c" },
+  { key: "rate", label: "App-to-Hire % / Attendance %", color: "#7c2d4f" },
+  { key: "abs", label: "Absent", color: "#b91c1c" },
+] as const;
+export type HeadColor = (typeof HEAD_COLORS)[number]["key"];
 
 export const EMPTY_TRACKER: TrackerData = { groups: ["Team 1", "Team 2", "Team 3"], rowGroup: {}, months: {}, weekStart: "mon" };
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
-import { CalendarCheck, ChevronLeft, ChevronRight, Download, Send, StickyNote, X } from "lucide-react";
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
+import { CalendarCheck, ChevronLeft, ChevronRight, Download, Palette, Send, StickyNote, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { NEW_RECRUITER_COLOR, todayISO } from "@/lib/trainees";
@@ -19,6 +19,8 @@ import {
   monthLabel,
   monthWeeks,
   toMondayWeeks,
+  HEAD_COLORS,
+  type HeadColor,
   shiftMonth,
   totalHires,
   totalSubs,
@@ -213,6 +215,15 @@ export function TrackerApp() {
     if (e.ctrlKey || e.metaKey) setPicked((cur) => (cur.includes(name) ? cur.filter((x) => x !== name) : [...cur, name]));
     else setPicked((cur) => (cur.length === 1 && cur[0] === name ? [] : [name]));
   };
+  const [headOpen, setHeadOpen] = useState(false);
+  const headColor = (k: HeadColor) => data.headColors?.[k] ?? HEAD_COLORS.find((h) => h.key === k)!.color;
+  const setHeadColor = (k: HeadColor | null, color?: string) =>
+    setData((d) => {
+      if (!k) return { ...d, headColors: undefined };
+      return { ...d, headColors: { ...(d.headColors || {}), [k]: color } };
+    });
+  // The picked header colors, as the CSS variables the header styles read.
+  const headStyle = Object.fromEntries(Object.entries(data.headColors || {}).map(([k, c]) => [`--th-${k}`, c])) as CSSProperties;
   const colorPicked = (color: string | null) =>
     setData((d) => {
       const rowColors = { ...(d.rowColors || {}) };
@@ -311,11 +322,34 @@ export function TrackerApp() {
               Mark everyone present today
             </button>
           )}
+          <button type="button" className={`ghostBtn${headOpen ? " active" : ""}`} onClick={() => setHeadOpen((o) => !o)}>
+            <Palette size={14} /> Header colors
+          </button>
           <button type="button" className="primaryBtn" onClick={() => exportTrackerToExcel(ym, ordered, rows)}>
             <Download size={14} /> Download Excel
           </button>
         </div>
       </div>
+
+      {headOpen && (
+        <div className="colorBar flex-wrap">
+          <b>Header colors</b>
+          {HEAD_COLORS.map((h) => (
+            <label key={h.key} className="flex items-center gap-1.5 text-[12px] text-[var(--cpm-text-dim)]">
+              <span className="colorSwatch" style={{ background: headColor(h.key) }}>
+                <input type="color" value={headColor(h.key)} onChange={(e) => setHeadColor(h.key, e.target.value)} aria-label={`${h.label} header color`} />
+              </span>
+              {h.label}
+            </label>
+          ))}
+          <button type="button" className="ghostBtn" onClick={() => setHeadColor(null)} disabled={!data.headColors}>
+            Reset
+          </button>
+          <button type="button" className="ghostBtn ml-auto" onClick={() => setHeadOpen(false)}>
+            <X size={14} /> Done
+          </button>
+        </div>
+      )}
 
       {picked.length > 0 && (
         <div className="colorBar">
@@ -343,7 +377,7 @@ export function TrackerApp() {
           No recruiters yet — add them in <b>Team Overview</b>.
         </div>
       ) : (
-        <div className="trackerWrap" ref={tableRef}>
+        <div className="trackerWrap" ref={tableRef} style={headStyle}>
           {tab === "subs" ? (
             <table className="tracker">
               <thead>

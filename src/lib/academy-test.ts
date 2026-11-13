@@ -186,7 +186,7 @@ export const ACADEMY_TEST: TestQuestion[] = [
     ],
     answer: 1,
     why: "Open warm, use their name, and ask a simple personal question. No corporate jargon.",
-    lesson: "Building Rapport and Prequalifying like a BOSS!",
+    lesson: "How to speak to the driver?",
   },
   {
     q: "What are the 5 points of a proper job presentation?",
@@ -328,21 +328,21 @@ export const ACADEMY_TEST: TestQuestion[] = [
     ],
     answer: 2,
     why: "TransAm needs at least 90 days OTR in the last year, not counting training. Never change a driver's experience.",
-    lesson: "Trans AM",
+    lesson: "Trans AM (3 months in the past year)",
   },
   {
     q: "A driver has 6 MVR points in the last 3 years on PAM's point system. Can PAM hire them?",
     options: ["Yes, up to 10 points is fine", "No, more than 5 points in 3 years is not eligible", "Yes, if they have 1 year of experience", "Points don't matter at PAM"],
     answer: 1,
     why: "An applicant with more than 5 points within the last 3 years is not eligible at PAM.",
-    lesson: "PAM Transportation",
+    lesson: "PAM Transportation (3 months in the past year)",
   },
   {
     q: "A driver has 3 moving violations in the last 3 years, and all 3 were in the last 12 months. Does the driver fit US Xpress?",
     options: ["Yes, 3 in 3 years is allowed", "Yes, if they have 3 months of experience", "No, US Xpress allows no more than 2 in the last 12 months", "No, US Xpress allows none"],
     answer: 2,
     why: "US Xpress allows no more than 3 in 3 years and no more than 2 in the last 12 months.",
-    lesson: "US Xpress (Local, Regional, OTR)",
+    lesson: "US Xpress (Local, Regional, OTR) (3 months)",
   },
   // Communication
   {
@@ -385,14 +385,14 @@ export const ACADEMY_TEST: TestQuestion[] = [
     options: ["True", "False"],
     answer: 1,
     why: "US Xpress: truck driving school or training doesn't count as experience.",
-    lesson: "US Xpress (Local, Regional, OTR)",
+    lesson: "US Xpress (Local, Regional, OTR) (3 months)",
   },
   {
     q: "True or false: on TransAm's pay chart, a driver's experience counts from their last preventable accident.",
     options: ["True", "False"],
     answer: 0,
     why: "A driver with 5 years of experience whose last preventable accident was 2 years ago is a 2-year driver on the chart.",
-    lesson: "Trans AM",
+    lesson: "Trans AM (3 months in the past year)",
   },
   {
     q: "True or false: in the Call Script, you pre-qualify the driver before you present the job.",

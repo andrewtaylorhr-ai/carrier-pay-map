@@ -67,7 +67,7 @@ const PLAN: Step[][] = [
         "Objection handling",
         "Closing techniques",
       ],
-      lessons: ["Call Script", "Building Rapport and Prequalifying like a BOSS!", "Speaking Rules", "Convincing / Consulting", "Proper Presentation"],
+      lessons: ["Call Script", "How to speak to the driver?", "Speaking Rules", "Convincing / Consulting", "Proper Presentation"],
       tools: [{ label: "Call guide", tab: "call" }],
     },
     {

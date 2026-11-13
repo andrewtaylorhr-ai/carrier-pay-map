@@ -109,9 +109,16 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
   const drivers: PipelineDriver[] = [];
   const byName = new Map<string, PipelineDriver[]>();
   const counts = new Map<string, number>();
+  // The site sometimes sends the same submission twice, seconds apart.
+  const lastSent = new Map<string, number>();
   for (const e of events) {
     if (e.type !== "submission" || !e.driver) continue;
-    const name = e.driver.trim();
+    const name = e.driver.replace(/\s+/g, " ").trim();
+    const same = `${norm(name)}|${norm(e.carrier ?? "")}|${norm(e.recruiter ?? "")}`;
+    const t = Date.parse(e.at);
+    const prev = lastSent.get(same);
+    lastSent.set(same, t);
+    if (prev != null && t - prev < 30 * 60e3) continue;
     const d: PipelineDriver = {
       key: e.id,
       id: e.id,

@@ -86,7 +86,7 @@ function read_(m, days) {
   const name = field_(body, "Name");
   const recruiter = field_(body, "Recruiter");
   if (!name || !recruiter) return null;
-  const msg = body.match(/Recruiter Message\\s*:\\s*([\\s\\S]*)/i);
+  const msg = body.match(/Recruiter Message\\s*:[\\s*]*([\\s\\S]*)/i);
   return Object.assign(base, {
     type: "submission",
     driver: name,
@@ -99,7 +99,7 @@ function read_(m, days) {
 // "Name: John Smith" -> "John Smith"
 function field_(body, label) {
   const m = body.match(new RegExp("^\\\\s*\\\\*?" + label + "\\\\*?\\\\s*:\\\\s*(.+)$", "im"));
-  return m ? m[1].trim() : "";
+  return m ? m[1].replace(/\\s+/g, " ").trim() : "";
 }
 
 // phone numbers, emails and SSNs never leave Gmail

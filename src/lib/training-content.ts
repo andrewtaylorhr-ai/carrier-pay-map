@@ -64,7 +64,7 @@ export const KNOWLEDGE_CHECKS: KnowledgeCheck[] = [
         options: ["None", "At least 90 days OTR in the last year, not counting training", "1 year in the last 3 years", "5 years"],
         answer: 1,
         why: "TransAm needs at least 90 days OTR (solo or team) in the last year, not counting training time.",
-        lesson: "Trans AM (3 months in the past year)",
+        lesson: "Trans AM (Carrier rules tab)",
       },
       {
         q: "What is the US Xpress limit on moving violations?",
@@ -257,7 +257,7 @@ export const KNOWLEDGE_CHECKS: KnowledgeCheck[] = [
         ],
         answer: 2,
         why: "TransAm allows no preventable accidents in the last 6 months. Be honest, find another fit, and set a follow-up.",
-        lesson: "Trans AM (3 months in the past year)",
+        lesson: "Trans AM (Carrier rules tab)",
       },
       {
         q: "Tickets: a driver who wants Swift got a ticket for 32 mph over the limit 2 years ago.",

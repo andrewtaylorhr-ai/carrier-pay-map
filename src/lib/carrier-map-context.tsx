@@ -31,6 +31,7 @@ import { useRecruiterStatus } from "@/lib/hooks/useRecruiterStatus";
 import { useRecruiterTeams } from "@/lib/hooks/useRecruiterTeams";
 import { buildRecruiterColorScale } from "@/lib/recruiters";
 import { type PersistedTrainees, type Trainee, todayISO } from "@/lib/trainees";
+import { migrateChecklist } from "@/lib/training-program";
 
 export type TeamFilter = "all" | RecruiterTeam;
 
@@ -173,7 +174,13 @@ export function CarrierMapProvider({ children }: { children: ReactNode }) {
 
   const [teamFilter, setTeamFilter] = useLocalStorageState<TeamFilter>("cpm_teamFilter", "all");
   const [showFormer, setShowFormer] = useLocalStorageState<boolean>("cpm_showFormer", false);
-  const [trainees, setTrainees] = useLocalStorageState<PersistedTrainees>("cdlPayMapTrainees", {});
+  // Academy ticks saved with the old lesson ids move to the new Academy page.
+  const [trainees, setTrainees] = useLocalStorageState<PersistedTrainees>("cdlPayMapTrainees", {}, {
+    migrate: (raw) =>
+      Object.fromEntries(
+        Object.entries((raw ?? {}) as PersistedTrainees).map(([name, t]) => [name, t.checklist ? { ...t, checklist: migrateChecklist(t.checklist) } : t])
+      ),
+  });
 
   const [assignments, setAssignments] = useAssignments();
   const [recruiters, setRecruiters] = useRecruiters();

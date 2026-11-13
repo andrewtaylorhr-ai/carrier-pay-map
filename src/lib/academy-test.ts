@@ -186,7 +186,7 @@ export const ACADEMY_TEST: TestQuestion[] = [
     ],
     answer: 1,
     why: "Open warm, use their name, and ask a simple personal question. No corporate jargon.",
-    lesson: "How to speak to the driver?",
+    lesson: "Building Rapport and Prequalifying like a BOSS!",
   },
   {
     q: "What are the 5 points of a proper job presentation?",
@@ -328,7 +328,7 @@ export const ACADEMY_TEST: TestQuestion[] = [
     ],
     answer: 2,
     why: "TransAm needs at least 90 days OTR in the last year, not counting training. Never change a driver's experience.",
-    lesson: "Trans AM (3 months in the past year)",
+    lesson: "Trans AM (Carrier rules tab)",
   },
   {
     q: "A driver has 6 MVR points in the last 3 years on PAM's point system. Can PAM hire them?",
@@ -392,7 +392,7 @@ export const ACADEMY_TEST: TestQuestion[] = [
     options: ["True", "False"],
     answer: 0,
     why: "A driver with 5 years of experience whose last preventable accident was 2 years ago is a 2-year driver on the chart.",
-    lesson: "Trans AM (3 months in the past year)",
+    lesson: "Trans AM (Carrier rules tab)",
   },
   {
     q: "True or false: in the Call Script, you pre-qualify the driver before you present the job.",

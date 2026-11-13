@@ -51,7 +51,7 @@ const PLAN: Step[][] = [
     {
       title: "Work with Indeed",
       points: ["How to use Indeed", "Resume search", "Sponsored job postings", "Finding qualified candidates", "Lead management and organization"],
-      lessons: ["Job Post Rules (Indeed 101)", "Indeed Leads", "Lead Management"],
+      lessons: ["Job Post Rules (Indeed 101)", "Indeed Leads", "Cold Calling, Warm Calling"],
     },
   ],
   [
@@ -67,7 +67,7 @@ const PLAN: Step[][] = [
         "Objection handling",
         "Closing techniques",
       ],
-      lessons: ["Call Script", "How to speak to the driver?", "Speaking Rules", "Convincing / Consulting", "Proper Presentation"],
+      lessons: ["Call Script", "Building Rapport and Prequalifying like a BOSS!", "Speaking Rules", "Convincing / Consulting", "Proper Presentation"],
       tools: [{ label: "Call guide", tab: "call" }],
     },
     {

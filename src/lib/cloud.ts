@@ -33,6 +33,8 @@ export const SHARED_KEYS = new Set([
   "cpm_agencies",
   "cpm_carrierRules",
   "cpm_trainingSettings",
+  "cdlPayMapPipelineInbox", // written only by the Gmail script (pipeline-script.ts)
+  "cdlPayMapPipeline",
 ]);
 
 // Fired on window when shared values in localStorage changed; detail is the

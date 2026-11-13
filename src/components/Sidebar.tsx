@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Building2, ClipboardList, FileBarChart, GraduationCap, GripVertical, LayoutDashboard, Map, Route, Truck, UserCheck } from "lucide-react";
+import { Building2, ClipboardList, FileBarChart, GraduationCap, GripVertical, LayoutDashboard, Map, Route, Truck, UserCheck, Workflow } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
 import { RecruiterManage } from "@/components/carrier-map/RecruiterManage";
@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Pay Map", icon: Map, href: "/pay-map" },
   { label: "Team Overview", icon: LayoutDashboard, href: "/overview" },
   { label: "Daily Tracker", icon: ClipboardList, href: "/tracker" },
+  { label: "Driver Pipeline", icon: Workflow, href: "/pipeline" },
   { label: "Reports", icon: FileBarChart, href: "/reports" },
   { label: "Training", icon: GraduationCap, href: "/training" },
   { label: "Controller", icon: UserCheck, href: "/controller" },

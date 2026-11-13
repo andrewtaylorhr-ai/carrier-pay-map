@@ -4,6 +4,8 @@ import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, typ
 import { CalendarCheck, ChevronLeft, ChevronRight, Download, Palette, Send, StickyNote, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorage";
+import { usePipeline } from "@/lib/hooks/usePipeline";
+import { submissionsByDay } from "@/lib/pipeline";
 import { NEW_RECRUITER_COLOR, todayISO } from "@/lib/trainees";
 import {
   ATTENDANCE_CYCLE,
@@ -57,7 +59,22 @@ export function TrackerApp() {
 
   const weeks = useMemo(() => monthWeeks(ym), [ym]);
   const days = weeks.flatMap((w) => w.days);
-  const rows = data.months[ym] || {};
+  const { pipeline } = usePipeline();
+  // Submissions from the Driver Pipeline emails fill the day cells; a number
+  // typed by hand stays when it's higher.
+  const emailSubs = useMemo(() => submissionsByDay(pipeline, ym), [pipeline, ym]);
+  const rows = useMemo(() => {
+    const typed = data.months[ym] || {};
+    if (!Object.keys(emailSubs).length) return typed;
+    const out = { ...typed };
+    for (const [name, byDay] of Object.entries(emailSubs)) {
+      const r = out[name] || {};
+      const sub = { ...(r.sub || {}) };
+      for (const [d, n] of Object.entries(byDay)) sub[d] = Math.max(sub[d] ?? 0, n);
+      out[name] = { ...r, sub };
+    }
+    return out;
+  }, [data.months, ym, emailSubs]);
   const now = new Date();
   const today = ym === thisMonth() ? now.getDate() : null;
 
@@ -478,7 +495,7 @@ export function TrackerApp() {
                             <Fragment key={w.idx}>
                               {w.days.map((d) => (
                                 <td key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
-                                  {num(`${name} ${dayLabel(ym, d)}`, r?.sub?.[d], (v) => setIn(name, "sub", d, v), ri, c++)}
+                                  {num(`${name} ${dayLabel(ym, d)}`, r?.sub?.[d], (v) => setIn(name, "sub", d, v), ri, c++, (emailSubs[name]?.[d] ?? 0) > (data.months[ym]?.[name]?.sub?.[d] ?? 0) ? "fromEmail" : "")}
                                 </td>
                               ))}
                               <td className="calc sub">{weekSubs(r, w) || ""}</td>

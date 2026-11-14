@@ -268,7 +268,7 @@ export function PipelineApp() {
             <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">
               {noFollowUp ? "Not followed up yet" : "Follow-ups"} · {follow.length}
             </h3>
-            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">From the &ldquo;Copy: New message&rdquo; emails, matched by the driver&apos;s name.</span>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">From the &ldquo;New message&rdquo; and &ldquo;Status update&rdquo; emails (newest note), matched by the driver&apos;s name.</span>
             <label className="ml-auto flex items-center gap-1.5 text-[12px] text-[var(--cpm-text-dim)] cursor-pointer">
               <input type="checkbox" checked={noFollowUp} onChange={(e) => setNoFollowUp(e.target.checked)} />
               Show drivers with no follow-up yet
@@ -336,11 +336,11 @@ export function PipelineApp() {
         <section className={card}>
           <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
             <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">DQP scheduled · {dqp.length}</h3>
-            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Drivers with a DQP schedule email, matched by the driver&apos;s name.</span>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Drivers with a note saying a DQP was scheduled, matched by the driver&apos;s name.</span>
           </div>
           {!hasDqpEmails && (
             <div className="mx-4 mt-3 px-3 py-2 rounded-lg border border-[#f5b84a] bg-[rgba(245,184,74,0.1)] text-[12px] text-[var(--cpm-text-dim)]">
-              No DQP emails read yet. Put the DQP schedule email&apos;s subject in the Gmail script (<code>DQP_SUBJECT</code>), and they show here.
+              No DQP notes read yet. When a carrier recruiter writes that a DQP is scheduled, the driver shows here.
             </div>
           )}
           <Table empty={!dqp.length} emptyText="No DQP schedules in this range.">
@@ -350,8 +350,8 @@ export function PipelineApp() {
                 <th className={th}>Carrier</th>
                 <th className={th}>Recruiter</th>
                 <th className={th}>Submitted</th>
-                <th className={th}>DQP email</th>
-                <th className={th}>Email</th>
+                <th className={th}>DQP note</th>
+                <th className={th}>Note</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--cpm-border)]">
@@ -563,25 +563,19 @@ function SetupPanel({ onClose }: { onClose?: () => void }) {
         <li className={step}>
           <span className={num}>3</span>
           <span>
-            <b className="text-[var(--cpm-text)]">DQP emails:</b> on the line <code>const DQP_SUBJECT = &quot;&quot;;</code> put the DQP schedule email&apos;s subject between the quotes.
-          </span>
-        </li>
-        <li className={step}>
-          <span className={num}>4</span>
-          <span>
             <b className="text-[var(--cpm-text)]">Add the account.</b> Project Settings (⚙) → Script properties → add <code>PIPELINE_EMAIL</code> and <code>PIPELINE_PASSWORD</code> with the
             account from step 1.
           </span>
         </li>
         <li className={step}>
-          <span className={num}>5</span>
+          <span className={num}>4</span>
           <span>
             <b className="text-[var(--cpm-text)]">Test it.</b> Back in the editor pick <code>testRead</code> at the top, click Run and allow access. The Execution log lists the emails it
             read from the last 7 days, without saving anything.
           </span>
         </li>
         <li className={step}>
-          <span className={num}>6</span>
+          <span className={num}>5</span>
           <span>
             <b className="text-[var(--cpm-text)]">Turn it on.</b> Pick <code>setup</code> and click Run. It reads the last 60 days now, then checks every 10 minutes. This page and the
             Daily Tracker fill in by themselves.

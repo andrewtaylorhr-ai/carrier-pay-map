@@ -9,7 +9,8 @@ const SUPABASE_KEY = "sb_publishable_bVk_TFB4NbaYFwKXcitb1A_dJNUT4CJ";
 
 export const PIPELINE_SCRIPT = `// Driver Pipeline: Gmail -> Class A Recruiting app
 // Reads the ${PIPELINE_SENDER} emails and saves them for the Driver Pipeline page.
-// Saves the driver's name, carrier, recruiter, date and the recruiter message.
+// Saves the driver's name, carrier, recruiter, date, the recruiter message and
+// the newest note of each "New message" / "Status update" email.
 // Never saves the driver's phone, email or SSN.
 //
 // Setup: Project Settings -> Script properties -> add PIPELINE_EMAIL and
@@ -19,8 +20,6 @@ const SUPABASE_URL = "${SUPABASE_URL}";
 const SUPABASE_KEY = "${SUPABASE_KEY}";
 const KEY = "${PIPELINE_INBOX_KEY}";
 const SENDER = "${PIPELINE_SENDER}";
-const FOLLOWUP_SUBJECT = "Copy: New message";
-const DQP_SUBJECT = ""; // the DQP schedule email's subject, e.g. "DQP Scheduled"
 const KEEP_DAYS = 180; // emails older than this drop off the page
 const FIRST_RUN_DAYS = 60; // how far back the first run reads
 
@@ -56,9 +55,7 @@ function syncPipeline() {
 }
 
 function scan_(days) {
-  let q = "from:" + SENDER;
-  if (DQP_SUBJECT) q = "(" + q + ' OR subject:"' + DQP_SUBJECT + '")';
-  q += " newer_than:" + days + "d";
+  const q = "from:" + SENDER + " newer_than:" + days + "d";
   const out = [];
   for (let start = 0; ; start += 100) {
     const threads = GmailApp.search(q, start, 100);
@@ -75,18 +72,16 @@ function scan_(days) {
 
 function read_(m, days) {
   if (m.getDate().getTime() < Date.now() - days * 864e5) return null;
-  const subject = m.getSubject() || "";
-  const from = (m.getFrom() || "").toLowerCase();
+  const subject = (m.getSubject() || "").replace(/\\s+/g, " ").trim();
+  if ((m.getFrom() || "").toLowerCase().indexOf(SENDER) < 0) return null;
   const body = (m.getPlainBody() || "").replace(/\\r/g, "");
   const base = { id: m.getId(), at: m.getDate().toISOString(), subject: mask_(subject).slice(0, 200) };
-  if (DQP_SUBJECT && subject.toLowerCase().indexOf(DQP_SUBJECT.toLowerCase()) >= 0)
-    return Object.assign(base, { type: "dqp", message: mask_(body).slice(0, 600) });
-  if (from.indexOf(SENDER) < 0) return null;
-  if (subject.indexOf(FOLLOWUP_SUBJECT) >= 0) return Object.assign(base, { type: "followup", message: mask_(body).slice(0, 600) });
+  const note = note_(subject, body);
+  if (note) return Object.assign(base, note);
   const name = field_(body, "Name");
   const recruiter = field_(body, "Recruiter");
   if (!name || !recruiter) return null;
-  const msg = body.match(/Recruiter Message\\s*:[\\s*]*([\\s\\S]*)/i);
+  const msg = body.match(/Recruiter Message\\s*:[\\s*]*([\\s\\S]*?)(\\n\\s*Round robin admin|$)/i);
   return Object.assign(base, {
     type: "submission",
     driver: name,
@@ -94,6 +89,31 @@ function read_(m, days) {
     recruiter: recruiter,
     message: msg ? mask_(msg[1].trim()).slice(0, 1000) : "",
   });
+}
+
+// "Copy: New message: Adam Chambers (Swift) - Lochinbek Kamolov", "New message:
+// Kiana Kennison (Swift)" and "Copy: Status update: ...". The email repeats the
+// whole conversation; only the newest note (the last one) is kept. A note that
+// says a DQP was scheduled goes to the DQP tab.
+function note_(subject, body) {
+  const s = subject.match(/^(?:Copy:\\s*)?(New message|Status update):\\s*(.+?)\\s*\\(([^)]*)\\)\\s*(?:-\\s*(.+))?$/i);
+  if (!s) return null;
+  const text = body.split(/\\n\\s*Open the conversation/i)[0];
+  const heads = [];
+  const re = /^\\s*(.+?) · (\\d{1,2}\\/\\d{1,2}\\/\\d{2,4} \\d{1,2}:\\d{2} ?[AP]M)\\s*$/gim;
+  let h;
+  while ((h = re.exec(text))) heads.push({ who: h[1].trim(), end: re.lastIndex });
+  const last = heads[heads.length - 1];
+  const said = last ? text.slice(last.end).replace(/\\s+/g, " ").trim() : text.replace(/\\s+/g, " ").trim();
+  const message = (last ? last.who + ": " : "") + said;
+  const dqp = /\\bDQP\\b/i.test(said) && /schedul/i.test(said);
+  return {
+    type: dqp ? "dqp" : "followup",
+    driver: s[2],
+    carrier: s[3],
+    recruiter: s[4] || "",
+    message: mask_(message).slice(0, 600),
+  };
 }
 
 // "Name: John Smith" -> "John Smith"

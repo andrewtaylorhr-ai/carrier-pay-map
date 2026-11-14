@@ -20,10 +20,10 @@ export interface PipelineEvent {
   id: string; // Gmail message id
   type: PipelineEventType;
   at: string; // ISO time the email arrived
-  driver?: string; // submissions: the Name field
+  driver?: string; // submissions: the Name field; notes: the name in the subject
   carrier?: string;
   recruiter?: string; // as written in the email
-  message?: string; // Recruiter Message, or the start of a follow-up / DQP email
+  message?: string; // Recruiter Message, or the newest note of a follow-up / DQP email
   subject?: string;
 }
 
@@ -61,16 +61,18 @@ const norm = (s: string) =>
     .trim();
 
 // The roster name for a recruiter name written in an email: a name picked by
-// the user, else the same name, else a unique first-name match.
+// the user, else the same name (either word order, since some emails put the
+// surname first), else a unique first-name match on either word.
 export function rosterName(emailName: string | undefined, roster: string[], aliases: Record<string, string>): string | null {
   if (!emailName) return null;
   const key = emailName.trim();
   if (key in aliases) return aliases[key] || null;
   const n = norm(key);
-  const same = roster.find((r) => norm(r) === n);
+  const words = n.split(" ");
+  const flipped = [...words].reverse().join(" ");
+  const same = roster.find((r) => norm(r) === n || norm(r) === flipped);
   if (same) return same;
-  const first = n.split(" ")[0];
-  const byFirst = roster.filter((r) => norm(r).split(" ")[0] === first);
+  const byFirst = roster.filter((r) => words.includes(norm(r).split(" ")[0]));
   return byFirst.length === 1 ? byFirst[0] : null;
 }
 
@@ -139,6 +141,9 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
   // longest names first, so "Mike Allen Jr" wins over "Mike Allen"
   const names = [...byName.keys()].sort((a, b) => b.length - a.length);
   const match = (e: PipelineEvent) => {
+    // the driver named in the subject, else any submitted name in the email
+    const own = e.driver ? byName.get(norm(e.driver)) : undefined;
+    if (own) return [...own].reverse().find((d) => d.at <= e.at) ?? own[0];
     const text = ` ${norm(`${e.subject ?? ""} ${e.driver ?? ""} ${e.message ?? ""}`)} `;
     const n = names.find((x) => text.includes(` ${x} `));
     if (!n) return null;

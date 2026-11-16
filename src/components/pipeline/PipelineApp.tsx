@@ -571,13 +571,13 @@ function SetupPanel({ onClose }: { onClose?: () => void }) {
           <span className={num}>4</span>
           <span>
             <b className="text-[var(--cpm-text)]">Test it.</b> Back in the editor pick <code>testRead</code> at the top, click Run and allow access. The Execution log lists the emails it
-            read from the last 7 days, without saving anything.
+            read from the last day, without saving anything.
           </span>
         </li>
         <li className={step}>
           <span className={num}>5</span>
           <span>
-            <b className="text-[var(--cpm-text)]">Turn it on.</b> Pick <code>setup</code> and click Run. It reads the last 60 days now, then checks every 10 minutes. This page and the
+            <b className="text-[var(--cpm-text)]">Turn it on.</b> Pick <code>setup</code> and click Run. It reads the newest emails now and fills in the last 60 days over the next hour, then checks every 10 minutes. This page and the
             Daily Tracker fill in by themselves.
           </span>
         </li>

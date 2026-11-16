@@ -21,7 +21,8 @@ const SUPABASE_KEY = "${SUPABASE_KEY}";
 const KEY = "${PIPELINE_INBOX_KEY}";
 const SENDER = "${PIPELINE_SENDER}";
 const KEEP_DAYS = 180; // emails older than this drop off the page
-const FIRST_RUN_DAYS = 60; // how far back the first run reads
+const FIRST_RUN_DAYS = 60; // how far back the page fills in
+const RUN_SECONDS = 240; // Google stops a run at 6 minutes, so each run reads for 4
 
 // Run once: checks every 10 minutes from now on.
 function setup() {
@@ -30,38 +31,53 @@ function setup() {
   syncPipeline();
 }
 
-// Run to see what the script reads from the last 7 days. Saves nothing.
+// Run to see what the script reads from the last day. Saves nothing.
 function testRead() {
-  scan_(7).forEach((e) => Logger.log(JSON.stringify(e)));
+  scan_("newer_than:1d", new Set()).forEach((e) => Logger.log(JSON.stringify(e)));
 }
 
+// Reads the new emails, then older ones a day at a time until FIRST_RUN_DAYS
+// are in, saving after every day so a run that stops early keeps its work.
 function syncPipeline() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
   try {
+    const started = Date.now();
     const token = signIn_();
     const current = load_(token) || { events: [] };
     const seen = new Set(current.events.map((e) => e.id));
-    const found = scan_(current.events.length ? 3 : FIRST_RUN_DAYS).filter((e) => !seen.has(e.id));
-    const cutoff = Date.now() - KEEP_DAYS * 864e5;
-    const events = current.events
-      .concat(found)
-      .filter((e) => Date.parse(e.at) >= cutoff)
-      .sort((a, b) => (a.at < b.at ? -1 : 1));
-    save_(token, { events: events, updatedAt: new Date().toISOString() });
+    let events = current.events.concat(scan_("newer_than:2d", seen));
+    let filled = current.filledTo ? Date.parse(current.filledTo) : Date.now() - 2 * 864e5;
+    const oldest = Date.now() - FIRST_RUN_DAYS * 864e5;
+    const store = () => {
+      const cutoff = Date.now() - KEEP_DAYS * 864e5;
+      events = events.filter((e) => Date.parse(e.at) >= cutoff).sort((a, b) => (a.at < b.at ? -1 : 1));
+      save_(token, { events: events, filledTo: new Date(filled).toISOString(), updatedAt: new Date().toISOString() });
+    };
+    store();
+    while (filled > oldest && Date.now() - started < RUN_SECONDS * 1000) {
+      const from = filled - 864e5;
+      events = events.concat(scan_("after:" + Math.floor(from / 1000) + " before:" + Math.floor(filled / 1000), seen));
+      filled = from;
+      store();
+    }
   } finally {
     lock.releaseLock();
   }
 }
 
-function scan_(days) {
-  const q = "from:" + SENDER + " newer_than:" + days + "d";
+// The emails matching the search that aren't in seen yet (seen is updated).
+function scan_(when, seen) {
+  const q = "from:" + SENDER + " " + when;
   const out = [];
   for (let start = 0; ; start += 100) {
     const threads = GmailApp.search(q, start, 100);
-    threads.forEach((t) =>
-      t.getMessages().forEach((m) => {
-        const e = read_(m, days);
+    GmailApp.getMessagesForThreads(threads).forEach((msgs) =>
+      msgs.forEach((m) => {
+        const id = m.getId();
+        if (seen.has(id)) return;
+        seen.add(id);
+        const e = read_(m);
         if (e) out.push(e);
       })
     );
@@ -70,8 +86,7 @@ function scan_(days) {
   return out;
 }
 
-function read_(m, days) {
-  if (m.getDate().getTime() < Date.now() - days * 864e5) return null;
+function read_(m) {
   const subject = (m.getSubject() || "").replace(/\\s+/g, " ").trim();
   if ((m.getFrom() || "").toLowerCase().indexOf(SENDER) < 0) return null;
   const body = (m.getPlainBody() || "").replace(/\\r/g, "");

@@ -30,6 +30,7 @@ export interface PipelineEvent {
 export interface PipelineInbox {
   events: PipelineEvent[];
   updatedAt?: string; // last time the script saved
+  filledTo?: string; // the script has read every email from here to now
 }
 
 export interface PipelineSettings {

@@ -14,7 +14,7 @@ export const PIPELINE_SENDER = "no-reply@classarecruitinginc.com";
 // the same day whatever their own time zone.
 export const PIPELINE_TZ = "America/Chicago";
 
-export type PipelineEventType = "submission" | "followup" | "dqp";
+export type PipelineEventType = "submission" | "followup" | "dqp" | "dq";
 
 export interface PipelineEvent {
   id: string; // Gmail message id
@@ -77,6 +77,20 @@ export function rosterName(emailName: string | undefined, roster: string[], alia
   return byFirst.length === 1 ? byFirst[0] : null;
 }
 
+// What a follow-up note says, read from its text (not the type the Gmail
+// script saved, so notes already read are sorted the same way). A DQ wins over
+// a schedule, since a DQ note often repeats the DQP that came before it.
+// "Scheduled" needs the word in the past tense next to the DQP or a date, so
+// "I may be able to schedule them once the Clearinghouse is done" isn't one.
+const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
+const DQP_NOTE =
+  /status changed from [\w ]+? to scheduled\b|\bscheduled (?:a |the )?DQP\b|\bscheduled (?:for (?:a |the |his |her )?)?(?:DQP|in[- ]person|orientation)\b|\bDQP (?:is |was |has been |date )?scheduled\b|\bscheduled for (?:mon|tue|wed|thu|fri|sat|sun|\d)/i;
+export function noteKind(text: string): "dq" | "dqp" | "followup" {
+  if (DQ_NOTE.test(text)) return "dq";
+  if (DQP_NOTE.test(text)) return "dqp";
+  return "followup";
+}
+
 export interface Touch {
   id: string;
   at: string;
@@ -94,6 +108,7 @@ export interface PipelineDriver {
   message: string;
   followups: Touch[];
   dqp: Touch[];
+  dq: Touch[]; // notes saying the driver was DQ'd (or denied)
 }
 
 export interface Pipeline {
@@ -133,6 +148,7 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
       message: maskPrivate(e.message ?? ""),
       followups: [],
       dqp: [],
+      dq: [],
     };
     drivers.push(d);
     const n = norm(name);
@@ -157,13 +173,21 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
     if (e.type === "submission") continue;
     const d = match(e);
     const touch = { id: e.id, at: e.at, text: maskPrivate(e.message || e.subject || "") };
-    if (e.type === "followup") (d ? d.followups.push(touch) : unmatchedFollowups.push(e));
-    else (d ? d.dqp.push(touch) : unmatchedDqp.push(e));
+    const kind = noteKind(e.message || "");
+    if (kind === "dqp") (d ? d.dqp.push(touch) : unmatchedDqp.push(e));
+    else if (kind === "dq" && d) d.dq.push(touch);
+    else (d ? d.followups.push(touch) : unmatchedFollowups.push(e));
   }
   const emailRecruiters = [...counts.entries()]
     .map(([name, count]) => ({ name, count, roster: rosterName(name, roster, settings.aliases) }))
     .sort((a, b) => Number(!!a.roster) - Number(!!b.roster) || b.count - a.count);
   return { drivers: drivers.reverse(), unmatchedFollowups: unmatchedFollowups.reverse(), unmatchedDqp: unmatchedDqp.reverse(), emailRecruiters };
+}
+
+// A driver DQ'd after their DQP was scheduled: the DQ note, else null.
+export function dqAfterDqp(d: PipelineDriver): Touch | null {
+  if (!d.dqp.length) return null;
+  return d.dq.find((x) => x.at >= d.dqp[0].at) ?? null;
 }
 
 // Submissions per roster recruiter per day of the month, for the Daily Tracker.

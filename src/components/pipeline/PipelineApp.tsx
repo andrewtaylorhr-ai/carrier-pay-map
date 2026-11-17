@@ -1,10 +1,10 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { CalendarCheck, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
+import { CalendarCheck, CalendarX, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
-import { PIPELINE_SENDER, dayOf, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
+import { PIPELINE_SENDER, dayOf, dqAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 
@@ -19,7 +19,7 @@ const segBtn = (on: boolean) =>
     on ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
   }`;
 
-type Tab = "subs" | "follow" | "dqp";
+type Tab = "subs" | "follow" | "dqp" | "dqpdq";
 type Range = "today" | "week" | "month" | "last" | "all";
 const RANGES: [Range, string][] = [
   ["today", "Today"],
@@ -86,9 +86,16 @@ export function PipelineApp() {
   const subs = people.filter((d) => inRange(d.at));
   const lastFollow = (d: PipelineDriver) => d.followups.at(-1)?.at ?? "";
   const follow = noFollowUp
-    ? people.filter((d) => !d.followups.length && !d.dqp.length && inRange(d.at))
+    ? people.filter((d) => !d.followups.length && !d.dqp.length && !d.dq.length && inRange(d.at))
     : people.filter((d) => d.followups.some((f) => inRange(f.at))).sort((a, b) => lastFollow(b).localeCompare(lastFollow(a)));
-  const dqp = people.filter((d) => d.dqp.some((x) => inRange(x.at))).sort((a, b) => (b.dqp.at(-1)?.at ?? "").localeCompare(a.dqp.at(-1)?.at ?? ""));
+  // drivers DQ'd after their DQP was scheduled leave the DQP list for their own tab
+  const dqp = people
+    .filter((d) => !dqAfterDqp(d) && d.dqp.some((x) => inRange(x.at)))
+    .sort((a, b) => (b.dqp.at(-1)?.at ?? "").localeCompare(a.dqp.at(-1)?.at ?? ""));
+  const dqpDq = people
+    .map((d) => ({ d, x: dqAfterDqp(d) }))
+    .filter((r): r is { d: PipelineDriver; x: NonNullable<ReturnType<typeof dqAfterDqp>> } => !!r.x && inRange(r.x.at))
+    .sort((a, b) => b.x.at.localeCompare(a.x.at));
 
   const stats = useMemo(() => {
     const [w0, w1] = rangeDays("week", today);
@@ -99,7 +106,8 @@ export function PipelineApp() {
       week: all.filter((d) => dayOf(d.at) >= w0 && dayOf(d.at) <= w1).length,
       month: all.filter((d) => dayOf(d.at).startsWith(mon)).length,
       followWeek: all.reduce((n, d) => n + d.followups.filter((f) => dayOf(f.at) >= w0 && dayOf(f.at) <= w1).length, 0),
-      dqpMonth: all.filter((d) => d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
+      dqpMonth: all.filter((d) => !dqAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
+      dqpDqMonth: all.filter((d) => dayOf(dqAfterDqp(d)?.at ?? "").startsWith(mon)).length,
     };
   }, [pipeline, today]);
 
@@ -115,7 +123,7 @@ export function PipelineApp() {
     setSettings((s) => ({ ...s, hidden: [...(s.hidden ?? []), id] }));
   };
   const hasEmails = inbox.events.length > 0;
-  const hasDqpEmails = inbox.events.some((e) => e.type === "dqp");
+  const hasDqpEmails = pipeline.drivers.some((d) => d.dqp.length) || pipeline.unmatchedDqp.length > 0;
 
   const recruiterCell = (d: PipelineDriver) =>
     d.recruiter ? (
@@ -171,12 +179,13 @@ export function PipelineApp() {
       )}
 
       {/* totals */}
-      <div className={`${card} grid grid-cols-2 md:grid-cols-5`}>
+      <div className={`${card} grid grid-cols-2 md:grid-cols-6`}>
         <Stat label="Submitted today" value={stats.today} />
         <Stat label="Submitted this week" value={stats.week} />
         <Stat label="Submitted this month" value={stats.month} />
         <Stat label="Follow-ups this week" value={stats.followWeek} color="#60a5fa" />
         <Stat label="DQP scheduled this month" value={stats.dqpMonth} color="var(--cpm-green)" />
+        <Stat label="DQP then DQ'd this month" value={stats.dqpDqMonth} color="#ff6b6e" />
       </div>
 
       {/* tabs + filters */}
@@ -190,6 +199,9 @@ export function PipelineApp() {
           </button>
           <button type="button" className={segBtn(tab === "dqp")} onClick={() => setTab("dqp")}>
             <CalendarCheck size={14} /> DQP scheduled
+          </button>
+          <button type="button" className={segBtn(tab === "dqpdq")} onClick={() => setTab("dqpdq")}>
+            <CalendarX size={14} /> DQP → DQ&apos;d
           </button>
         </div>
         <div className="flex items-center gap-0.5 p-[3px] rounded-lg bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)]">
@@ -336,7 +348,9 @@ export function PipelineApp() {
         <section className={card}>
           <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
             <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">DQP scheduled · {dqp.length}</h3>
-            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">Drivers with a note saying a DQP was scheduled, matched by the driver&apos;s name.</span>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">
+              Drivers with a note saying a DQP was scheduled (or a status changed to Scheduled), matched by the driver&apos;s name. Drivers DQ&apos;d after that are under DQP → DQ&apos;d.
+            </span>
           </div>
           {!hasDqpEmails && (
             <div className="mx-4 mt-3 px-3 py-2 rounded-lg border border-[#f5b84a] bg-[rgba(245,184,74,0.1)] text-[12px] text-[var(--cpm-text-dim)]">
@@ -376,6 +390,43 @@ export function PipelineApp() {
         </section>
       )}
 
+      {tab === "dqpdq" && (
+        <section className={card}>
+          <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
+            <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">DQP → DQ&apos;d · {dqpDq.length}</h3>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">
+              Drivers who had a DQP scheduled and were then DQ&apos;d (a note saying DQ&apos;d, or a status changed to Denied).
+            </span>
+          </div>
+          <Table empty={!dqpDq.length} emptyText="No drivers DQ'd after a DQP in this range.">
+            <thead>
+              <tr>
+                <th className={th}>Driver</th>
+                <th className={th}>Carrier</th>
+                <th className={th}>Recruiter</th>
+                <th className={th}>DQP scheduled</th>
+                <th className={th}>DQ&apos;d</th>
+                <th className={th}>DQ note</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--cpm-border)]">
+              {dqpDq.map(({ d, x }) => (
+                <tr key={d.key}>
+                  <td className={`${td} font-semibold`}>{d.name}</td>
+                  <td className={td}>{d.carrier || "—"}</td>
+                  <td className={td}>{recruiterCell(d)}</td>
+                  <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.dqp[0].at)}</td>
+                  <td className={`${td} whitespace-nowrap`}>{when(x.at)}</td>
+                  <td className={`${td} max-w-[420px] text-[var(--cpm-text-dim)]`}>
+                    <Expandable text={x.text} open={open === `q${d.key}`} onToggle={() => setOpen(open === `q${d.key}` ? null : `q${d.key}`)} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </section>
+      )}
+
       {(settings.hidden?.length ?? 0) > 0 && (
         <div className="text-[11.5px] text-[var(--cpm-text-faint)]">
           {settings.hidden!.length} email{settings.hidden!.length === 1 ? "" : "s"} removed from the pipeline ·{" "}
@@ -409,7 +460,7 @@ function Table({ empty, emptyText, children }: { empty: boolean; emptyText: stri
 }
 
 function StatusPill({ d }: { d: PipelineDriver }) {
-  const [text, color] = d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
+  const [text, color] = d.dq.length ? ["DQ'd", "#ff6b6e"] : d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
   return (
     <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border" style={{ color, borderColor: color, background: `${color}1f` }}>
       {text}

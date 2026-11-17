@@ -183,7 +183,8 @@ const headLabel = (ym: string, d: number) => {
   return `${dayLabel(ym, d)} ${weekdayShort(ym, d)}${holiday ? ` (${holiday})` : ""}`;
 };
 
-export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Record<string, TrackerRow>) {
+// attNames: the Attendance sheet's rows (the recruiters plus anyone in training)
+export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Record<string, TrackerRow>, attNames = recruiters) {
   const weeks = monthWeeks(ym);
   const subHead = ["Recruiter", "DQP", "at DQP", "Hire"];
   weeks.forEach((w) => {
@@ -204,7 +205,7 @@ export function exportTrackerToExcel(ym: string, recruiters: string[], rows: Rec
 
   const days = weeks.flatMap((w) => w.days);
   const attHead = ["Recruiter", ...days.map((d) => headLabel(ym, d)), "Present", "Late", "Absent", "Off", "Attendance %"];
-  const attRows = recruiters.map((name) => {
+  const attRows = attNames.map((name) => {
     const r = rows[name];
     const c = attendanceCounts(r);
     return [name, ...days.map((d) => r?.att?.[d] ?? ""), c.P, c.L, c.A, c.O, c.rate];

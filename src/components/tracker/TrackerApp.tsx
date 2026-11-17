@@ -100,6 +100,13 @@ export function TrackerApp() {
     .map((r, i) => ({ r, i }))
     .sort((a, b) => isFormer(a.r) - isFormer(b.r) || pos(a.r) - pos(b.r) || a.i - b.i)
     .map((x) => x.r);
+  // People in training or quality control (not on the recruiter list yet)
+  // get attendance rows too, below the recruiters.
+  const traineeRows = Object.entries(trainees)
+    .filter(([n, t]) => (t.stage === "training" || t.stage === "qc") && !recruiters.includes(n))
+    .map(([n]) => n)
+    .sort((a, b) => a.localeCompare(b));
+  const attNames = [...ordered, ...traineeRows];
   const formerWithData = recruiters.filter((r) => getRecruiterStatus(r) === "inactive" && rows[r]).length;
   const [dragging, setDragging] = useState<string[] | null>(null);
   const [dropAt, setDropAt] = useState<{ name: string; after: boolean } | null>(null);
@@ -333,7 +340,7 @@ export function TrackerApp() {
 
   const markAllPresentToday = () => {
     if (!today) return;
-    ordered.forEach((name) => {
+    attNames.forEach((name) => {
       if (!rows[name]?.att?.[today]) setAtt(name, today, "P");
     });
   };
@@ -372,7 +379,7 @@ export function TrackerApp() {
           <button type="button" className={`ghostBtn${headOpen ? " active" : ""}`} onClick={() => setHeadOpen((o) => !o)}>
             <Palette size={14} /> Header colors
           </button>
-          <button type="button" className="primaryBtn" onClick={() => exportTrackerToExcel(ym, ordered, rows)}>
+          <button type="button" className="primaryBtn" onClick={() => exportTrackerToExcel(ym, ordered, rows, attNames)}>
             <Download size={14} /> Download Excel
           </button>
         </div>
@@ -593,16 +600,24 @@ export function TrackerApp() {
                 </tr>
               </thead>
               <tbody>
-                {ordered.map((name, ri) => {
+                {attNames.map((name, ri) => {
                     const r = rows[name];
                       const c = attendanceCounts(r);
+                      const trainee = ri >= ordered.length;
                       return (
-                        <tr key={name} {...rowDnD(name)}>
-                          {numCell(name, ri)}
+                        <tr key={name} {...(trainee ? {} : rowDnD(name))}>
+                          {trainee ? (
+                            <td className="stick num" style={{ background: NEW_RECRUITER_COLOR }}>
+                              {ri - ordered.length + 1}
+                            </td>
+                          ) : (
+                            numCell(name, ri)
+                          )}
                           <td className="stick name">
                             {name}
                             {isFormer(name) ? <span className="formerTag">Former</span> : null}
                             {isNew(name) ? <span className="newTag">New</span> : null}
+                            {trainee ? <span className="newTag">{trainees[name].stage === "qc" ? "In QC" : "Training"}</span> : null}
                           </td>
                           {days.map((d) => {
                             const a = r?.att?.[d];

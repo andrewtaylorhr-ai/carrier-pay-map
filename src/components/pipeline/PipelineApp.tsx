@@ -107,7 +107,10 @@ export function PipelineApp() {
       month: all.filter((d) => dayOf(d.at).startsWith(mon)).length,
       followWeek: all.reduce((n, d) => n + d.followups.filter((f) => dayOf(f.at) >= w0 && dayOf(f.at) <= w1).length, 0),
       dqpMonth: all.filter((d) => !dqAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
-      dqpDqMonth: all.filter((d) => dayOf(dqAfterDqp(d)?.at ?? "").startsWith(mon)).length,
+      dqpDqMonth: all.filter((d) => {
+        const x = dqAfterDqp(d);
+        return !!x && dayOf(x.at).startsWith(mon);
+      }).length,
     };
   }, [pipeline, today]);
 

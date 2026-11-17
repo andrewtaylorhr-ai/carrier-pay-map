@@ -250,6 +250,18 @@ export function ControllerApp() {
                             Mark first hire
                           </button>
                         )}
+                        {(view === "approved" || view === "graduated") && (
+                          <button
+                            type="button"
+                            className={btnGhost}
+                            onClick={() =>
+                              confirm(`Move ${n} back to quality control? QC starts again today; they stay on the recruiter list.`) &&
+                              updateTrainee(n, { stage: "qc", qcStart: today, approvedAt: undefined, firstHireAt: undefined })
+                            }
+                          >
+                            Back to quality control
+                          </button>
+                        )}
                         {view === "dropped" && (
                           <>
                             <button type="button" className={btnGhost} onClick={() => updateTrainee(n, { stage: t.qcStart ? "qc" : "training", droppedAt: undefined })}>

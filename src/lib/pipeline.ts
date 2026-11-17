@@ -14,7 +14,7 @@ export const PIPELINE_SENDER = "no-reply@classarecruitinginc.com";
 // the same day whatever their own time zone.
 export const PIPELINE_TZ = "America/Chicago";
 
-export type PipelineEventType = "submission" | "followup" | "dqp" | "dq";
+export type PipelineEventType = "submission" | "followup" | "dqp" | "dq" | "hold";
 
 export interface PipelineEvent {
   id: string; // Gmail message id
@@ -82,11 +82,14 @@ export function rosterName(emailName: string | undefined, roster: string[], alia
 // a schedule, since a DQ note often repeats the DQP that came before it.
 // "Scheduled" needs the word in the past tense next to the DQP or a date, so
 // "I may be able to schedule them once the Clearinghouse is done" isn't one.
+// "placed on a Security Hold", "30 Day Security Hold", "he is on hold"
+const HOLD_NOTE = /\bsecurity hold\b|\b(?:is|was|been|placed|put|now) (?:on|under) (?:a )?hold\b/i;
 const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
 const DQP_NOTE =
-  /status changed from [\w ]+? to scheduled\b|\bscheduled (?:a |the )?DQP\b|\bscheduled (?:for (?:a |the |his |her )?)?(?:DQP|in[- ]person|orientation)\b|\bDQP (?:is |was |has been |date )?scheduled\b|\bscheduled for (?:mon|tue|wed|thu|fri|sat|sun|\d)/i;
-export function noteKind(text: string): "dq" | "dqp" | "followup" {
+  /\bscheduled (?:a |the )?DQP\b|\bscheduled (?:for (?:a |the |his |her )?)?(?:DQP|in[- ]person|orientation)\b|\bDQP (?:is |was |has been |date )?scheduled\b|\bscheduled for (?:mon|tue|wed|thu|fri|sat|sun|\d)/i;
+export function noteKind(text: string): "dq" | "hold" | "dqp" | "followup" {
   if (DQ_NOTE.test(text)) return "dq";
+  if (HOLD_NOTE.test(text)) return "hold";
   if (DQP_NOTE.test(text)) return "dqp";
   return "followup";
 }
@@ -109,6 +112,7 @@ export interface PipelineDriver {
   followups: Touch[];
   dqp: Touch[];
   dq: Touch[]; // notes saying the driver was DQ'd (or denied)
+  hold: Touch[]; // notes saying the driver is on a (security) hold
 }
 
 export interface Pipeline {
@@ -149,6 +153,7 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
       followups: [],
       dqp: [],
       dq: [],
+      hold: [],
     };
     drivers.push(d);
     const n = norm(name);
@@ -176,6 +181,7 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
     const kind = noteKind(e.message || "");
     if (kind === "dqp") (d ? d.dqp.push(touch) : unmatchedDqp.push(e));
     else if (kind === "dq" && d) d.dq.push(touch);
+    else if (kind === "hold" && d) d.hold.push(touch);
     else (d ? d.followups.push(touch) : unmatchedFollowups.push(e));
   }
   const emailRecruiters = [...counts.entries()]
@@ -188,6 +194,14 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
 export function dqAfterDqp(d: PipelineDriver): Touch | null {
   if (!d.dqp.length) return null;
   return d.dq.find((x) => x.at >= d.dqp[0].at) ?? null;
+}
+
+// A driver put on hold after their DQP was scheduled and not DQ'd: the hold
+// note, else null. A DQP scheduled again after the hold takes them off hold.
+export function holdAfterDqp(d: PipelineDriver): Touch | null {
+  if (!d.dqp.length || dqAfterDqp(d)) return null;
+  const lastDqp = d.dqp[d.dqp.length - 1].at;
+  return [...d.hold].reverse().find((x) => x.at >= lastDqp) ?? null;
 }
 
 // Submissions per roster recruiter per day of the month, for the Daily Tracker.

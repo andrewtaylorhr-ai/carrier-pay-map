@@ -1,10 +1,10 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { CalendarCheck, CalendarX, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
+import { CalendarCheck, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
-import { PIPELINE_SENDER, dayOf, dqAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
+import { PIPELINE_SENDER, dayOf, dqAfterDqp, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 
@@ -19,7 +19,7 @@ const segBtn = (on: boolean) =>
     on ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
   }`;
 
-type Tab = "subs" | "follow" | "dqp" | "dqpdq";
+type Tab = "subs" | "follow" | "dqp" | "hold" | "dqpdq";
 type Range = "today" | "week" | "month" | "last" | "all";
 const RANGES: [Range, string][] = [
   ["today", "Today"],
@@ -86,12 +86,16 @@ export function PipelineApp() {
   const subs = people.filter((d) => inRange(d.at));
   const lastFollow = (d: PipelineDriver) => d.followups.at(-1)?.at ?? "";
   const follow = noFollowUp
-    ? people.filter((d) => !d.followups.length && !d.dqp.length && !d.dq.length && inRange(d.at))
+    ? people.filter((d) => !d.followups.length && !d.dqp.length && !d.dq.length && !d.hold.length && inRange(d.at))
     : people.filter((d) => d.followups.some((f) => inRange(f.at))).sort((a, b) => lastFollow(b).localeCompare(lastFollow(a)));
   // drivers DQ'd after their DQP was scheduled leave the DQP list for their own tab
   const dqp = people
-    .filter((d) => !dqAfterDqp(d) && d.dqp.some((x) => inRange(x.at)))
+    .filter((d) => !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => inRange(x.at)))
     .sort((a, b) => (b.dqp.at(-1)?.at ?? "").localeCompare(a.dqp.at(-1)?.at ?? ""));
+  const onHold = people
+    .map((d) => ({ d, x: holdAfterDqp(d) }))
+    .filter((r): r is { d: PipelineDriver; x: NonNullable<ReturnType<typeof holdAfterDqp>> } => !!r.x && inRange(r.x.at))
+    .sort((a, b) => b.x.at.localeCompare(a.x.at));
   const dqpDq = people
     .map((d) => ({ d, x: dqAfterDqp(d) }))
     .filter((r): r is { d: PipelineDriver; x: NonNullable<ReturnType<typeof dqAfterDqp>> } => !!r.x && inRange(r.x.at))
@@ -106,7 +110,7 @@ export function PipelineApp() {
       week: all.filter((d) => dayOf(d.at) >= w0 && dayOf(d.at) <= w1).length,
       month: all.filter((d) => dayOf(d.at).startsWith(mon)).length,
       followWeek: all.reduce((n, d) => n + d.followups.filter((f) => dayOf(f.at) >= w0 && dayOf(f.at) <= w1).length, 0),
-      dqpMonth: all.filter((d) => !dqAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
+      dqpMonth: all.filter((d) => !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
       dqpDqMonth: all.filter((d) => {
         const x = dqAfterDqp(d);
         return !!x && dayOf(x.at).startsWith(mon);
@@ -202,6 +206,9 @@ export function PipelineApp() {
           </button>
           <button type="button" className={segBtn(tab === "dqp")} onClick={() => setTab("dqp")}>
             <CalendarCheck size={14} /> DQP scheduled
+          </button>
+          <button type="button" className={segBtn(tab === "hold")} onClick={() => setTab("hold")}>
+            <PauseCircle size={14} /> On hold
           </button>
           <button type="button" className={segBtn(tab === "dqpdq")} onClick={() => setTab("dqpdq")}>
             <CalendarX size={14} /> DQP → DQ&apos;d
@@ -352,7 +359,7 @@ export function PipelineApp() {
           <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
             <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">DQP scheduled · {dqp.length}</h3>
             <span className="text-[11.5px] text-[var(--cpm-text-faint)]">
-              Drivers with a note saying a DQP was scheduled (or a status changed to Scheduled), matched by the driver&apos;s name. Drivers DQ&apos;d after that are under DQP → DQ&apos;d.
+              Drivers with a note saying a DQP was scheduled (or a status changed to Scheduled), matched by the driver&apos;s name. Drivers put on hold after that are under On hold, and drivers DQ&apos;d under DQP → DQ&apos;d.
             </span>
           </div>
           {!hasDqpEmails && (
@@ -390,6 +397,43 @@ export function PipelineApp() {
             </tbody>
           </Table>
           <Unmatched list={pipeline.unmatchedDqp.filter((e) => inRange(e.at))} what="DQP" onHide={hide} />
+        </section>
+      )}
+
+      {tab === "hold" && (
+        <section className={card}>
+          <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
+            <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">On hold · {onHold.length}</h3>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">
+              Drivers who had a DQP scheduled and were then put on hold (like a Security Hold). A new DQP date moves them back; a DQ moves them to DQP → DQ&apos;d.
+            </span>
+          </div>
+          <Table empty={!onHold.length} emptyText="No drivers on hold in this range.">
+            <thead>
+              <tr>
+                <th className={th}>Driver</th>
+                <th className={th}>Carrier</th>
+                <th className={th}>Recruiter</th>
+                <th className={th}>DQP scheduled</th>
+                <th className={th}>On hold</th>
+                <th className={th}>Hold note</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--cpm-border)]">
+              {onHold.map(({ d, x }) => (
+                <tr key={d.key}>
+                  <td className={`${td} font-semibold`}>{d.name}</td>
+                  <td className={td}>{d.carrier || "—"}</td>
+                  <td className={td}>{recruiterCell(d)}</td>
+                  <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.dqp[d.dqp.length - 1].at)}</td>
+                  <td className={`${td} whitespace-nowrap`}>{when(x.at)}</td>
+                  <td className={`${td} max-w-[420px] text-[var(--cpm-text-dim)]`}>
+                    <Expandable text={x.text} open={open === `h${d.key}`} onToggle={() => setOpen(open === `h${d.key}` ? null : `h${d.key}`)} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </section>
       )}
 
@@ -463,7 +507,7 @@ function Table({ empty, emptyText, children }: { empty: boolean; emptyText: stri
 }
 
 function StatusPill({ d }: { d: PipelineDriver }) {
-  const [text, color] = d.dq.length ? ["DQ'd", "#ff6b6e"] : d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
+  const [text, color] = d.dq.length ? ["DQ'd", "#ff6b6e"] : holdAfterDqp(d) ? ["On hold", "#f5b84a"] : d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
   return (
     <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border" style={{ color, borderColor: color, background: `${color}1f` }}>
       {text}

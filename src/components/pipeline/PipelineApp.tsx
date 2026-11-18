@@ -284,25 +284,60 @@ export function PipelineApp() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--cpm-border)]">
-              {subs.map((d) => (
-                <tr key={d.key}>
-                  <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.at)}</td>
-                  <td className={`${td} font-semibold`}>{d.name}</td>
-                  <td className={td}>{d.carrier || "—"}</td>
-                  <td className={td}>{recruiterCell(d)}</td>
-                  <td className={`${td} whitespace-nowrap`}>
-                    <StatusPill d={d} />
-                  </td>
-                  <td className={`${td} max-w-[420px] text-[var(--cpm-text-dim)]`}>
-                    <Expandable text={d.message} open={open === d.key} onToggle={() => setOpen(open === d.key ? null : d.key)} />
-                  </td>
-                  <td className={td}>
-                    <button type="button" className="text-[var(--cpm-text-faint)] hover:text-[#ff9a9d]" title="Remove (wrong or duplicate email)" onClick={() => hide(d.id, d.name)}>
-                      <X size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {subs.map((d) => {
+                // the whole conversation: the recruiter message, then every note in order
+                const notes = [...d.followups, ...d.dqp, ...d.dq, ...d.hold, ...d.hired].sort((x, y) => x.at.localeCompare(y.at));
+                const isOpen = open === `s${d.key}`;
+                return (
+                  <Fragment key={d.key}>
+                    <tr className="cursor-pointer hover:bg-[var(--cpm-panel-alt)]" onClick={() => setOpen(isOpen ? null : `s${d.key}`)}>
+                      <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.at)}</td>
+                      <td className={`${td} font-semibold`}>{d.name}</td>
+                      <td className={td}>{d.carrier || "—"}</td>
+                      <td className={td}>{recruiterCell(d)}</td>
+                      <td className={`${td} whitespace-nowrap`}>
+                        <StatusPill d={d} />
+                      </td>
+                      <td className={`${td} max-w-[420px] text-[var(--cpm-text-dim)]`}>
+                        <span className="line-clamp-2">{d.message || "—"}</span>
+                      </td>
+                      <td className={td}>
+                        <button
+                          type="button"
+                          className="text-[var(--cpm-text-faint)] hover:text-[#ff9a9d]"
+                          title="Remove (wrong or duplicate email)"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            hide(d.id, d.name);
+                          }}
+                        >
+                          <X size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="bg-[var(--cpm-panel-alt)]">
+                        <td colSpan={7} className="px-4 py-2">
+                          <ol className="flex flex-col gap-1.5">
+                            <li className="text-[12px] text-[var(--cpm-text-dim)] whitespace-pre-line">
+                              <b className="text-[var(--cpm-text)]">Submitted {when(d.at)}</b> · {d.emailRecruiter || "Recruiter"}: {d.message || "—"}
+                            </li>
+                            {notes.map((f, i) => (
+                              <li key={f.id} className="text-[12px] text-[var(--cpm-text-dim)]">
+                                <b className="text-[var(--cpm-text)]">
+                                  {i + 1}. {when(f.at)}
+                                </b>{" "}
+                                · {f.text}
+                              </li>
+                            ))}
+                            {!notes.length && <li className="text-[12px] text-[var(--cpm-text-faint)]">No follow-ups yet.</li>}
+                          </ol>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </Table>
         </section>

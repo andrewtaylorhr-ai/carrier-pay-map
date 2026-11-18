@@ -83,7 +83,9 @@ export function rosterName(emailName: string | undefined, roster: string[], alia
 // "Scheduled" needs the word in the past tense next to the DQP or a date, so
 // "I may be able to schedule them once the Clearinghouse is done" isn't one.
 // "placed on a Security Hold", "30 Day Security Hold", "he is on hold"
-const HIRED_NOTE = /has been hired|\bwas hired\b|\bgot hired\b|status changed from [\w ]+? to hired\b/i;
+// "has been hired", "was hired and has dispatched", "You are all set to invoice!",
+// "Status changed from Pending to Hired"
+const HIRED_NOTE = /has been hired|\bwas hired\b|\bgot hired\b|\bset to invoice\b|status changed from [\w ]+? to hired\b/i;
 const HOLD_NOTE = /\bsecurity hold\b|\b(?:is|was|been|placed|put|now) (?:on|under) (?:a )?hold\b/i;
 const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
 const DQP_NOTE =

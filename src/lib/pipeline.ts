@@ -14,7 +14,7 @@ export const PIPELINE_SENDER = "no-reply@classarecruitinginc.com";
 // the same day whatever their own time zone.
 export const PIPELINE_TZ = "America/Chicago";
 
-export type PipelineEventType = "submission" | "followup" | "dqp" | "dq" | "hold";
+export type PipelineEventType = "submission" | "followup" | "dqp" | "dq" | "hold" | "hired";
 
 export interface PipelineEvent {
   id: string; // Gmail message id
@@ -83,15 +83,56 @@ export function rosterName(emailName: string | undefined, roster: string[], alia
 // "Scheduled" needs the word in the past tense next to the DQP or a date, so
 // "I may be able to schedule them once the Clearinghouse is done" isn't one.
 // "placed on a Security Hold", "30 Day Security Hold", "he is on hold"
+const HIRED_NOTE = /has been hired|\bwas hired\b|\bgot hired\b|status changed from [\w ]+? to hired\b/i;
 const HOLD_NOTE = /\bsecurity hold\b|\b(?:is|was|been|placed|put|now) (?:on|under) (?:a )?hold\b/i;
 const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
 const DQP_NOTE =
   /\bscheduled (?:a |the )?DQP\b|\bscheduled (?:for (?:a |the |his |her )?)?(?:DQP|in[- ]person|orientation)\b|\bDQP (?:is |was |has been |date )?scheduled\b|\bscheduled for (?:mon|tue|wed|thu|fri|sat|sun|\d)/i;
-export function noteKind(text: string): "dq" | "hold" | "dqp" | "followup" {
+export function noteKind(text: string): "hired" | "dq" | "hold" | "dqp" | "followup" {
+  if (HIRED_NOTE.test(text)) return "hired";
   if (DQ_NOTE.test(text)) return "dq";
   if (HOLD_NOTE.test(text)) return "hold";
   if (DQP_NOTE.test(text)) return "dqp";
   return "followup";
+}
+
+// The step a follow-up note is about, read from its text; the first match
+// wins, so "moving to no response, lvm" is No response, not Calling.
+export const FOLLOW_STEPS = [
+  // closed for no response; a plain "called, no response" is still Calling
+  {
+    key: "noresp",
+    label: "No response",
+    color: "#a1a1aa",
+    re: /\bmov(?:e|ed|ing) (?:to |in ?to )?no response\b|\bno (?:response|contact)\b[^.]{0,40}(?:clos|file)|final action completed|\bunresponsive\b|never received a response/i,
+  },
+  {
+    key: "declined",
+    label: "Declined / NQ",
+    color: "#ff6b6e",
+    re: /\bdeclined?\b|\bNQ\b|does not want|doesn['’]?t want|not (?:be )?(?:able to )?(?:moving|move|proceed\w*) forward|out of (?:the )?hiring (?:area|radius)|not in the hiring area|holi?s?t?i?c review|better qualified|not qualif|required experience|denied rehire|file (?:is )?closed|clos(?:e|ed|ing) (?:the |this )?file|we will not be|status changed from [\w ]+? to (?:archived|lost)\b/i,
+  },
+  { key: "rc", label: "Recruiter change", color: "#c084fc", re: /\brc\b|recruiter change/i },
+  {
+    key: "docs",
+    label: "Reports & docs",
+    color: "#f5b84a",
+    re: /\breports?\b|prequal|pending aa\b|\bsta\b|\bmvr\b|\bpsp\b|background|more information (?:is )?needed|releases?\b|accident|clearing ?house|\bCH\b|certificate|\bw-?2|\bdocs?\b|documents?|copy of|drug screen|physical|security (?:for an )?interview|referred to security/i,
+  },
+  { key: "account", label: "Account / LOB", color: "#38bdf8", re: /\bLOB\b|which account|what account|another account|new account|which (?:regional|local) |what local position/i },
+  { key: "app", label: "Full app / call list", color: "#60a5fa", re: /full app|call list|complete (?:driver )?app|application link|updated app|app(?:lication)? (?:received|sent|link)/i },
+  {
+    key: "calling",
+    label: "Calling driver",
+    color: "#2dd4bf",
+    re: /\blvm\b|voice ?mail|no answer|no response|\bcalled\b|\bcall (?:me|us) back\b|\battempt\b|tried to reach|spoke (?:with|to) (?:the )?driver|reach(?:ed)? out|\bSWD\b/i,
+  },
+] as const;
+export type FollowStep = (typeof FOLLOW_STEPS)[number]["key"] | "other";
+
+export function followStep(text: string): FollowStep {
+  const said = text.replace(/^[^:]{2,40}:\s*/, ""); // drop "Name: "
+  return FOLLOW_STEPS.find((s) => s.re.test(said))?.key ?? "other";
 }
 
 export interface Touch {
@@ -113,6 +154,7 @@ export interface PipelineDriver {
   dqp: Touch[];
   dq: Touch[]; // notes saying the driver was DQ'd (or denied)
   hold: Touch[]; // notes saying the driver is on a (security) hold
+  hired: Touch[]; // notes saying the driver was hired
 }
 
 export interface Pipeline {
@@ -154,6 +196,7 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
       dqp: [],
       dq: [],
       hold: [],
+      hired: [],
     };
     drivers.push(d);
     const n = norm(name);
@@ -182,12 +225,23 @@ export function buildPipeline(inbox: PipelineInbox, settings: PipelineSettings, 
     if (kind === "dqp") (d ? d.dqp.push(touch) : unmatchedDqp.push(e));
     else if (kind === "dq" && d) d.dq.push(touch);
     else if (kind === "hold" && d) d.hold.push(touch);
+    else if (kind === "hired" && d) d.hired.push(touch);
     else (d ? d.followups.push(touch) : unmatchedFollowups.push(e));
   }
   const emailRecruiters = [...counts.entries()]
     .map(([name, count]) => ({ name, count, roster: rosterName(name, roster, settings.aliases) }))
     .sort((a, b) => Number(!!a.roster) - Number(!!b.roster) || b.count - a.count);
   return { drivers: drivers.reverse(), unmatchedFollowups: unmatchedFollowups.reverse(), unmatchedDqp: unmatchedDqp.reverse(), emailRecruiters };
+}
+
+// Where a driver stands: the step of their newest follow-up that says one
+// ("thank you" and "ty" notes are skipped), else "other".
+export function driverStep(d: PipelineDriver): FollowStep {
+  for (let i = d.followups.length - 1; i >= 0; i--) {
+    const s = followStep(d.followups[i].text);
+    if (s !== "other") return s;
+  }
+  return "other";
 }
 
 // A driver DQ'd after their DQP was scheduled: the DQ note, else null.

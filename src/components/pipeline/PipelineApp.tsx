@@ -1,11 +1,11 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { CalendarCheck, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
+import { BadgeCheck, CalendarCheck, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
 import { useCloud } from "@/lib/hooks/useLocalStorage";
-import { PIPELINE_SENDER, dayOf, dqAfterDqp, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
+import { FOLLOW_STEPS, PIPELINE_SENDER, dayOf, dqAfterDqp, driverStep, type FollowStep, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 
@@ -20,7 +20,9 @@ const segBtn = (on: boolean) =>
     on ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
   }`;
 
-type Tab = "subs" | "follow" | "dqp" | "hold" | "dqpdq";
+type Tab = "subs" | "follow" | "dqp" | "hired" | "hold" | "dqpdq";
+// the Follow-ups step tabs, in the order a driver goes through them
+const STEP_TAB_ORDER = ["rc", "app", "calling", "docs", "account", "noresp", "declined"] as const;
 type Range = "today" | "week" | "month" | "last" | "all";
 const RANGES: [Range, string][] = [
   ["today", "Today"],
@@ -69,6 +71,7 @@ export function PipelineApp() {
   const [q, setQ] = useState("");
   const [panel, setPanel] = useState<"" | "names" | "setup">("");
   const [noFollowUp, setNoFollowUp] = useState(false);
+  const [step, setStep] = useState<FollowStep | "">("");
   const [open, setOpen] = useState<string | null>(null);
 
   const today = todayDay();
@@ -87,12 +90,21 @@ export function PipelineApp() {
   const subs = people.filter((d) => inRange(d.at));
   const lastFollow = (d: PipelineDriver) => d.followups.at(-1)?.at ?? "";
   const follow = noFollowUp
-    ? people.filter((d) => !d.followups.length && !d.dqp.length && !d.dq.length && !d.hold.length && inRange(d.at))
+    ? people.filter((d) => !d.followups.length && !d.dqp.length && !d.dq.length && !d.hold.length && !d.hired.length && inRange(d.at))
     : people.filter((d) => d.followups.some((f) => inRange(f.at))).sort((a, b) => lastFollow(b).localeCompare(lastFollow(a)));
+  // one tab per step on the Follow-ups list, by each driver's newest step
+  const stepOf = new Map(follow.map((d) => [d.key, driverStep(d)]));
+  const stepCount = (k: FollowStep) => follow.filter((d) => stepOf.get(d.key) === k).length;
+  const followShown = noFollowUp || !step ? follow : follow.filter((d) => stepOf.get(d.key) === step);
   // drivers DQ'd after their DQP was scheduled leave the DQP list for their own tab
   const dqp = people
-    .filter((d) => !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => inRange(x.at)))
+    .filter((d) => !d.hired.length && !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => inRange(x.at)))
     .sort((a, b) => (b.dqp.at(-1)?.at ?? "").localeCompare(a.dqp.at(-1)?.at ?? ""));
+  // hired drivers leave the DQP list for their own tab
+  const hired = people
+    .map((d) => ({ d, x: d.hired[0] }))
+    .filter((r) => !!r.x && inRange(r.x.at))
+    .sort((a, b) => b.x.at.localeCompare(a.x.at));
   const onHold = people
     .map((d) => ({ d, x: holdAfterDqp(d) }))
     .filter((r): r is { d: PipelineDriver; x: NonNullable<ReturnType<typeof holdAfterDqp>> } => !!r.x && inRange(r.x.at))
@@ -111,7 +123,7 @@ export function PipelineApp() {
       week: all.filter((d) => dayOf(d.at) >= w0 && dayOf(d.at) <= w1).length,
       month: all.filter((d) => dayOf(d.at).startsWith(mon)).length,
       followWeek: all.reduce((n, d) => n + d.followups.filter((f) => dayOf(f.at) >= w0 && dayOf(f.at) <= w1).length, 0),
-      dqpMonth: all.filter((d) => !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
+      dqpMonth: all.filter((d) => !d.hired.length && !dqAfterDqp(d) && !holdAfterDqp(d) && d.dqp.some((x) => dayOf(x.at).startsWith(mon))).length,
       dqpDqMonth: all.filter((d) => {
         const x = dqAfterDqp(d);
         return !!x && dayOf(x.at).startsWith(mon);
@@ -216,6 +228,9 @@ export function PipelineApp() {
           <button type="button" className={segBtn(tab === "dqp")} onClick={() => setTab("dqp")}>
             <CalendarCheck size={14} /> DQP scheduled
           </button>
+          <button type="button" className={segBtn(tab === "hired")} onClick={() => setTab("hired")}>
+            <BadgeCheck size={14} /> Hired
+          </button>
           <button type="button" className={segBtn(tab === "hold")} onClick={() => setTab("hold")}>
             <PauseCircle size={14} /> On hold
           </button>
@@ -297,7 +312,7 @@ export function PipelineApp() {
         <section className={card}>
           <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
             <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">
-              {noFollowUp ? "Not followed up yet" : "Follow-ups"} · {follow.length}
+              {noFollowUp ? "Not followed up yet" : "Follow-ups"} · {followShown.length}
             </h3>
             <span className="text-[11.5px] text-[var(--cpm-text-faint)]">From the &ldquo;New message&rdquo; and &ldquo;Status update&rdquo; emails (newest note), matched by the driver&apos;s name.</span>
             <label className="ml-auto flex items-center gap-1.5 text-[12px] text-[var(--cpm-text-dim)] cursor-pointer">
@@ -305,7 +320,30 @@ export function PipelineApp() {
               Show drivers with no follow-up yet
             </label>
           </div>
-          <Table empty={!follow.length} emptyText={noFollowUp ? "Every driver submitted in this range has a follow-up." : "No follow-ups in this range."}>
+          {!noFollowUp && (
+            <div className="px-4 py-2 border-b border-[var(--cpm-border)] flex items-center gap-1.5 flex-wrap">
+              {[
+                { key: "" as const, label: "All steps", color: "#e4e4e7" },
+                ...STEP_TAB_ORDER.map((k) => FOLLOW_STEPS.find((s) => s.key === k)!),
+                { key: "other" as const, label: "Other", color: "#a1a1aa" },
+              ].map((s) => {
+                const n = s.key ? stepCount(s.key) : follow.length;
+                const on = step === s.key;
+                return (
+                  <button
+                    key={s.key || "all"}
+                    type="button"
+                    onClick={() => setStep(s.key)}
+                    className="text-[12px] font-semibold px-2.5 py-1 rounded-full border transition-colors"
+                    style={on ? { color: "#111", background: s.color, borderColor: s.color } : { color: s.color, borderColor: `${s.color}55` }}
+                  >
+                    {s.label} <span className="opacity-70 tabular-nums">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <Table empty={!followShown.length} emptyText={noFollowUp ? "Every driver submitted in this range has a follow-up." : "No follow-ups in this range."}>
             <thead>
               <tr>
                 <th className={th}>Driver</th>
@@ -318,7 +356,7 @@ export function PipelineApp() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--cpm-border)]">
-              {follow.map((d) => {
+              {followShown.map((d) => {
                 const last = d.followups.at(-1);
                 const idle = daysBetween(dayOf(last?.at ?? d.at), today);
                 const isOpen = open === `f${d.key}`;
@@ -406,6 +444,45 @@ export function PipelineApp() {
             </tbody>
           </Table>
           <Unmatched list={pipeline.unmatchedDqp.filter((e) => inRange(e.at))} what="DQP" onHide={hide} />
+        </section>
+      )}
+
+      {tab === "hired" && (
+        <section className={card}>
+          <div className="px-4 py-2.5 border-b border-[var(--cpm-border)] flex items-center gap-3 flex-wrap">
+            <h3 className="text-[14px] font-bold text-[var(--cpm-text)]">Hired · {hired.length}</h3>
+            <span className="text-[11.5px] text-[var(--cpm-text-faint)]">
+              Drivers with a note saying they were hired (or a status changed to Hired), matched by the driver&apos;s name.
+            </span>
+          </div>
+          <Table empty={!hired.length} emptyText="No drivers hired in this range.">
+            <thead>
+              <tr>
+                <th className={th}>Driver</th>
+                <th className={th}>Carrier</th>
+                <th className={th}>Recruiter</th>
+                <th className={th}>Submitted</th>
+                <th className={th}>DQP scheduled</th>
+                <th className={th}>Hired</th>
+                <th className={th}>Hire note</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[var(--cpm-border)]">
+              {hired.map(({ d, x }) => (
+                <tr key={d.key}>
+                  <td className={`${td} font-semibold`}>{d.name}</td>
+                  <td className={td}>{d.carrier || "—"}</td>
+                  <td className={td}>{recruiterCell(d)}</td>
+                  <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.at)}</td>
+                  <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{d.dqp.length ? when(d.dqp[d.dqp.length - 1].at) : "—"}</td>
+                  <td className={`${td} whitespace-nowrap`}>{when(x.at)}</td>
+                  <td className={`${td} max-w-[420px] text-[var(--cpm-text-dim)]`}>
+                    <Expandable text={x.text} open={open === `w${d.key}`} onToggle={() => setOpen(open === `w${d.key}` ? null : `w${d.key}`)} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </section>
       )}
 
@@ -516,7 +593,7 @@ function Table({ empty, emptyText, children }: { empty: boolean; emptyText: stri
 }
 
 function StatusPill({ d }: { d: PipelineDriver }) {
-  const [text, color] = d.dq.length ? ["DQ'd", "#ff6b6e"] : holdAfterDqp(d) ? ["On hold", "#f5b84a"] : d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
+  const [text, color] = d.hired.length ? ["Hired", "#22c55e"] : d.dq.length ? ["DQ'd", "#ff6b6e"] : holdAfterDqp(d) ? ["On hold", "#f5b84a"] : d.dqp.length ? ["DQP scheduled", "#22c55e"] : d.followups.length ? [`${d.followups.length} follow-up${d.followups.length > 1 ? "s" : ""}`, "#60a5fa"] : ["Submitted", "#f5b84a"];
   return (
     <span className="text-[10.5px] font-semibold px-2 py-px rounded-full border" style={{ color, borderColor: color, background: `${color}1f` }}>
       {text}

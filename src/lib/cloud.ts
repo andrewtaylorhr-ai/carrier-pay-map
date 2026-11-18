@@ -123,9 +123,15 @@ async function pull(email: string) {
   }
   const inDb = new Map((data ?? []).map((r) => [r.key as string, r.value]));
   const uploads: { key: string; value: unknown }[] = [];
+  const tooBig: string[] = [];
   for (const key of SHARED_KEYS) {
     if (inDb.has(key)) {
-      localStorage.setItem(key, JSON.stringify(inDb.get(key)));
+      try {
+        localStorage.setItem(key, JSON.stringify(inDb.get(key)));
+      } catch {
+        // this browser's storage is full: skip the key, keep loading the rest
+        tooBig.push(key);
+      }
       continue;
     }
     const raw = localStorage.getItem(key);
@@ -141,7 +147,7 @@ async function pull(email: string) {
     if (up.error) setState({ message: `Couldn't upload this browser's data: ${up.error.message}` });
   }
   listen();
-  setState({ status: "ready" });
+  setState(tooBig.length ? { status: "ready", message: `This browser's storage is full; couldn't load ${tooBig.join(", ")}` } : { status: "ready" });
   announce(null);
 }
 

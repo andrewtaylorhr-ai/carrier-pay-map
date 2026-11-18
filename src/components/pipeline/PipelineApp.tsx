@@ -4,6 +4,7 @@ import { Fragment, useMemo, useState } from "react";
 import { CalendarCheck, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
+import { useCloud } from "@/lib/hooks/useLocalStorage";
 import { PIPELINE_SENDER, dayOf, dqAfterDqp, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
 import type { RecruiterTeam } from "@/lib/carriers/types";
@@ -130,6 +131,10 @@ export function PipelineApp() {
     setSettings((s) => ({ ...s, hidden: [...(s.hidden ?? []), id] }));
   };
   const hasEmails = inbox.events.length > 0;
+  // The emails are the team's shared data: none show until a manager is
+  // signed in and the data has loaded, so say that rather than "set up Gmail".
+  const cloud = useCloud();
+  const waiting = !hasEmails && (cloud.status === "loading" || cloud.status === "syncing" || cloud.status === "signedOut");
   const hasDqpEmails = pipeline.drivers.some((d) => d.dqp.length) || pipeline.unmatchedDqp.length > 0;
 
   const recruiterCell = (d: PipelineDriver) =>
@@ -153,6 +158,10 @@ export function PipelineApp() {
             {inbox.events.length.toLocaleString("en-US")} emails read from {PIPELINE_SENDER}
             {inbox.updatedAt ? ` · last checked ${when(inbox.updatedAt)}` : ""}
           </span>
+        ) : cloud.status === "signedOut" ? (
+          <span>Sign in with Manager sign-in (bottom left) to see the emails.</span>
+        ) : waiting ? (
+          <span>Loading the emails…</span>
         ) : (
           <span>No emails yet. Set up the Gmail script once and the page fills in by itself.</span>
         )}
@@ -167,7 +176,7 @@ export function PipelineApp() {
         </div>
       </div>
 
-      {(panel === "setup" || (!hasEmails && panel !== "names")) && <SetupPanel onClose={hasEmails ? () => setPanel("") : undefined} />}
+      {(panel === "setup" || (!hasEmails && !waiting && panel !== "names")) && <SetupPanel onClose={hasEmails ? () => setPanel("") : undefined} />}
       {panel === "names" && (
         <NamesPanel
           rows={pipeline.emailRecruiters}

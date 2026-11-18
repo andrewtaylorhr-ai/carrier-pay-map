@@ -1,9 +1,10 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
-import { BadgeCheck, CalendarCheck, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
+import { BadgeCheck, CalendarCheck, CalendarDays, CalendarX, PauseCircle, Check, Copy, MessageSquareReply, Send, Settings2, UserCog, X } from "lucide-react";
 import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
+import { PipelineGrid } from "./PipelineGrid";
 import { useCloud } from "@/lib/hooks/useLocalStorage";
 import { FOLLOW_STEPS, PIPELINE_SENDER, dayOf, dqAfterDqp, driverStep, type FollowStep, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
@@ -20,7 +21,7 @@ const segBtn = (on: boolean) =>
     on ? "bg-[var(--cpm-accent)] text-[var(--cpm-accent-ink)]" : "text-[var(--cpm-text-dim)] hover:text-[var(--cpm-text)]"
   }`;
 
-type Tab = "subs" | "follow" | "dqp" | "hired" | "hold" | "dqpdq";
+type Tab = "subs" | "grid" | "follow" | "dqp" | "hired" | "hold" | "dqpdq";
 // the Follow-ups step tabs, in the order a driver goes through them
 const STEP_TAB_ORDER = ["rc", "app", "calling", "docs", "account", "noresp", "declined"] as const;
 type Range = "today" | "week" | "month" | "last" | "all";
@@ -62,7 +63,7 @@ function rangeDays(r: Range, today: string): [string, string] {
 // The Driver Pipeline: every driver our team submitted (from the no-reply
 // emails), their follow-ups and their DQP schedules.
 export function PipelineApp() {
-  const { recruiters, getRecruiterTeam, recruiterColor } = useCarrierMap();
+  const { recruiters, getRecruiterTeam, getRecruiterStatus, recruiterColor } = useCarrierMap();
   const { inbox, settings, setSettings, pipeline } = usePipeline();
   const [tab, setTab] = useState<Tab>("subs");
   const [range, setRange] = useState<Range>("week");
@@ -222,6 +223,9 @@ export function PipelineApp() {
           <button type="button" className={segBtn(tab === "subs")} onClick={() => setTab("subs")}>
             <Send size={14} /> Submissions
           </button>
+          <button type="button" className={segBtn(tab === "grid")} onClick={() => setTab("grid")}>
+            <CalendarDays size={14} /> By day
+          </button>
           <button type="button" className={segBtn(tab === "follow")} onClick={() => setTab("follow")}>
             <MessageSquareReply size={14} /> Follow-ups
           </button>
@@ -238,7 +242,7 @@ export function PipelineApp() {
             <CalendarX size={14} /> DQP → DQ&apos;d
           </button>
         </div>
-        <div className="flex items-center gap-0.5 p-[3px] rounded-lg bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)]">
+        <div className={`flex items-center gap-0.5 p-[3px] rounded-lg bg-[var(--cpm-panel-alt)] border border-[var(--cpm-border)]${tab === "grid" ? " hidden" : ""}`}>
           {RANGES.map(([r, l]) => (
             <button key={r} type="button" className={segBtn(range === r)} onClick={() => setRange(r)}>
               {l}
@@ -260,6 +264,10 @@ export function PipelineApp() {
         </select>
         <input className={`${input} w-[200px]`} placeholder="Search driver or carrier…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
+
+      {tab === "grid" && (
+        <PipelineGrid drivers={people} recruiters={recruiters} isActive={(r) => getRecruiterStatus(r) === "active"} recruiterColor={recruiterColor} />
+      )}
 
       {tab === "subs" && (
         <section className={card}>

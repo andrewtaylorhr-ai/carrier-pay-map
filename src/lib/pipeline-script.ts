@@ -38,6 +38,8 @@ function testRead() {
 
 // Reads the new emails, then older ones a day at a time until FIRST_RUN_DAYS
 // are in, saving after every day so a run that stops early keeps its work.
+// Gmail allows only so many reads a day, so each run reads just the emails
+// since the last save (plus 30 minutes to be safe), not the last 2 days.
 function syncPipeline() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
@@ -46,7 +48,9 @@ function syncPipeline() {
     const token = signIn_();
     const current = load_(token) || { events: [] };
     const seen = new Set(current.events.map((e) => e.id));
-    let events = current.events.concat(scan_("newer_than:2d", seen));
+    const last = current.updatedAt ? Date.parse(current.updatedAt) : 0;
+    const since = last ? last - 30 * 60e3 : Date.now() - 2 * 864e5;
+    let events = current.events.concat(scan_("after:" + Math.floor(since / 1000), seen));
     let filled = current.filledTo ? Date.parse(current.filledTo) : Date.now() - 2 * 864e5;
     const oldest = Date.now() - FIRST_RUN_DAYS * 864e5;
     const store = () => {

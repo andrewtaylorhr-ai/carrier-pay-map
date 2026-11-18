@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { dayOf, driverStep, todayDay, type PipelineDriver } from "@/lib/pipeline";
 import { dayLabel, dayOff, monthLabel, monthWeeks, shiftMonth, usHoliday, weekdayShort } from "@/lib/tracker";
@@ -29,15 +29,6 @@ export function PipelineGrid({
   const [cell, setCell] = useState<{ name: string; day: number | null } | null>(null);
   const weeks = useMemo(() => monthWeeks(ym), [ym]);
   const todayN = today.startsWith(ym) ? Number(today.slice(8)) : null;
-  const wrapRef = useRef<HTMLDivElement>(null);
-  // On this month, open scrolled to the current week, like the Daily Tracker.
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    const first = weeks.find((w) => todayN != null && w.days.includes(todayN))?.days[0];
-    const th = wrap?.querySelector<HTMLElement>(`thead th[data-day="${first}"]`);
-    const frozen = wrap?.querySelector<HTMLElement>("thead th.stick.name");
-    if (wrap && th && frozen) wrap.scrollLeft = Math.max(0, wrap.scrollLeft + th.getBoundingClientRect().left - frozen.getBoundingClientRect().right);
-  }, [weeks, todayN, drivers.length]);
 
   // recruiter -> day -> drivers submitted that day
   const byDay = useMemo(() => {
@@ -99,7 +90,7 @@ export function PipelineGrid({
         </span>
       </div>
 
-      <div className="trackerWrap" ref={wrapRef}>
+      <div className="trackerWrap">
         <table className="tracker">
           <thead>
             <tr>
@@ -108,7 +99,7 @@ export function PipelineGrid({
               {weeks.map((w) => (
                 <Fragment key={w.idx}>
                   {w.days.map((d) => (
-                    <th key={d} data-day={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
+                    <th key={d} className={dayClass(d)} title={dayOff(ym, d) ?? undefined}>
                       <span className="wkTag">{weekdayShort(ym, d)}</span>
                       {dayLabel(ym, d)}
                       {usHoliday(ym, d) && <span className="offTag">{usHoliday(ym, d)}</span>}

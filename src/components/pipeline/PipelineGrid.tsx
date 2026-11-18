@@ -60,16 +60,19 @@ export function PipelineGrid({
   const allDays = weeks.flatMap((w) => w.days);
   const dayClass = (d: number) => [dayOff(ym, d) ? "off" : "", d === todayN ? "today" : ""].filter(Boolean).join(" ") || undefined;
 
-  // "3" in blue, then the DQ'd ones in red
-  const counts = (ds: PipelineDriver[]) => {
+  // the total submitted in blue, then how many of them got DQ'd in red: "4 · 1"
+  const counts = (ds: PipelineDriver[], color = "#60a5fa") => {
     const dq = ds.filter(isDqd).length;
-    const ok = ds.length - dq;
     if (!ds.length) return "";
     return (
       <>
-        {ok > 0 && <span className="text-[#60a5fa]">{ok}</span>}
-        {ok > 0 && dq > 0 && <span className="text-[var(--cpm-text-faint)]"> · </span>}
-        {dq > 0 && <span className="text-[#ff6b6e]">{dq}</span>}
+        <span style={{ color }}>{ds.length}</span>
+        {dq > 0 && (
+          <>
+            <span className="text-[var(--cpm-text-faint)]"> · </span>
+            <span className="text-[#ff6b6e]">{dq}</span>
+          </>
+        )}
       </>
     );
   };
@@ -91,8 +94,8 @@ export function PipelineGrid({
           </button>
         </div>
         <span className="text-[12px] text-[var(--cpm-text-dim)]">
-          <span className="text-[#60a5fa] font-bold">Blue</span> = submitted, <span className="text-[#ff6b6e] font-bold">red</span> = got DQ&apos;d (DQ, denied
-          or declined / NQ). Click a number to see the drivers.
+          <span className="text-[#60a5fa] font-bold">Blue</span> = total submitted, <span className="text-[#ff6b6e] font-bold">red</span> = how many of them got
+          DQ&apos;d (DQ, denied or declined / NQ). Click a number to see the drivers.
         </span>
       </div>
 
@@ -168,14 +171,19 @@ export function PipelineGrid({
               {weeks.map((w) => (
                 <Fragment key={w.idx}>
                   {w.days.map((d) => (
-                    <td key={d}>{rows.reduce((n, r) => n + (byDay.get(r)?.get(d)?.length ?? 0), 0)}</td>
+                    <td key={d}>{counts(rows.flatMap((r) => list(r, [d])), "#fff") || 0}</td>
                   ))}
-                  <td>{rows.reduce((n, r) => n + list(r, w.days).length, 0)}</td>
+                  <td>{counts(rows.flatMap((r) => list(r, w.days)), "#fff") || 0}</td>
                 </Fragment>
               ))}
               <td>{rows.reduce((n, r) => n + list(r, allDays).length, 0)}</td>
               <td>{rows.reduce((n, r) => n + list(r, allDays).filter(isDqd).length, 0)}</td>
-              <td />
+              <td>
+                {(() => {
+                  const all = rows.flatMap((r) => list(r, allDays));
+                  return all.length ? `${Math.round((all.filter(isDqd).length / all.length) * 100)}%` : "—";
+                })()}
+              </td>
             </tr>
           </tfoot>
         </table>

@@ -23,7 +23,7 @@ const segBtn = (on: boolean) =>
 
 type Tab = "subs" | "grid" | "follow" | "dqp" | "hired" | "hold" | "dqpdq";
 // the Follow-ups step tabs, in the order a driver goes through them
-const STEP_TAB_ORDER = ["rc", "app", "calling", "docs", "account", "noresp", "declined"] as const;
+const STEP_TAB_ORDER = ["rc", "app", "admin", "calling", "docs", "account", "noresp", "declined"] as const;
 type Range = "today" | "week" | "month" | "last" | "all";
 const RANGES: [Range, string][] = [
   ["today", "Today"],

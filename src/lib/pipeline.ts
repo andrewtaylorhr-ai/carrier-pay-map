@@ -87,7 +87,7 @@ export function rosterName(emailName: string | undefined, roster: string[], alia
 // "Status changed from Pending to Hired"
 const HIRED_NOTE = /has been hired|\bwas hired\b|\bgot hired\b|\bset to invoice\b|status changed from [\w ]+? to hired\b/i;
 const HOLD_NOTE = /\bsecurity hold\b|\b(?:is|was|been|placed|put|now) (?:on|under) (?:a )?hold\b/i;
-const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
+const DQ_NOTE = /\bDQ(?:['’]?e?d)?\b|\bBQA\b|\bdisqualif|status changed from [\w ]+? to denied\b/i;
 const DQP_NOTE =
   /\bscheduled (?:a |the )?DQP\b|\bscheduled (?:for (?:a |the |his |her )?)?(?:DQP|in[- ]person|orientation)\b|\bDQP (?:is |was |has been |date )?scheduled\b|\bscheduled for (?:mon|tue|wed|thu|fri|sat|sun|\d)/i;
 export function noteKind(text: string): "hired" | "dq" | "hold" | "dqp" | "followup" {
@@ -106,7 +106,7 @@ export const FOLLOW_STEPS = [
     key: "noresp",
     label: "No response",
     color: "#a1a1aa",
-    re: /\bmov(?:e|ed|ing) (?:to |in ?to )?no response\b|\bno (?:response|contact)\b[^.]{0,40}(?:clos|file)|final action completed|\bunresponsive\b|never received a response/i,
+    re: /\bmov(?:e|ed|ing) (?:to |in ?to )?no response\b|\bno (?:response|contact)\b[^.]{0,40}(?:clos|file)|final action completed|\bunresponsive\b|never received a response|waiting (?:for|on) (?:his|her|their|the driver['’]?s?) response|\bstill interested\b/i,
   },
   {
     key: "declined",
@@ -114,6 +114,9 @@ export const FOLLOW_STEPS = [
     color: "#ff6b6e",
     re: /\bdeclined?\b|\bNQ\b|does not want|doesn['’]?t want|not (?:be )?(?:able to )?(?:moving|move|proceed\w*) forward|out of (?:the )?hiring (?:area|radius)|not in the hiring area|holi?s?t?i?c review|better qualified|not qualif|required experience|denied rehire|file (?:is )?closed|clos(?:e|ed|ing) (?:the |this )?file|we will not be|status changed from [\w ]+? to (?:archived|lost)\b/i,
   },
+  // "added to my call list": the driver is in the admin's queue, even when
+  // the same note says RC granted or the Clearinghouse was requested
+  { key: "admin", label: "Waiting on admin", color: "#e879f9", re: /call list/i },
   { key: "rc", label: "Recruiter change", color: "#c084fc", re: /\brc\b|recruiter change/i },
   {
     key: "docs",
@@ -122,7 +125,7 @@ export const FOLLOW_STEPS = [
     re: /\breports?\b|prequal|pending aa\b|\bsta\b|\bmvr\b|\bpsp\b|background|more information (?:is )?needed|releases?\b|accident|clearing ?house|\bCH\b|certificate|\bw-?2|\bdocs?\b|documents?|copy of|drug screen|physical|security (?:for an )?interview|referred to security/i,
   },
   { key: "account", label: "Account / LOB", color: "#38bdf8", re: /\bLOB\b|which account|what account|another account|new account|which (?:regional|local) |what local position/i },
-  { key: "app", label: "Full app / call list", color: "#60a5fa", re: /full app|call list|complete (?:driver )?app|application link|updated app|app(?:lication)? (?:received|sent|link)/i },
+  { key: "app", label: "Full app", color: "#60a5fa", re: /full app|complete (?:driver )?app|application link|updated app|app(?:lication)? (?:received|sent|link)/i },
   {
     key: "calling",
     label: "Calling driver",

@@ -392,6 +392,7 @@ export function PipelineApp() {
                 <th className={th}>Driver</th>
                 <th className={th}>Carrier</th>
                 <th className={th}>Recruiter</th>
+                <th className={th}>Step</th>
                 <th className={th}>Submitted</th>
                 <th className={th}>Follow-ups</th>
                 <th className={th}>Last follow-up</th>
@@ -403,12 +404,22 @@ export function PipelineApp() {
                 const last = d.followups.at(-1);
                 const idle = daysBetween(dayOf(last?.at ?? d.at), today);
                 const isOpen = open === `f${d.key}`;
+                const st = FOLLOW_STEPS.find((s) => s.key === stepOf.get(d.key));
                 return (
                   <Fragment key={d.key}>
                     <tr className="cursor-pointer hover:bg-[var(--cpm-panel-alt)]" onClick={() => setOpen(isOpen ? null : `f${d.key}`)}>
                       <td className={`${td} font-semibold`}>{d.name}</td>
                       <td className={td}>{d.carrier || "—"}</td>
                       <td className={td}>{recruiterCell(d)}</td>
+                      <td className={`${td} whitespace-nowrap`}>
+                        {st ? (
+                          <span className="text-[11.5px] font-semibold px-2 py-0.5 rounded-full border" style={{ color: st.color, borderColor: `${st.color}66` }}>
+                            {st.label}
+                          </span>
+                        ) : (
+                          <span className="text-[var(--cpm-text-faint)]">{d.followups.length ? "Other" : "—"}</span>
+                        )}
+                      </td>
                       <td className={`${td} whitespace-nowrap text-[var(--cpm-text-dim)]`}>{when(d.at)}</td>
                       <td className={`${td} tabular-nums font-semibold`}>{d.followups.length}</td>
                       <td className={`${td} whitespace-nowrap`}>
@@ -421,7 +432,7 @@ export function PipelineApp() {
                     </tr>
                     {isOpen && d.followups.length > 0 && (
                       <tr className="bg-[var(--cpm-panel-alt)]">
-                        <td colSpan={7} className="px-4 py-2">
+                        <td colSpan={8} className="px-4 py-2">
                           <ol className="flex flex-col gap-1.5">
                             {d.followups.map((f, i) => (
                               <li key={f.id} className="text-[12px] text-[var(--cpm-text-dim)]">

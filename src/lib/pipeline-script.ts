@@ -36,10 +36,10 @@ function testRead() {
   scan_("newer_than:1d", new Set()).forEach((e) => Logger.log(JSON.stringify(e)));
 }
 
-// Reads the new emails, then older ones a day at a time until FIRST_RUN_DAYS
-// are in, saving after every day so a run that stops early keeps its work.
-// Gmail allows only so many reads a day, so each run reads just the emails
-// since the last save (plus 30 minutes to be safe), not the last 2 days.
+// Reads the new emails 3 hours at a time, then older ones a day at a time
+// until FIRST_RUN_DAYS are in, saving after each block. Gmail allows only so
+// many reads a day: when they run out, the blocks already read stay saved and
+// the next run carries on from there instead of reading them all again.
 function syncPipeline() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
@@ -48,20 +48,34 @@ function syncPipeline() {
     const token = signIn_();
     const current = load_(token) || { events: [] };
     const seen = new Set(current.events.map((e) => e.id));
-    const last = current.updatedAt ? Date.parse(current.updatedAt) : 0;
-    const since = last ? last - 30 * 60e3 : Date.now() - 2 * 864e5;
-    let events = current.events.concat(scan_("after:" + Math.floor(since / 1000), seen));
+    let events = current.events;
+    // every email before readTo is in
+    let readTo = current.readTo ? Date.parse(current.readTo) : current.updatedAt ? Date.parse(current.updatedAt) - 30 * 60e3 : Date.now() - 2 * 864e5;
     let filled = current.filledTo ? Date.parse(current.filledTo) : Date.now() - 2 * 864e5;
     const oldest = Date.now() - FIRST_RUN_DAYS * 864e5;
+    const sec = (t) => Math.floor(t / 1000);
     const store = () => {
       const cutoff = Date.now() - KEEP_DAYS * 864e5;
       events = events.filter((e) => Date.parse(e.at) >= cutoff).sort((a, b) => (a.at < b.at ? -1 : 1));
-      save_(token, { events: events, filledTo: new Date(filled).toISOString(), updatedAt: new Date().toISOString() });
+      save_(token, {
+        events: events,
+        filledTo: new Date(filled).toISOString(),
+        readTo: new Date(readTo).toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
     };
-    store();
-    while (filled > oldest && Date.now() - started < RUN_SECONDS * 1000) {
+    const timeLeft = () => Date.now() - started < RUN_SECONDS * 1000;
+    // 30 minutes of overlap: Gmail can be slow to show a new email in search
+    while (timeLeft()) {
+      const to = Math.min(readTo + 3 * 3600e3, Date.now());
+      events = events.concat(scan_("after:" + sec(readTo - 30 * 60e3) + " before:" + sec(to), seen));
+      readTo = to;
+      store();
+      if (to >= Date.now() - 60e3) break;
+    }
+    while (filled > oldest && timeLeft()) {
       const from = filled - 864e5;
-      events = events.concat(scan_("after:" + Math.floor(from / 1000) + " before:" + Math.floor(filled / 1000), seen));
+      events = events.concat(scan_("after:" + sec(from) + " before:" + sec(filled), seen));
       filled = from;
       store();
     }

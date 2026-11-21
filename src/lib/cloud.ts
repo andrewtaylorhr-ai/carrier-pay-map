@@ -45,11 +45,36 @@ export type CloudState = {
   status: "loading" | "signedOut" | "syncing" | "ready" | "error";
   email: string;
   message: string; // last problem, shown under the account box
+  pending: string[]; // keys still downloading after "ready" (the Gmail inbox)
 };
+
+// The Gmail inbox is big and only the Gmail script writes it, so the app is
+// usable before it arrives.
+const LATE_KEYS = new Set(["cdlPayMapPipelineInbox"]);
+// key -> updated_at of the copy in this browser's localStorage, so a load
+// downloads only the keys changed since (the database is far away and slow).
+const SEEN_KEY = "cpm_cloudSeen";
+function readSeen(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") ?? {};
+  } catch {
+    return {};
+  }
+}
+function markSeen(key: string, at: string | null) {
+  const seen = readSeen();
+  if (at) seen[key] = at;
+  else delete seen[key];
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+  } catch {
+    // storage full: the key just downloads again next time
+  }
+}
 
 let client: SupabaseClient | null = null;
 let channel: RealtimeChannel | null = null;
-let state: CloudState = { status: "loading", email: "", message: "" };
+let state: CloudState = { status: "loading", email: "", message: "", pending: [] };
 const listeners = new Set<() => void>();
 // Saving, per key: the timer waiting to send, whether a send is under way,
 // the latest value (sent once the current send ends), and what this browser
@@ -113,27 +138,46 @@ function start() {
 
 async function pull(email: string) {
   if (state.status === "syncing" || (cloudReady() && state.email === email)) return;
-  setState({ status: "syncing", email, message: "" });
-  const { data, error } = await sb().from(TABLE).select("key,value");
-  if (error) {
+  setState({ status: "syncing", email, message: "", pending: [] });
+  const list = await sb().from(TABLE).select("key,updated_at");
+  if (list.error) {
     // keep working from this browser's copy
-    setState({ status: "error", message: `Couldn't load shared data: ${error.message}` });
+    setState({ status: "error", message: `Couldn't load shared data: ${list.error.message}` });
     announce(null);
     return;
   }
-  const inDb = new Map((data ?? []).map((r) => [r.key as string, r.value]));
-  const uploads: { key: string; value: unknown }[] = [];
+  const inDb = new Map((list.data ?? []).map((r) => [r.key as string, r.updated_at as string]));
+  const seen = readSeen();
+  const stale = [...SHARED_KEYS].filter((k) => inDb.has(k) && (seen[k] !== inDb.get(k) || localStorage.getItem(k) == null));
   const tooBig: string[] = [];
-  for (const key of SHARED_KEYS) {
-    if (inDb.has(key)) {
+  // Downloads these keys into localStorage; false if the download failed.
+  const fetchKeys = async (keys: string[]) => {
+    if (!keys.length) return true;
+    const { data, error } = await sb().from(TABLE).select("key,value,updated_at").in("key", keys);
+    if (error) {
+      setState({ message: `Couldn't load shared data: ${error.message}` });
+      return false;
+    }
+    for (const r of data ?? []) {
       try {
-        localStorage.setItem(key, JSON.stringify(inDb.get(key)));
+        localStorage.setItem(r.key, JSON.stringify(r.value));
+        markSeen(r.key, r.updated_at);
       } catch {
         // this browser's storage is full: skip the key, keep loading the rest
-        tooBig.push(key);
+        markSeen(r.key, null);
+        tooBig.push(r.key);
       }
-      continue;
     }
+    return true;
+  };
+  if (!(await fetchKeys(stale.filter((k) => !LATE_KEYS.has(k))))) {
+    setState({ status: "error" });
+    announce(null);
+    return;
+  }
+  const uploads: { key: string; value: unknown }[] = [];
+  for (const key of SHARED_KEYS) {
+    if (inDb.has(key)) continue;
     const raw = localStorage.getItem(key);
     if (raw == null) continue;
     try {
@@ -147,8 +191,14 @@ async function pull(email: string) {
     if (up.error) setState({ message: `Couldn't upload this browser's data: ${up.error.message}` });
   }
   listen();
-  setState(tooBig.length ? { status: "ready", message: `This browser's storage is full; couldn't load ${tooBig.join(", ")}` } : { status: "ready" });
+  const late = stale.filter((k) => LATE_KEYS.has(k));
+  const full = () => (tooBig.length ? { message: `This browser's storage is full; couldn't load ${tooBig.join(", ")}` } : {});
+  setState({ status: "ready", pending: late, ...full() });
   announce(null);
+  if (!late.length) return;
+  await fetchKeys(late);
+  setState({ pending: [], ...full() });
+  late.forEach((k) => announce(k));
 }
 
 function listen() {
@@ -156,7 +206,7 @@ function listen() {
   channel = sb()
     .channel("app_state")
     .on("postgres_changes", { event: "*", schema: "public", table: TABLE }, (change) => {
-      const row = change.new as { key?: string; value?: unknown };
+      const row = change.new as { key?: string; value?: unknown; updated_at?: string };
       if (!row?.key || !SHARED_KEYS.has(row.key)) return;
       const save = saves.get(row.key);
       // still saving here: this browser's newer value wins
@@ -170,6 +220,7 @@ function listen() {
         // unreadable local value: take the database's
       }
       localStorage.setItem(row.key, JSON.stringify(row.value));
+      markSeen(row.key, row.updated_at ?? null);
       announce(row.key);
     })
     .subscribe();
@@ -181,8 +232,11 @@ function leave(signedOut: boolean) {
   saves.forEach((s) => clearTimeout(s.timer));
   saves.clear();
   // This browser's copy goes with the sign-out; it is safe in the database.
-  if (signedOut) SHARED_KEYS.forEach((k) => localStorage.removeItem(k));
-  setState({ status: "signedOut", email: "", message: "" });
+  if (signedOut) {
+    SHARED_KEYS.forEach((k) => localStorage.removeItem(k));
+    localStorage.removeItem(SEEN_KEY);
+  }
+  setState({ status: "signedOut", email: "", message: "", pending: [] });
   announce(null);
 }
 
@@ -206,8 +260,10 @@ async function send(key: string, save: Save) {
   save.dirty = false;
   const value = save.value;
   save.sent = [...save.sent.slice(-19), canonical(value)];
-  const { error } = await sb().from(TABLE).upsert({ key, value, updated_at: new Date().toISOString() });
+  const { data, error } = await sb().from(TABLE).upsert({ key, value, updated_at: new Date().toISOString() }).select("updated_at");
   save.sending = false;
+  // this browser now has that version, so the next load needn't download it
+  markSeen(key, error ? null : (data?.[0]?.updated_at ?? null));
   if (error) setState({ message: `Not saved to the shared database: ${error.message}` });
   else if (state.message) setState({ message: "" });
   // typed more while sending (and no timer will send it)

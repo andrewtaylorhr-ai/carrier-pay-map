@@ -6,7 +6,7 @@ import { useCarrierMap } from "@/lib/carrier-map-context";
 import { usePipeline } from "@/lib/hooks/usePipeline";
 import { PipelineGrid } from "./PipelineGrid";
 import { useCloud } from "@/lib/hooks/useLocalStorage";
-import { FOLLOW_STEPS, PIPELINE_SENDER, dayOf, dqAfterDqp, driverStep, type FollowStep, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
+import { FOLLOW_STEPS, PIPELINE_INBOX_KEY, PIPELINE_SENDER, dayOf, dqAfterDqp, driverStep, type FollowStep, holdAfterDqp, todayDay, type PipelineDriver, type PipelineEvent } from "@/lib/pipeline";
 import { PIPELINE_SCRIPT } from "@/lib/pipeline-script";
 import type { RecruiterTeam } from "@/lib/carriers/types";
 
@@ -147,7 +147,8 @@ export function PipelineApp() {
   // The emails are the team's shared data: none show until a manager is
   // signed in and the data has loaded, so say that rather than "set up Gmail".
   const cloud = useCloud();
-  const waiting = !hasEmails && (cloud.status === "loading" || cloud.status === "syncing" || cloud.status === "signedOut");
+  const waiting =
+    !hasEmails && (cloud.status === "loading" || cloud.status === "syncing" || cloud.status === "signedOut" || cloud.pending.includes(PIPELINE_INBOX_KEY));
   const hasDqpEmails = pipeline.drivers.some((d) => d.dqp.length) || pipeline.unmatchedDqp.length > 0;
 
   const recruiterCell = (d: PipelineDriver) =>

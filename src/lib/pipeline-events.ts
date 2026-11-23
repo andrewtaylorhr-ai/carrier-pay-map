@@ -12,7 +12,10 @@ import { useCloud } from "@/lib/hooks/useLocalStorage";
 import type { PipelineEvent, PipelineEventType } from "@/lib/pipeline";
 
 const TABLE = "pipeline_events";
-const CACHE_KEY = "cpm_pipelineEvents";
+const DB = "cpm";
+const STORE = "cache";
+const CACHE_KEY = "pipelineEvents";
+const OLD_KEY = "cpm_pipelineEvents"; // the localStorage key it used to be kept under
 const PAGE = 1000; // the most rows the database sends at once
 const EVERY_MS = 3 * 60e3; // the script adds emails every 10 minutes
 
@@ -40,6 +43,7 @@ let since = ""; // created_at of the newest row this browser has
 const listeners = new Set<() => void>();
 let started = false;
 let running = false;
+let cached: Promise<void> = Promise.resolve(); // the saved emails, read in before the first download
 
 function set(patch: Partial<PipelineRows>) {
   rows = { ...rows, ...patch };
@@ -59,29 +63,54 @@ function toEvent(r: Row): PipelineEvent {
   };
 }
 
-function readCache() {
+// The saved emails live in the browser's database (IndexedDB), which has room
+// for years of them; localStorage's 5 MB is kept for the rest of the app.
+let opened: Promise<IDBDatabase> | null = null;
+function store<T>(mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+  opened ??= new Promise((ok, fail) => {
+    const req = indexedDB.open(DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+    req.onsuccess = () => ok(req.result);
+    req.onerror = () => fail(req.error);
+  });
+  return opened.then(
+    (db) =>
+      new Promise<T>((ok, fail) => {
+        const req = run(db.transaction(STORE, mode).objectStore(STORE));
+        req.onsuccess = () => ok(req.result);
+        req.onerror = () => fail(req.error);
+      })
+  );
+}
+
+async function readCache() {
   try {
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY) ?? "null");
+    let c = await store("readonly", (s) => s.get(CACHE_KEY));
+    // saved before the move to IndexedDB
+    if (!c) c = JSON.parse(localStorage.getItem(OLD_KEY) ?? "null");
+    if (getCloudState().status === "signedOut") return;
     if (c && Array.isArray(c.events) && typeof c.since === "string") {
-      rows = { ...rows, events: c.events };
       since = c.since;
+      set({ events: c.events });
     }
   } catch {
     // unreadable: everything downloads again
   }
 }
 
-function writeCache() {
+async function writeCache() {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ events: rows.events, since }));
+    await store("readwrite", (s) => s.put({ events: rows.events, since }, CACHE_KEY));
+    localStorage.removeItem(OLD_KEY);
   } catch {
-    // this browser's storage is full: kept in memory, downloads again next visit
+    // no browser database (some private windows): downloads again next visit
   }
 }
 
 function clear() {
   since = "";
-  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(OLD_KEY);
+  store("readwrite", (s) => s.delete(CACHE_KEY)).catch(() => {});
   set({ events: [], loading: true, error: "" });
 }
 
@@ -90,6 +119,7 @@ async function refresh() {
   if (running || !cloudReady()) return;
   running = true;
   try {
+    await cached;
     const have = new Map(rows.events.map((e) => [e.id, e]));
     let newest = since;
     for (let offset = 0; ; offset += PAGE) {
@@ -114,7 +144,7 @@ async function refresh() {
     }
     since = newest;
     set({ events: [...have.values()], loading: false, error: "" });
-    writeCache();
+    void writeCache();
   } finally {
     running = false;
   }
@@ -123,7 +153,7 @@ async function refresh() {
 function start() {
   if (started || typeof window === "undefined") return;
   started = true;
-  readCache();
+  cached = readCache();
   subscribeCloud(() => {
     const { status } = getCloudState();
     if (status === "signedOut") clear();

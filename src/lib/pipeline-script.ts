@@ -1,14 +1,17 @@
 // The Google Apps Script the manager pastes into script.google.com. It runs in
-// their Gmail every 10 minutes and saves the no-reply emails to the shared
-// database (PIPELINE_INBOX_KEY), signed in as the pipeline account whose email
-// and password the manager keeps in the script's own properties.
+// their Gmail every 10 minutes and adds each new no-reply email as a row of the
+// shared database's pipeline_events table (supabase/pipeline_events.sql); its
+// own progress is a small record under PIPELINE_INBOX_KEY. It signs in as the
+// pipeline account whose email and password the manager keeps in the script's
+// own properties.
 import { PIPELINE_INBOX_KEY, PIPELINE_SENDER } from "@/lib/pipeline";
 
 const SUPABASE_URL = "https://cwagyfzverxrmjridwsu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_bVk_TFB4NbaYFwKXcitb1A_dJNUT4CJ";
 
 export const PIPELINE_SCRIPT = `// Driver Pipeline: Gmail -> Class A Recruiting app
-// Reads the ${PIPELINE_SENDER} emails and saves them for the Driver Pipeline page.
+// Reads the ${PIPELINE_SENDER} emails and saves each one, once, for the
+// Driver Pipeline page (one row per email in the pipeline_events table).
 // Saves the driver's name, carrier, recruiter, date, the recruiter message and
 // the newest note of each "New message" / "Status update" email.
 // Never saves the driver's phone, email or SSN.
@@ -20,7 +23,6 @@ const SUPABASE_URL = "${SUPABASE_URL}";
 const SUPABASE_KEY = "${SUPABASE_KEY}";
 const KEY = "${PIPELINE_INBOX_KEY}";
 const SENDER = "${PIPELINE_SENDER}";
-const KEEP_DAYS = 180; // emails older than this drop off the page
 const FIRST_RUN_DAYS = 60; // how far back the page fills in
 const RUN_SECONDS = 240; // Google stops a run at 6 minutes, so each run reads for 4
 
@@ -37,45 +39,45 @@ function testRead() {
 }
 
 // Reads the new emails 3 hours at a time, then older ones a day at a time
-// until FIRST_RUN_DAYS are in, saving after each block. Gmail allows only so
-// many reads a day: when they run out, the blocks already read stay saved and
-// the next run carries on from there instead of reading them all again.
+// until FIRST_RUN_DAYS are in, adding each block's emails to the table as it
+// goes. Gmail allows only so many reads a day: when they run out, the blocks
+// already read stay saved and the next run carries on from there.
 function syncPipeline() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return;
   try {
     const started = Date.now();
     const token = signIn_();
-    const current = load_(token) || { events: [] };
-    const seen = new Set(current.events.map((e) => e.id));
-    let events = current.events;
+    const state = load_(token) || {};
+    // The emails used to be saved as one big list: move them to the table once.
+    if (state.events && state.events.length) {
+      for (let i = 0; i < state.events.length; i += 500) insert_(token, state.events.slice(i, i + 500));
+    }
     // every email before readTo is in
-    let readTo = current.readTo ? Date.parse(current.readTo) : current.updatedAt ? Date.parse(current.updatedAt) - 30 * 60e3 : Date.now() - 2 * 864e5;
-    let filled = current.filledTo ? Date.parse(current.filledTo) : Date.now() - 2 * 864e5;
+    let readTo = state.readTo ? Date.parse(state.readTo) : state.updatedAt ? Date.parse(state.updatedAt) - 30 * 60e3 : Date.now() - 2 * 864e5;
+    let filled = state.filledTo ? Date.parse(state.filledTo) : Date.now() - 2 * 864e5;
     const oldest = Date.now() - FIRST_RUN_DAYS * 864e5;
+    // emails already in the table aren't read again (each read counts)
+    const seen = savedIds_(token, filled > oldest ? 0 : readTo - 864e5);
     const sec = (t) => Math.floor(t / 1000);
-    const store = () => {
-      const cutoff = Date.now() - KEEP_DAYS * 864e5;
-      events = events.filter((e) => Date.parse(e.at) >= cutoff).sort((a, b) => (a.at < b.at ? -1 : 1));
+    const store = () =>
       save_(token, {
-        events: events,
         filledTo: new Date(filled).toISOString(),
         readTo: new Date(readTo).toISOString(),
         updatedAt: new Date().toISOString(),
       });
-    };
     const timeLeft = () => Date.now() - started < RUN_SECONDS * 1000;
     // 30 minutes of overlap: Gmail can be slow to show a new email in search
     while (timeLeft()) {
       const to = Math.min(readTo + 3 * 3600e3, Date.now());
-      events = events.concat(scan_("after:" + sec(readTo - 30 * 60e3) + " before:" + sec(to), seen));
+      insert_(token, scan_("after:" + sec(readTo - 30 * 60e3) + " before:" + sec(to), seen));
       readTo = to;
       store();
       if (to >= Date.now() - 60e3) break;
     }
     while (filled > oldest && timeLeft()) {
       const from = filled - 864e5;
-      events = events.concat(scan_("after:" + sec(from) + " before:" + sec(filled), seen));
+      insert_(token, scan_("after:" + sec(from) + " before:" + sec(filled), seen));
       filled = from;
       store();
     }
@@ -182,6 +184,41 @@ function load_(token) {
   const res = UrlFetchApp.fetch(SUPABASE_URL + "/rest/v1/app_state?select=value&key=eq." + KEY, { headers: headers_(token) });
   const rows = JSON.parse(res.getContentText());
   return rows.length ? rows[0].value : null;
+}
+
+// Adds these emails as rows; ones already there are left as they are.
+function insert_(token, events) {
+  if (!events.length) return;
+  const rows = events.map((e) => ({
+    id: e.id,
+    type: e.type,
+    at: e.at,
+    driver: e.driver || null,
+    carrier: e.carrier || null,
+    recruiter: e.recruiter || null,
+    subject: e.subject || null,
+    message: e.message || null,
+  }));
+  UrlFetchApp.fetch(SUPABASE_URL + "/rest/v1/pipeline_events?on_conflict=id", {
+    method: "post",
+    contentType: "application/json",
+    headers: Object.assign(headers_(token), { Prefer: "resolution=ignore-duplicates,return=minimal" }),
+    payload: JSON.stringify(rows),
+  });
+}
+
+// The ids of the emails saved since this time (0 = all of them).
+function savedIds_(token, since) {
+  const ids = new Set();
+  const when = since ? "&at=gte." + new Date(since).toISOString() : "";
+  for (let offset = 0; ; offset += 1000) {
+    const res = UrlFetchApp.fetch(SUPABASE_URL + "/rest/v1/pipeline_events?select=id&order=id" + when + "&limit=1000&offset=" + offset, {
+      headers: headers_(token),
+    });
+    const rows = JSON.parse(res.getContentText());
+    rows.forEach((r) => ids.add(r.id));
+    if (rows.length < 1000) return ids;
+  }
 }
 
 function save_(token, value) {

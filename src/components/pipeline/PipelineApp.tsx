@@ -64,7 +64,7 @@ function rangeDays(r: Range, today: string): [string, string] {
 // emails), their follow-ups and their DQP schedules.
 export function PipelineApp() {
   const { recruiters, getRecruiterTeam, getRecruiterStatus, recruiterColor } = useCarrierMap();
-  const { inbox, settings, setSettings, pipeline } = usePipeline();
+  const { inbox, loadingEmails, settings, setSettings, pipeline } = usePipeline();
   const [tab, setTab] = useState<Tab>("subs");
   const [range, setRange] = useState<Range>("week");
   const [team, setTeam] = useState<RecruiterTeam | "">("");
@@ -148,7 +148,7 @@ export function PipelineApp() {
   // signed in and the data has loaded, so say that rather than "set up Gmail".
   const cloud = useCloud();
   const waiting =
-    !hasEmails && (cloud.status === "loading" || cloud.status === "syncing" || cloud.status === "signedOut" || cloud.pending.includes(PIPELINE_INBOX_KEY));
+    !hasEmails && (cloud.status === "loading" || cloud.status === "syncing" || cloud.status === "signedOut" || cloud.pending.includes(PIPELINE_INBOX_KEY) || loadingEmails);
   const hasDqpEmails = pipeline.drivers.some((d) => d.dqp.length) || pipeline.unmatchedDqp.length > 0;
 
   const recruiterCell = (d: PipelineDriver) =>
@@ -783,7 +783,8 @@ function SetupPanel({ onClose }: { onClose?: () => void }) {
           <span className={num}>1</span>
           <span>
             <b className="text-[var(--cpm-text)]">Make a pipeline account.</b> In Supabase open Authentication → Users → Add user → Create new user. Use an email you own (like
-            pipeline@classarecruitinginc.com), a strong password, and tick <i>Auto Confirm User</i>. Sign-ups stay off. Keep the password to yourself.
+            pipeline@classarecruitinginc.com), a strong password, and tick <i>Auto Confirm User</i>. Sign-ups stay off. Keep the password to yourself. Then in SQL Editor run the
+            email table from the project&apos;s <code>supabase/pipeline_events.sql</code>.
           </span>
         </li>
         <li className={step}>

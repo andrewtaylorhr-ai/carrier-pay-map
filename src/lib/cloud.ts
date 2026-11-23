@@ -93,7 +93,7 @@ function canonical(v: unknown): string {
   );
 }
 
-function sb() {
+export function sb() {
   if (!client) client = createClient(SUPABASE_URL, SUPABASE_KEY);
   return client;
 }

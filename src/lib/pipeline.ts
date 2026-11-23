@@ -2,8 +2,9 @@
 // schedules, read from the no-reply@classarecruitinginc.com emails.
 //
 // A Google Apps Script in the manager's Gmail (pipeline-script.ts) reads the
-// emails every 10 minutes and saves them to the shared key PIPELINE_INBOX_KEY.
-// Only that script writes it; the app only reads it. What the app's users
+// emails every 10 minutes and adds each as a row of the pipeline_events table
+// (pipeline-events.ts); its progress is the shared key PIPELINE_INBOX_KEY.
+// Only that script writes them; the app only reads them. What the app's users
 // change here (recruiter names, removed emails) lives in PIPELINE_KEY.
 // Driver phone numbers and emails are never saved.
 
@@ -28,9 +29,10 @@ export interface PipelineEvent {
 }
 
 export interface PipelineInbox {
-  events: PipelineEvent[];
+  events: PipelineEvent[]; // in the app: the table's rows; older scripts saved them here
   updatedAt?: string; // last time the script saved
   filledTo?: string; // the script has read every email from here to now
+  readTo?: string; // ... and every new email up to here
 }
 
 export interface PipelineSettings {

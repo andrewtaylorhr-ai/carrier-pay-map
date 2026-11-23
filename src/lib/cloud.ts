@@ -148,27 +148,12 @@ async function pull(email: string) {
   }
   const inDb = new Map((list.data ?? []).map((r) => [r.key as string, r.updated_at as string]));
   const seen = readSeen();
-  const stale = [...SHARED_KEYS].filter((k) => inDb.has(k) && (seen[k] !== inDb.get(k) || localStorage.getItem(k) == null));
+  const stale = [...SHARED_KEYS].filter((k) => inDb.has(k) && (seen[k] !== inDb.get(k) || !readable(k)));
   const tooBig: string[] = [];
-  // Downloads these keys into localStorage; false if the download failed.
   const fetchKeys = async (keys: string[]) => {
-    if (!keys.length) return true;
-    const { data, error } = await sb().from(TABLE).select("key,value,updated_at").in("key", keys);
-    if (error) {
-      setState({ message: `Couldn't load shared data: ${error.message}` });
-      return false;
-    }
-    for (const r of data ?? []) {
-      try {
-        localStorage.setItem(r.key, JSON.stringify(r.value));
-        markSeen(r.key, r.updated_at);
-      } catch {
-        // this browser's storage is full: skip the key, keep loading the rest
-        markSeen(r.key, null);
-        tooBig.push(r.key);
-      }
-    }
-    return true;
+    const r = await download(keys);
+    if (r) tooBig.push(...r);
+    return r !== null;
   };
   if (!(await fetchKeys(stale.filter((k) => !LATE_KEYS.has(k))))) {
     setState({ status: "error" });
@@ -201,6 +186,41 @@ async function pull(email: string) {
   late.forEach((k) => announce(k));
 }
 
+// Whether this browser's copy of the key is there and is valid JSON.
+function readable(key: string) {
+  const raw = localStorage.getItem(key);
+  if (raw == null) return false;
+  try {
+    JSON.parse(raw);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Downloads these keys into localStorage. Returns the keys that didn't fit in
+// this browser's storage, or null if the download failed.
+async function download(keys: string[]): Promise<string[] | null> {
+  if (!keys.length) return [];
+  const { data, error } = await sb().from(TABLE).select("key,value,updated_at").in("key", keys);
+  if (error) {
+    setState({ message: `Couldn't load shared data: ${error.message}` });
+    return null;
+  }
+  const tooBig: string[] = [];
+  for (const r of data ?? []) {
+    try {
+      localStorage.setItem(r.key, JSON.stringify(r.value));
+      markSeen(r.key, r.updated_at);
+    } catch {
+      // this browser's storage is full: skip the key, keep loading the rest
+      markSeen(r.key, null);
+      tooBig.push(r.key);
+    }
+  }
+  return tooBig;
+}
+
 function listen() {
   if (channel) return;
   channel = sb()
@@ -211,6 +231,11 @@ function listen() {
       const save = saves.get(row.key);
       // still saving here: this browser's newer value wins
       if (save && (save.timer || save.sending)) return;
+      // Rows over 1 MB (the Gmail inbox) arrive without their value: fetch it.
+      if (!("value" in row)) {
+        void download([row.key]).then((r) => r && announce(row.key!));
+        return;
+      }
       const incoming = canonical(row.value);
       if (save?.sent.includes(incoming)) return;
       const local = localStorage.getItem(row.key);
